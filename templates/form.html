@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %} 
+{% block navbar %}{% endblock %} 
+{% block sidebar %}{% endblock %} 
+{% block footer %}{% endblock %} 
+{% block content %}
+<div class="row" style="padding:150px;">
+  <div class="col-md-6 col-12 m-auto">
+    <div class="card">
+      <div class="card-header">
+        <div class="page-header">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item">
+                <p class="text-black display-7">
+                عنوان فرم
+                </p>
+              </li>
+              <li class="breadcrumb-back">
+                <a href="javascript:void(0)" class="btn btn-outline-default fw-900">بازگشت
+                  <i class="mdi mdi-arrow-left-thick"></i>
+                </a>
+              </li>
+            </ol>
+        </div>
+      </div>
+      <div class="card-body">
+        <form>
+          <div class="row">
+            <div class="col-12">
+              <div class="form-group">
+                <div class="form-floating">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="floatingInput"
+                    placeholder="Email"
+                    autocomplete="username" />
+                  <label for="floatingInput">Email address</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
