@@ -145,7 +145,6 @@ License        :   Licensed under ThemeForest License
 */
 /* ######## FONT ######## */
 /*-------- Bootstrap Framework -------*/
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap");
 
 /* ######## BOOTSTRAP ######## */
 /*Color variables*/
@@ -213,9 +212,9 @@ License        :   Licensed under ThemeForest License
 
 
 @font-face {
-    font-family: 'Samim';
-    src: url('/static/fonts/Samim-FD.woff') format('woff'),
-            url('/static/fonts/Samim-FD.woff') format('woff2');
+    font-family: 'BYekan';
+    src: url('/static/fonts/BYekan.woff') format('woff'),
+            url('/static/fonts/BYekan.woff') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -250,7 +249,7 @@ section {
 
 body {
   margin: 0;
-  font-family: "Samim"!important;
+  font-family: "BYekan"!important;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
@@ -1777,11 +1776,15 @@ button.btn-close:focus {
   font-size: 0.9375rem;
   line-height: 1.84615385;
   border-radius: 5px;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition: all 0.3s ease-in-out; /* تغییر به all برای پوشش تمام تغییرات */
+  position: relative;
+  overflow: hidden; /* برای افکت‌های داخلی مثل موج */
 }
 
+/* افکت hover */
 .btn:hover {
+  transform: scale(1.05); /* بزرگ شدن دکمه */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* افزودن سایه نرم */
   text-decoration: none;
 }
 
@@ -45482,7 +45485,7 @@ body:not(.lg-from-hash)
 }
 
 .group {
-  *zoom: 1;
+  zoom: 1;
 }
 
 .group:before {
@@ -59119,8 +59122,8 @@ License: MIT
   top: 0;
   left: 0;
   display: inline-block;
-  *display: inline;
-  *zoom: 1;
+  display: inline;
+  zoom: 1;
   /* https://github.com/bgrins/spectrum/issues/40 */
   z-index: 9999994;
   overflow: hidden;
