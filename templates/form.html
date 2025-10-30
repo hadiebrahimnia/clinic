@@ -3,45 +3,97 @@
 {% block sidebar %}{% endblock %} 
 {% block footer %}{% endblock %} 
 {% block content %}
-<div class="row" style="padding:150px;">
-  <div class="col-md-6 col-12 m-auto">
-    <div class="card">
-      <div class="card-header">
+
+  <div class="{{ col_class }}" >
+    <div class="card {{ card_class|default:'shadow-lg' }} mt-8">
+      <div class="{{ card_header_class|default:'card-header text-dark' }}">
         <div class="page-header">
             <ol class="breadcrumb">
               <li class="breadcrumb-item">
-                <p class="text-black display-7">
-                عنوان فرم
-                </p>
+                <h3 class="card-title text-dark mb-0">{{ title }}</h3>
               </li>
               <li class="breadcrumb-back">
-                <a href="javascript:void(0)" class="btn btn-outline-default fw-900">بازگشت
-                  <i class="mdi mdi-arrow-left-thick"></i>
+                <a href="{{ back_url }}" class="{{ back_class }}"> {{ back_text }}
+                  {% if back_icon %}<i class="{{ back_icon }}"></i>{% endif %}
                 </a>
               </li>
             </ol>
         </div>
       </div>
-      <div class="card-body">
-        <form>
-          <div class="row">
-            <div class="col-12">
-              <div class="form-group">
-                <div class="form-floating">
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="floatingInput"
-                    placeholder="Email"
-                    autocomplete="username" />
-                  <label for="floatingInput">Email address</label>
-                </div>
+      <div class="{{ card_body_class|default:'card-body p-4' }}">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <form action="{{ form_action }}" method="post" enctype="multipart/form-data" class="form-horizontal" novalidate>
+          {% csrf_token %}
+          
+          {% for field in form %}
+            <div class="row mb-4">
+              <label class="col-md-2 form-label fw-bold" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              <div class="col-md-10">
+                {% if field.field.widget.input_type == 'file' %}
+                  <!-- File Input -->
+                  <div class="position-relative">
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="invalid-feedback d-block mt-1">{{ field.errors|first }}</div>
+                    {% endif %}
+                  </div>
+                {% elif field.field.widget.input_type == 'checkbox' %}
+                  <!-- Checkbox -->
+                  <div class="form-check">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">
+                      {{ field.label }}
+                    </label>
+                  </div>
+                {% elif field.field.widget.input_type == 'radio' %}
+                  <!-- Radio Buttons -->
+                  {{ field }}
+                {% else %}
+                  <!-- Regular Inputs -->
+                  <div class="position-relative">
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="invalid-feedback d-block mt-1">{{ field.errors|first }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                
+                {% if field.help_text %}
+                  <small class="form-text text-muted mt-1">{{ field.help_text }}</small>
+                {% endif %}
               </div>
             </div>
+          {% endfor %}
+
+          <!-- Submit Button -->
+          <div class="row ">
+           <button 
+              type="submit" 
+              class="btn {{ submit_class }}" 
+              style="{{ submit_style }}"
+            >
+              {% if submit_icon %}<i class="{{ submit_icon }} me-2"></i>{% endif %}
+              {{ submit_text }}
+            </button>
           </div>
+
+          
         </form>
       </div>
     </div>
   </div>
-</div>
-{% endblock %} 
+
+<script>
+  document.body.classList.add('login-img');
+</script>
+{% endblock %}

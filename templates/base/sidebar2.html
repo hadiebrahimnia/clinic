@@ -1,0 +1,79 @@
+<div class="sidebar sidebar-right sidebar-animate ps ps--active-y">
+  <div class="panel panel-primary card mb-0 shadow-none border-0">
+    <div class="tab-menu-heading border-0 d-flex p-3">
+      <div class="card-title mb-0">{{sidebar2.title}}</div>
+      <div class="card-options ms-auto">
+        <a
+          href="javascript:void(0);"
+          class="sidebar-icon text-end float-end me-3 mb-1"
+          data-bs-toggle="sidebar-right"
+          data-target=".sidebar-right"
+          ><i class="fe fe-x text-white"></i
+        ></a>
+      </div>
+    </div>
+    <div class="panel-body tabs-menu-body latest-tasks p-0 border-0">
+      <div class="tabs-menu border-bottom">
+        <ul class="nav panel-tabs">
+          {% for tab in sidebar2.tabs %}
+          <li class="">
+            <a
+              href="#{{ tab.id }}"
+              class="{% if tab.active %}active{% endif %}"
+              data-bs-toggle="tab">
+              <i class="{{ tab.icon }} me-1"></i>{{ tab.label }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="tab-content">
+        {% for tab in sidebar2.tabs %}
+        <div
+          class="tab-pane {% if tab.active %}active{% endif %}"
+          id="{{ tab.id }}">
+          {% if tab.id == 'side1' %}
+          <!-- Feeds -->
+          {% for section in tab.sections %}
+          <div class="p-3 fw-semibold ps-5">{{ section.title }}</div>
+          <div class="card-body pt-2">
+            <div class="browser-stats">
+              {% for item in section.items %}
+              <div class="row mb-4">
+                <div class="col-sm-2 mb-sm-0 mb-3">
+                  <span class="feeds avatar-circle brround {{ item.bg_class }}">
+                    <i class="{{ item.icon }} {{ item.icon_color }}"></i>
+                  </span>
+                </div>
+                <div class="col-sm-10 ps-sm-0">
+                  <div
+                    class="d-flex align-items-end justify-content-between ms-2">
+                    <h6 class="">{{ item.text }}</h6>
+                    <div>
+                      {% if item.show_settings %}
+                      <a href="javascript:void(0)"
+                        ><i class="fe fe-settings me-1"></i
+                      ></a>
+                      {% endif %} {% if item.show_delete %}
+                      <a href="javascript:void(0)"><i class="fe fe-x"></i></a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %} {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="ps__rail-x" style="left: 0px; bottom: 0px">
+    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px"></div>
+  </div>
+  <div class="ps__rail-y" style="top: 0px; height: 440px; right: 0px">
+    <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 250px"></div>
+  </div>
+</div>

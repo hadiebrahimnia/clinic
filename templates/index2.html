@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %} 
+{% block sidebar %}{% endblock %} 
+{% block content %}
+
+{{ content|safe }}
+
+{% for css_file in extra_css %}
+  <link rel="stylesheet" href="{{ css_file }}">
+{% endfor %}
+
+{% for js_file in extra_js %}
+  <script src="{{ js_file }}"></script>
+{% endfor %}
+
+{% endblock %}

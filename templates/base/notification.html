@@ -1,0 +1,51 @@
+
+<div id="growl-messages" style="display: none;">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="growl-message-item"
+                data-message="{{ message }}"
+                data-gconfig='{{ message.extra_tags|default:"{}"|safe }}'>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script src="/static/plugins/notification/js/notification.js"></script>
+<link href="/static/plugins/notification/css/notification.css" rel="stylesheet" />
+
+<!--
+<script>
+
+Growl.growl({
+  // محتوا
+  title: 'اعلان مهم',
+  message: 'این یک اعلان کاملاً قابل تنظیم است. روی آن کلیک کنید!',
+
+  // ظاهر
+  style: 'error',           // default, error, success, notice, warning, error1, success1, ...
+  size: 'large',               // small, medium, large
+  background: 'linear-gradient(45deg, #ff6b6b, #feca57)', // سفارشی
+  close: 'بستن',               // متن دکمه بستن
+
+  // رفتار
+  duration: 6000,              // زمان نمایش (میلی‌ثانیه)
+  fixed: false,                // true = دستی بسته شود
+  delayOnHover: true,          // توقف تایمر هنگام هاور
+
+  // موقعیت
+  location: 'center',     // top-left, top-center, top-right, bottom-left, bottom-center, bottom-right
+
+  // لینک
+  url: '',  // کلیک روی اعلان → باز شدن لینک
+
+  // انیمیشن داینامیک
+  animation: {
+    in: 'bounce',              // slide, fade, zoom, flip, bounce
+    out: 'zoom',               // جداگانه برای خروج
+    duration: 600,             // زمان انیمیشن (ms)
+    easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // انعطاف‌پذیر
+    delay: 100                 // تأخیر شروع انیمیشن (ms)
+  }
+});
+</script>
+-->

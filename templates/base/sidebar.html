@@ -1,36 +1,130 @@
 <!--APP-SIDEBAR-->
 <div class="sticky">
-    <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
-    <div class="app-sidebar">
-        <div class="side-header">
-            <a class="header-brand1" href="index.html">
-                <img src="/static/images/brand/logo.png" class="header-brand-img desktop-logo" alt="logo">
-                <img src="/static/images/brand/logo-1.png" class="header-brand-img toggle-logo" alt="logo">
-                <img src="/static/images/brand/logo-2.png" class="header-brand-img light-logo" alt="logo">
-                <img src="/static/images/brand/logo-3.png" class="header-brand-img light-logo1" alt="logo">
-            </a>
-            <!-- LOGO -->
-        </div>
-        <div class="main-sidemenu">
-            <div class="slide-left disabled" id="slide-left"><svg xmlns="http://www.w3.org/2000/svg"
-                    fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z" />
-                </svg></div>
-            <ul class="side-menu">
-                <li class="sub-category">
-                    <h3 class="fw-900">اصلی</h3>
-                </li>
-                <li class="slide is-expanded">
-                    <a class="side-menu__item has-link display-10" data-bs-toggle="slide" href="index.html"><i class="side-menu__icon fe fe-home"></i><span class="side-menu__label">داشبورد</span></a>
-                </li>
-                <!-- محتوای منوی سایدبار -->
-                <!-- ... (کد کامل لیست منو از فایل اصلی، شامل sub-categoryها و slide-menuها) ... -->
-            </ul>
-            <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191"
-                    width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z" />
-                </svg></div>
+        <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
+        <div class="app-sidebar">
+            <div class="side-header">
+                <a class="header-brand1" href="/" style="display:ruby;">
+                <img class="logo-sidebar" src="/static/images/brand/logo-2.png" alt="لوگو کلینیک" class="logo">
+                    <h1 class="title-sidebar text-dark" style="font-size: 24px; font-weight: bold;">نام کلینیک</h1>
+                </a>
+            </div>
+            <div class="main-sidemenu">
+                <div class="slide-left disabled" id="slide-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z" />
+                    </svg>
+                </div>
+                <ul class="side-menu">
+                    {% for category in sidebar1 %}
+                        <li class="sub-category">
+                            <h3 class="fw-900">{{ category.title }}</h3>
+                        </li>
+                        {% for item in category.items %}
+                            <li class="slide">
+                                <a class="side-menu__item has-link display-10 {% if item.is_active %} active {% endif %}" data-bs-toggle="slide" href="{{ item.url }}">
+                                    <i class="side-menu__icon {{ item.icon }}"></i>
+                                    <span class="side-menu__label">{{ item.label }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+                <div class="slide-right" id="slide-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z" />
+                    </svg>
+                </div>
+            </div>
         </div>
     </div>
-    <!--/APP-SIDEBAR-->
-</div>
+
+
+<style>
+    /* انیمیشن پیشرفته‌تر */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  margin: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.logo-sidebar {
+  width: 25%;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-origin: center;
+  opacity: 1;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+}
+
+.title-sidebar {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-content.collapsed {
+  padding: 15px 10px;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.sidebar-content.collapsed .logo-sidebar {
+  width: 50px;
+  transform: scale(1.1);
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.3));
+}
+
+.sidebar-content.collapsed .title-sidebar {
+  opacity: 0;
+  transform: translateY(-15px) scale(0.9);
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+
+</style>
+<script>
+    const toggleBtn = document.querySelector('.app-sidebar__toggle');
+    const sidebarTitle = document.querySelector('.title-sidebar');
+    const logoImg = document.querySelector('.logo-sidebar');
+    logoImg.style.width = '25%';
+
+    toggleBtn.addEventListener('click', function() {
+        // Toggle کردن title با انیمیشن
+        if (sidebarTitle) {
+            if (sidebarTitle.style.display === 'none') {
+                sidebarTitle.style.display = 'block';
+                setTimeout(() => {
+                    sidebarTitle.style.opacity = 1;
+                    sidebarTitle.style.transform = 'translateY(0)';
+                }, 10); // کمی تأخیر برای شروع انیمیشن
+            } else {
+                sidebarTitle.style.opacity = 0;
+                sidebarTitle.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    sidebarTitle.style.display = 'none';
+                }, 300); // مدت زمان انیمیشن
+            }
+        }
+
+        // تغییر اندازه لوگو با انیمیشن
+        if (logoImg) {
+            if (logoImg.style.width === '25%') {
+                logoImg.style.width = '60%';
+            } else {
+                logoImg.style.width = '25%';
+            }
+        }
+    });
+</script>

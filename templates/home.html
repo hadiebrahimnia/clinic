@@ -1,89 +1,252 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نام کلینیک</title>
-  <link rel="stylesheet" href="/static/css/home.css">
-</head>
-<body>
-  <!-- Header -->
-  <header>
-    <div class="container">
-      <div class="header-content">
-        <div class="logo-nav-container">
-          <div class="logo-container">
-            <img src="/static/images/brand/logo-2.png" alt="لوگو کلینیک" class="logo">
-            <h1>نام کلینیک</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نام کلینیک</title>
+    <link rel="stylesheet" href="/static/css/home.css" />
+    <link id="style" href="/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/static/css/icons.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo-nav-container">
+            <div class="logo-container">
+              <img
+                src="/static/images/brand/logo-2.png"
+                alt="لوگو کلینیک"
+                class="logo" />
+              <h1>نام کلینیک</h1>
+            </div>
+            <nav class="nav-menu">
+              <ul>
+                <li><a href="#home" class="nav-link">خانه</a></li>
+                <li><a href="#about" class="nav-link">درباره ما</a></li>
+                <li><a href="#services" class="nav-link">خدمات</a></li>
+                <li><a href="#contact" class="nav-link">تماس با ما</a></li>
+                {% if user.is_authenticated %}
+                <li class="mobile-only">
+                  <a href="/dashboard" class="nav-link nav-button">داشبورد</a>
+                </li>
+                {% else %}
+                <li class="mobile-only">
+                  <a href="/accounts/login" class="nav-link nav-button"
+                    >ورود/ثبت نام</a
+                  >
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
           </div>
-          <nav class="nav-menu">
-            <ul>
-              <li><a href="#home" class="nav-link">خانه</a></li>
-              <li><a href="#about" class="nav-link">درباره ما</a></li>
-              <li><a href="#services" class="nav-link">خدمات</a></li>
-              <li><a href="#contact" class="nav-link">تماس با ما</a></li>
-              <li class="mobile-only"><a href="#" class="nav-link nav-button">ورود/ثبت نام</a></li>
-            </ul>
-          </nav>
-        </div>
-        <button class="menu-toggle">☰</button>
-        <a href="#" class="nav-button desktop-only">ورود/ثبت نام</a>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section id="home" class="hero">
-    <div class="container">
-      <h2>به سوی آرامش با همراهی متخصصان ما</h2>
-      <p>ما در کلینیک آرامش به شما کمک می‌کنیم تا سلامت روان خود را بازیابید.</p>
-      <a href="#" class="cta-button">اکنون نوبت رزرو کنید</a>
-    </div>
-  </section>
-
-  <!-- About Us -->
-  <section id="about" class="about">
-    <div class="container">
-      <h3>درباره ما</h3>
-      <p>کلینیک روانشناسی آرامش با تیمی از متخصصان مجرب، آماده ارائه خدمات حرفه‌ای برای بهبود سلامت روان شماست.</p>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section id="services" class="services">
-    <div class="container">
-      <h3>خدمات ما</h3>
-      <div class="services-grid">
-        <div class="service-card">
-          <h4>مشاوره فردی</h4>
-          <p>جلسات اختصاصی برای رسیدگی به نیازهای شخصی شما.</p>
-        </div>
-        <div class="service-card">
-          <h4>زوج‌درمانی</h4>
-          <p>بهبود روابط و حل تعارضات با کمک متخصصان.</p>
-        </div>
-        <div class="service-card">
-          <h4>مشاوره کودک</h4>
-          <p>حمایت از سلامت روان کودکان و نوجوانان.</p>
+          <button class="menu-toggle">☰</button>
+          {% if user.is_authenticated %}
+          <a href="/dashboard" class="nav-button desktop-only">داشبورد</a>
+          {% else %}
+          <a href="/accounts/login" class="nav-button desktop-only"
+            >ورود/ثبت نام</a
+          >
+          {% endif %}
         </div>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- Footer -->
-  <footer id="contact">
-    <div class="container">
-      <p>آدرس: تهران، خیابان نمونه، پلاک ۱۲۳</p>
-      <p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
-      <p>ایمیل: info@arameshclinic.ir</p>
-      <div class="nav-menu">
-        <a href="#" class="nav-link">اینستاگرام</a>
-        <a href="#" class="nav-link">تلگرام</a>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="container">
+        <h2>به سوی آرامش با همراهی متخصصان ما</h2>
+        <p>
+          ما در کلینیک آرامش به شما کمک می‌کنیم تا سلامت روان خود را بازیابید.
+        </p>
+        <a href="#" class="cta-button">اکنون نوبت رزرو کنید</a>
       </div>
-    </div>
-  </footer>
+    </section>
 
-  <script src="/static/js/home.js"></script>
-</body>
+    <section id="1" class="">
+      <div class="container">
+        <div class="section pb-0">
+          <div class="container">
+            <div class="row">
+              <h4 class="text-center fw-semibold">Statistics</h4>
+              <span class="landing-title"></span>
+              <h2 class="text-center fw-semibold mb-7">
+                Sash Template Statistics.
+              </h2>
+            </div>
+            <div class="row text-center services-statistics landing-statistics">
+              <div class="col-xl-3 col-md-6 col-lg-6">
+                <div class="card">
+                  <div class="card-body bg-primary-transparent">
+                    <div class="counter-status">
+                      <div
+                        class="counter-icon bg-primary-transparent box-shadow-primary">
+                        <i class="fe fe-layers text-primary fs-23"></i>
+                      </div>
+                      <div class="test-body text-center">
+                        <h1 class="mb-0">
+                          <span class="counter fw-semibold counter">100</span>+
+                        </h1>
+                        <div class="counter-text">
+                          <h5 class="font-weight-normal mb-0">HTML Pages</h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6 col-lg-6">
+                <div class="card">
+                  <div class="card-body bg-secondary-transparent">
+                    <div class="counter-status">
+                      <div
+                        class="counter-icon bg-secondary-transparent box-shadow-secondary">
+                        <i class="fe fe-wind text-secondary fs-23"></i>
+                      </div>
+                      <div class="text-body text-center">
+                        <h1 class="mb-0">
+                          <span class="counter fw-semibold counter">60</span>+
+                        </h1>
+                        <div class="counter-text">
+                          <h5 class="font-weight-normal mb-0">
+                            Integrated Plugins
+                          </h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6 col-lg-6">
+                <div class="card">
+                  <div class="card-body bg-success-transparent">
+                    <div class="counter-status">
+                      <div
+                        class="counter-icon bg-success-transparent box-shadow-success">
+                        <i class="fe fe-file-text text-success fs-23"></i>
+                      </div>
+                      <div class="text-body text-center">
+                        <h1 class="mb-0">
+                          <span class="counter fw-semibold counter">10</span>+
+                        </h1>
+                        <div class="counter-text">
+                          <h5 class="font-weight-normal mb-0">Form Elements</h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6 col-lg-6">
+                <div class="card">
+                  <div class="card-body bg-danger-transparent">
+                    <div class="counter-status">
+                      <div
+                        class="counter-icon bg-danger-transparent box-shadow-danger">
+                        <i class="fe fe-grid text-danger fs-23"></i>
+                      </div>
+                      <div class="text-body text-center">
+                        <h1 class="mb-0">
+                          <span class="counter fw-semibold counter">30</span>+
+                        </h1>
+                        <div class="counter-text">
+                          <h5 class="font-weight-normal mb-0">
+                            Customize Widgets
+                          </h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Us -->
+    <section id="about" class="about">
+      <div class="container">
+        <h3>درباره ما</h3>
+        <p>
+          کلینیک روانشناسی آرامش با تیمی از متخصصان مجرب، آماده ارائه خدمات
+          حرفه‌ای برای بهبود سلامت روان شماست.
+        </p>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="services">
+      <div class="container">
+        <h3>خدمات ما</h3>
+        <div class="services-grid">
+          <a href="" class="card-custom">
+            <div class="card-front">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <h2>مشاوره فردی</h2>
+              </div>
+            </div>
+            <div class="card-back">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <p class="back-text">
+                  جلسات اختصاصی برای رسیدگی به نیازهای شخصی شما.
+                </p>
+              </div>
+            </div>
+          </a>
+
+          <a href="" class="card-custom">
+            <div class="card-front">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <h2>زوج‌درمانی</h2>
+              </div>
+            </div>
+            <div class="card-back">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <p class="back-text">
+                  بهبود روابط و حل تعارضات با کمک متخصصان.
+                </p>
+              </div>
+            </div>
+          </a>
+
+          <a href="" class="card-custom">
+            <div class="card-front">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <h2>مشاوره کودک</h2>
+              </div>
+            </div>
+            <div class="card-back">
+              <div class="floating-particles"></div>
+              <div class="card-body">
+                <p class="back-text">حمایت از سلامت روان کودکان و نوجوانان.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+      <div class="container">
+        <p>آدرس: تهران، خیابان نمونه، پلاک ۱۲۳</p>
+        <p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
+        <p>ایمیل: info@arameshclinic.ir</p>
+        <div class="nav-menu">
+          <a href="#" class="nav-link">اینستاگرام</a>
+          <a href="#" class="nav-link">تلگرام</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/static/js/home.js"></script>
+  </body>
 </html>
