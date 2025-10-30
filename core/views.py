@@ -24,8 +24,6 @@ class DashboardView(View):
             })
         )
 
-        
-
         content = """
         
         <!--app-content open-->
