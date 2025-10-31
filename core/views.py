@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.views import View
 from django.contrib import messages
 import json
+from django.http import JsonResponse, Http404
+from django.shortcuts import get_object_or_404
+from accounts.models import *
+
 
 class HomeView(View):
     def get(self, request):
@@ -190,3 +194,29 @@ class DashboardView(View):
 class FormView(View):
     def get(self, request):
         return render(request, 'form.html')
+    
+
+class DynamicEntityView(View):
+    """Handle actions (list, detail, create, etc.) on dynamic subjects (psychologist, clinic, ...)."""
+    
+    ALLOWED_SUBJECTS = {
+        'psychologist': Psychologist,
+    }
+
+    def dispatch(self, request, subject, action, pk=None):
+        if subject not in self.ALLOWED_SUBJECTS:
+            raise Http404("Invalid subject")
+        self.model = self.ALLOWED_SUBJECTS[subject]
+        self.pk = pk
+        return super().dispatch(request, subject, action, pk)
+    
+    def get(self, request, subject, action, pk=None):
+        if pk:
+            obj = get_object_or_404(self.model, pk=pk)
+            return JsonResponse({'id': obj.id, 'name': obj.name})
+        elif action == 'list':
+            objects = self.model.objects.all()[:10]
+            data = [{'id': o.id, 'name': o.name} for o in objects]
+            return JsonResponse(data, safe=False)
+        else:
+            raise Http404("Action not supported")
