@@ -1,11 +1,14 @@
+# core/views.py
 from django.shortcuts import render
 from django.views import View
 from django.contrib import messages
+from django.http import Http404, HttpResponseNotAllowed
+from django.core.exceptions import PermissionDenied
+from .errors import _error_response  # درست ایمپورت شد
 import json
-from django.http import JsonResponse, Http404
-from django.shortcuts import get_object_or_404
-from accounts.models import *
-
+import importlib
+import logging
+logger = logging.getLogger(__name__)
 
 class HomeView(View):
     def get(self, request):
@@ -195,28 +198,31 @@ class FormView(View):
     def get(self, request):
         return render(request, 'form.html')
     
-
 class DynamicEntityView(View):
-    """Handle actions (list, detail, create, etc.) on dynamic subjects (psychologist, clinic, ...)."""
-    
-    ALLOWED_SUBJECTS = {
-        'psychologist': Psychologist,
+    ROUTES = {
+        'psychologist': 'accounts.views.PsychologistActionView',
     }
 
     def dispatch(self, request, subject, action, pk=None):
-        if subject not in self.ALLOWED_SUBJECTS:
-            raise Http404("Invalid subject")
-        self.model = self.ALLOWED_SUBJECTS[subject]
-        self.pk = pk
-        return super().dispatch(request, subject, action, pk)
-    
-    def get(self, request, subject, action, pk=None):
-        if pk:
-            obj = get_object_or_404(self.model, pk=pk)
-            return JsonResponse({'id': obj.id, 'name': obj.name})
-        elif action == 'list':
-            objects = self.model.objects.all()[:10]
-            data = [{'id': o.id, 'name': o.name} for o in objects]
-            return JsonResponse(data, safe=False)
-        else:
-            raise Http404("Action not supported")
+        if subject not in self.ROUTES:
+            return _error_response(request, 404, "OOPS! صفحه یافت نشد", "موضوع درخواستی پشتیبانی نمی‌شود.")
+
+        try:
+            module_path, view_name = self.ROUTES[subject].rsplit('.', 1)
+            module = importlib.import_module(module_path)
+            view_class = getattr(module, view_name)
+        except (ImportError, AttributeError) as e:
+            logger.error(f"Dynamic view import failed: {e}")
+            return _error_response(request, 500, "خطای سرور", "ویوی مورد نظر یافت نشد.")
+
+        try:
+            view = view_class.as_view()
+            return view(request, subject=subject, action=action, pk=pk)
+
+        except Http404:
+            return _error_response(request, 404, "صفحه یافت نشد", "آیتم مورد نظر وجود ندارد.")
+        except PermissionDenied:
+            return _error_response(request, 403, "دسترسی ممنوع", "شما اجازه انجام این عمل را ندارید.")
+        except Exception as e:
+            logger.exception(f"Unexpected error in dynamic view: {e}")
+            return _error_response(request, 500, "خطای داخلی", "مشکلی رخ داده است.")

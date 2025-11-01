@@ -77,7 +77,7 @@ class FieldOfStudy(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = "Field of Study"
+        verbose_name = "رشته تحصیلی"
         verbose_name_plural = "Fields of Study"
 
 class Specialization(models.Model):
@@ -86,7 +86,7 @@ class Specialization(models.Model):
 
     class Meta:
         unique_together = ['name', 'field']
-        verbose_name = "Specialization"
+        verbose_name = "گرایش تحصیلی"
         verbose_name_plural = "Specializations"
 
     def __str__(self):
@@ -111,7 +111,7 @@ class Degree(models.Model):
         return f"{self.get_level_display()} in {self.field} ({self.specialization or 'N/A'}) - {self.university or 'Unknown'}"
 
     class Meta:
-        verbose_name = "Degree"
+        verbose_name = "مدرک دانشگاهی"
         verbose_name_plural = "Degrees"
 
 class Specialty(models.Model):
@@ -122,7 +122,7 @@ class Specialty(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = "Specialty"
+        verbose_name = "تخصص ها"
         verbose_name_plural = "Specialties"
 
 class SocialMedia(models.Model):
@@ -147,27 +147,38 @@ class SocialMedia(models.Model):
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
-    license_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    years_of_experience = models.PositiveIntegerField(default=0)
-    specialties = models.ManyToManyField(Specialty, related_name='psychologists', blank=True)
-    is_accepting_new_patients = models.BooleanField(default=True)
-    availability = models.TextField(
+    profile_picture = models.ImageField(
+        upload_to='static/images/psychologists/profiles',
+        blank=True, null=True,
+        verbose_name="عکس پروفایل",
+        help_text="عکس پرسنلی یا حرفه‌ای (مثلاً 400x400)"
+    )
+
+    banner_image = models.ImageField(
+        upload_to='static/images/psychologists/banners',
+        blank=True, null=True,
+        verbose_name="بنر تبلیغاتی",
+        help_text="تصویر هدر یا تبلیغاتی (مثلاً 1200x400)"
+    )
+    start_date_Psychology = models.DateTimeField(blank=True,verbose_name="شروع فعالیت")
+    specialties = models.ManyToManyField(Specialty,verbose_name="زمینه کاری", related_name='psychologists', blank=True)
+    is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
+
+    bio = models.TextField(
+        verbose_name="بیوگرافی",
         blank=True, 
         null=True, 
         help_text="Availability details, e.g., days and hours of consultation"
     )
-    languages_spoken = models.CharField(
-        max_length=200, 
-        blank=True, 
-        null=True, 
-        help_text="Comma-separated list of languages spoken by the psychologist"
-    )
+
+    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Dr. {self.profile.username} - {self.office_city or 'No city specified'}"
+        return f"Dr. {self.profile.username}"
 
     class Meta:
-        verbose_name = "Psychologist"
+        verbose_name = "متخصص"
         verbose_name_plural = "Psychologists"
