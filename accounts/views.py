@@ -165,7 +165,7 @@ class PsychologistActionView(View):
                 'extra_js': ['/static/js/psychologist_list.js'],
                 'content': self._render_full_list_page(page_obj, search_query, specialty_filter),
             }
-            return render(request, 'index3.html', context)
+            return render(request, 'index2.html', context)
 
         elif action == 'detail' and pk:
             psychologist = get_object_or_404(Psychologist, pk=pk)
@@ -222,21 +222,47 @@ class PsychologistActionView(View):
 
         # --- چیدمان نهایی ---
         full_page = f'''
-        <div class="container-fluid mt-4">
-            <div class="row">
-                <div class="col-lg-3 mb-4">
-                    {filter_sidebar}
+        <div class="main-content">
+            <div class="side-app with_header">
+                <div class="main-container container-fluid">
+                <div class="page-header">
+                    <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/"> <i class="mdi mdi-home"></i>خانه </a>
+                    </li>
+                    <li class="breadcrumb-item text-dark" aria-current="page">
+                        <i class="mdi mdi-view-dashboard"></i>داشبورد
+                    </li>
+                    <li class="breadcrumb-back">
+                        <a href="/" class="btn btn-outline-default fw-900"
+                        >بازگشت
+                        <i class="mdi mdi-arrow-left-thick"></i>
+                        </a>
+                    </li>
+                    </ol>
                 </div>
-                <div class="col-lg-9">
-                    <div id="psychologists-container">
-                        {cards_html}
-                    </div>
-                    <div id="pagination-container" class="d-flex justify-content-center mt-4">
-                        {pagination_html}
+                    <div class="row">
+                        <div class="col-lg-3 mb-4">
+                            {filter_sidebar}
+                        </div>
+                        <div class="col-lg-9">
+                            <div id="psychologists-container">
+                                {cards_html}
+                            </div>
+                            <div id="pagination-container" class="d-flex justify-content-center mt-4">
+                                {pagination_html}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+
+
+
+
+
         '''
         return mark_safe(full_page)
 

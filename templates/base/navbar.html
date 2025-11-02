@@ -1,11 +1,13 @@
 <div class="app-header header sticky" style="margin-bottom: -74px">
   <div class="container-fluid main-container">
     <div class="d-flex">
+
       <a
         aria-label="Hide Sidebar"
         class="app-sidebar__toggle"
         data-bs-toggle="sidebar"
         href="javascript:void(0)"></a>
+        
       <!-- sidebar-toggle-->
       <a class="logo-horizontal" href="index.html">
         <img
@@ -177,4 +179,21 @@
     </div>
   </div>
 </div>
+
+
+<script>
+  // تابع بررسی وجود کلاس .with-sidebar و نمایش/مخفی کردن دکمه
+  function checkClassWithSidebar() {
+    const hasSidebar = document.querySelector('.with-sidebar') !== null;
+    const toggleBtn = document.querySelector('.app-sidebar__toggle'); // فقط اولین دکمه
+
+    if (toggleBtn) {
+      toggleBtn.style.display = hasSidebar ? 'block' : 'none';
+    }
+  }
+
+  // اجرای تابع بعد از بارگذاری کامل DOM
+  window.addEventListener('DOMContentLoaded', checkClassWithSidebar);
+</script>
+
 
