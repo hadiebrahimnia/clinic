@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>نام کلینیک</title>
+    <link rel="stylesheet" href="/static/plugins/swiper/css/swiper.css" />
     <link rel="stylesheet" href="/static/css/home.css" />
-    <link id="style" href="/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      id="style"
+      href="/static/plugins/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet" />
     <link href="/static/css/icons.css" rel="stylesheet" />
   </head>
   <body>
@@ -234,6 +238,77 @@
       </div>
     </section>
 
+    <section
+      class="slider-section py-5 bg-light"
+      data-slider-id="psychologists">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h4 class="fw-semibold text-primary">متخصصان ما</h4>
+          <h2 class="fw-semibold">تیم حرفه‌ای کلینیک آرامش</h2>
+        </div>
+
+        <div
+          class="custom-slider-wrapper position-relative"
+          data-slider-wrapper>
+          <div class="custom-slider" data-slider>
+            <div class="slider-track" data-track>
+              <!-- کارت‌ها با کلاس عمومی -->
+              {%for psychologist in  psychologists %}
+                <div class="slider-item" data-item>
+                  <div class="expert-card">
+                    <div class="avatar-wrapper">
+                      <div
+                        class="avatar"
+                        style="
+                          background-image: url('{{psychologist.profile_picture}}');
+                        "></div>
+                    </div>
+                    <div class="card-content">
+                      <h5 class="name">{{psychologist.full_name}}</h5>
+                      <p class="specialty">روانشناسی بالینی</p>
+                    </div>
+                    <div class="slider-footer">
+                      <a href="/psychologist/detail/{{psychologist.id}}" class="btn-profile"
+                        >مشاهده</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+
+              <div class="slider-item" data-item>
+                <div class="expert-card">
+                  <div class="avatar-wrapper">
+                    <div
+                      class="avatar"
+                      style="
+                        background-image: url('/static/images/brand/logo-2.png');
+                      "></div>
+                  </div>
+                  <div class="card-content">
+                    <h5 class="name">همه</h5>
+                    <p class="specialty">-</p>
+                  </div>
+                  <div class="slider-footer">
+                    <a href="/psychologist/list" class="btn-profile"
+                      >مشاهده</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="slider-nav next-btn" data-prev aria-label="next">
+            <i class="fa fa-angle-right"></i>
+          </button>
+          <button class="slider-nav prev-btn" data-next aria-label="prev">
+            <i class="fa fa-angle-left"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Footer -->
     <footer id="contact">
       <div class="container">
@@ -248,5 +323,6 @@
     </footer>
 
     <script src="/static/js/home.js"></script>
+    <script src="/static/plugins/swiper/js/swiper.js"></script>
   </body>
 </html>

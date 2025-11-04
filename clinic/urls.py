@@ -4,7 +4,6 @@ from core.views import *
 from administrator.views import *
 from accounts.views import *
 from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,4 +14,4 @@ urlpatterns = [
     path('form/', FormView.as_view(), name='form'),
     path('<str:subject>/<str:action>/', DynamicEntityView.as_view(), name='entity-action'),
     path('<str:subject>/<str:action>/<int:pk>/', DynamicEntityView.as_view(), name='entity-detail'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]

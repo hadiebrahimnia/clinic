@@ -527,3 +527,100 @@ footer p {
 .card-custom:hover .card-back {
     transform: rotateY(0deg);
 }
+
+
+.expert-card{
+  background-image: linear-gradient(to bottom left, #e0e4e5, #f2f6f9);
+  border-radius: 2rem;
+  color: #444447;
+  box-shadow: 
+    inset -2px 2px hsl(0 0 100% / 1),
+    -20px 20px 40px hsl(0 0 0 / .25) ;
+  
+}
+
+.expert-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    inset -2px 2px hsl(0 0 100% / 1),
+    -20px 20px 40px hsl(0 0 0 / .25) ;
+}
+
+.expert-card .avatar-wrapper {
+  padding: 20px 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.expert-card .avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 15%;
+  background-size: cover;
+  background-position: center;
+  border: 5px solid #f8f9fa;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.expert-card:hover .avatar {
+  transform: scale(1.05);
+}
+
+.expert-card .card-content {
+  padding: 16px 20px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.expert-card .name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 6px;
+}
+
+.expert-card .specialty {
+  font-size: 0.95rem;
+  color: #718096;
+  margin-bottom: 16px;
+}
+
+.expert-card .social-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.expert-card .slider-footer {
+  padding: 0 20px 20px;
+  text-align: center;
+  
+}
+
+.expert-card .btn-profile {
+  display: inline-block;
+  padding: 5px 45px;
+  color: #fff !important;
+  background: #4187ff !important;
+  border-color: #3988e8;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.expert-card .btn-profile:hover {
+    border-color: #086de6;
+    opacity: 0.7;
+}
+
+
+.btn-view-all {
+  padding: 8px 50px !important;
+  font-size: 1rem;
+  font-weight: 600;
+}

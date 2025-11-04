@@ -1,4 +1,5 @@
 # core/views.py
+from django.views.generic import TemplateView
 from django.shortcuts import render
 from django.views import View
 from django.contrib import messages
@@ -8,11 +9,76 @@ from .errors import _error_response  # درست ایمپورت شد
 import json
 import importlib
 import logging
+from accounts.models import *
 logger = logging.getLogger(__name__)
 
-class HomeView(View):
-    def get(self, request):
-        return render(request, 'home.html')
+class HomeView(TemplateView):
+    template_name = 'home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # فقط متخصصان فعال و غیرحذف‌شده
+        psychologists = Psychologist.objects.filter(
+            is_active=True, 
+            is_deleted=False
+        ).select_related('profile', 'profile__city', 'profile__city__province', 'profile__city__province__country') \
+         .prefetch_related('degrees__field', 'degrees__specialization', 'degrees__university', 
+                           'specialties', 'social_media')
+
+        psychologists_list = []
+
+        for psych in psychologists:
+            # جمع‌آوری مدارک تحصیلی
+            degrees = []
+            for degree in psych.degrees.all():
+                degrees.append({
+                    'level': degree.get_level_display(),
+                    'field': degree.field.name,
+                    'specialization': degree.specialization.name if degree.specialization else None,
+                    'university': degree.university.name if degree.university else None,
+                    'graduation_year': degree.graduation_year,
+                })
+
+            # جمع‌آوری شبکه‌های اجتماعی
+            social_media = []
+            for sm in psych.social_media.all():
+                social_media.append({
+                    'platform': sm.get_platform_display(),
+                    'url': sm.url,
+                })
+
+            # جمع‌آوری تخصص‌ها
+            specialties = [spec.name for spec in psych.specialties.all()]
+
+            # ساخت دیکشنری کامل برای این متخصص
+            psych_dict = {
+                'id': psych.id,
+                'full_name': f"{psych.profile.get_full_name() or psych.profile.username}",
+                'username': psych.profile.username,
+                'profile_picture': psych.profile_picture.url if psych.profile_picture else None,
+                'banner_image': psych.banner_image.url if psych.banner_image else None,
+                'bio': psych.bio or "بیوگرافی در دسترس نیست.",
+                'start_date': psych.start_date_Psychology.strftime('%Y-%m-%d') if psych.start_date_Psychology else None,
+                'is_accepting_new_patients': psych.is_accepting_new_patients,
+                'specialties': specialties,
+                'degrees': degrees,
+                'social_media': social_media,
+                'location': {
+                    'city': psych.profile.city.name if psych.profile.city else None,
+                    'province': psych.profile.city.province.name if psych.profile.city and psych.profile.city.province else None,
+                    'country': psych.profile.city.province.country.name if psych.profile.city and psych.profile.city.province and psych.profile.city.province.country else None,
+                } if psych.profile.city else None,
+                'contact': {
+                    'phone': psych.profile.phone_number,
+                    'email': psych.profile.email,
+                }
+            }
+
+            psychologists_list.append(psych_dict)
+
+        context['psychologists'] = psychologists_list
+        return context
 
 class DashboardView(View):
     def get(self, request):
