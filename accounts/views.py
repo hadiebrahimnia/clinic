@@ -19,10 +19,10 @@ class AccountView(View):
     def _get_form_context(self, request, action, form=None):
         """Context پایه برای همه فرم‌ها"""
         base_context = {
-            'col_class': 'col-md-4 col-12 m-auto',
+            'col_class': 'col-md-5 col-12 m-auto',
             'card_class': 'card shadow-lg',
             'card_header_class': 'card-header',
-            'card_body_class': 'card-body p-4',
+            'card_body_class': 'card-body p-5',
         }
         
         if action == 'register':
@@ -30,13 +30,20 @@ class AccountView(View):
                 'title': 'ثبت‌نام',
                 'back_url': '/',
                 'back_text': 'بازگشت ',
-                'back_class': 'btn btn-outline-secondary',
-                'back_icon': 'mdi mdi-arrow-left-thick',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
                 'form_action': reverse('accounts', args=['register']),
                 'submit_text': 'ثبت‌نام',
-                'submit_class': 'btn btn-primary btn-block w-100',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
                 'submit_style': '',
-                'card_header_class': 'card-header text-dark',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'footer_content': '''
+                    <p class="display-10">
+                        قبلاً حساب کاربری دارید؟
+                        <a href="/accounts/login/" class="text-primary">ورود</a>
+                    </p>
+                '''
             })
         
         elif action == 'login':
@@ -44,12 +51,23 @@ class AccountView(View):
                 'title': 'ورود به حساب کاربری',
                 'back_url': '/',
                 'back_text': 'بازگشت',
-                'back_class': 'btn btn-outline-secondary',
-                'back_icon': 'mdi mdi-home',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
                 'form_action': reverse('accounts', args=['login']),
                 'submit_text': 'ورود',
-                'submit_class': 'btn btn-success btn-block w-100',
-                'card_header_class': 'card-header bg-success text-white',
+                'submit_class': 'btn btn-success btn-lg btn-block display-10',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'footer_content': '''
+                    <p class="display-10">
+                        هنوز ثبت‌نام نکرده‌اید؟
+                        <a href="/accounts/register/" class="text-primary">ثبت نام</a>
+                    </p>
+
+                    <p class="">
+                        <a href="#" class="text-primary">فراموشی رمز عبور</a>
+                    </p>
+                '''
             })
         
         elif action == 'profile':
@@ -64,7 +82,7 @@ class AccountView(View):
                 'back_icon': 'mdi mdi-home',
                 'form_action': reverse('accounts', args=['profile']),
                 'submit_text': 'به‌روزرسانی پروفایل',
-                'submit_class': 'btn btn-info btn-block w-100',
+                'submit_class': 'btn btn-info btn-block ',
                 'card_header_class': 'card-header bg-info text-white',
             })
         
@@ -209,7 +227,7 @@ class PsychologistActionView(View):
                             {options_html}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">اعمال فیلتر</button>
+                    <button type="submit" class="btn btn-primary ">اعمال فیلتر</button>
                 </form>
             </div>
         </div>
@@ -364,7 +382,7 @@ def render_psychologist_detail(psychologist):
                 <div class="main-container container-fluid">
                     <div class="page-header">
                         <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
+                        <li class="breadcrumb-item ">
                             <a href="psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
                         </li>
                         <li class="breadcrumb-item text-dark" aria-current="page">

@@ -6,20 +6,23 @@
 
   <div class="{{ col_class }}" >
     <div class="card {{ card_class|default:'shadow-lg' }} mt-8">
-      <div class="{{ card_header_class|default:'card-header text-dark' }}">
+      
+      <div class="{{ card_header_class|default:'card-header' }}"  style="{{ card_header_style|default:'' }}">
         <div class="page-header">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item">
-                <h3 class="card-title text-dark mb-0">{{ title }}</h3>
+              <li class="breadcrumb-item ">
+                <h3 class="card-title mb-0 display-8">{{ title }}</h3>
               </li>
               <li class="breadcrumb-back">
-                <a href="{{ back_url }}" class="{{ back_class }}"> {{ back_text }}
+                <a href="{{ back_url }}" class="{{ back_class }}"> 
+                  {{ back_text }}
                   {% if back_icon %}<i class="{{ back_icon }}"></i>{% endif %}
                 </a>
               </li>
             </ol>
         </div>
       </div>
+
       <div class="{{ card_body_class|default:'card-body p-4' }}">
         {% if messages %}
           {% for message in messages %}
@@ -34,11 +37,11 @@
           {% csrf_token %}
           
           {% for field in form %}
-            <div class="row mb-4">
-              <label class="col-md-2 form-label fw-bold" for="{{ field.id_for_label }}">
-                {{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            <div class="row mt-5 mb-5">
+              <label class="col-md-4 form-label fw-bold" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %}<span class="text-danger mr-2 mb-2 fs-20">*</span>{% endif %}
               </label>
-              <div class="col-md-10">
+              <div class="col-md-8">
                 {% if field.field.widget.input_type == 'file' %}
                   <!-- File Input -->
                   <div class="position-relative">
@@ -79,17 +82,22 @@
           <div class="row ">
            <button 
               type="submit" 
-              class="btn {{ submit_class }}" 
-              style="{{ submit_style }}"
+              class="btn {{ submit_class }} mt-5 mb-5 w-50" 
+              style="{{ submit_style }} margin:auto"
             >
               {% if submit_icon %}<i class="{{ submit_icon }} me-2"></i>{% endif %}
               {{ submit_text }}
             </button>
           </div>
-
-          
         </form>
       </div>
+      {% if footer_content %}
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            {{ footer_content|safe }}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 
