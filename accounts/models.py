@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import URLValidator
-
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -145,15 +145,41 @@ class SocialMedia(models.Model):
         verbose_name = "Social Media"
         verbose_name_plural = "Social Media Accounts"
 
+class PsychologistType(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="نام نوع متخصص"
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="توضیحات"
+    )
+    icon = models.ImageField(
+        upload_to='psychologist_types/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "نوع متخصص"
+        verbose_name_plural = "انواع متخصصان"
+
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
+    PsychologistType = models.ForeignKey(PsychologistType, on_delete=models.CASCADE, related_name='PsychologistType',null=True,blank=True)
     profile_picture = models.ImageField(
         upload_to='static/images/psychologists/profiles',
         blank=True, null=True,
         verbose_name="عکس پروفایل",
         help_text="عکس پرسنلی یا حرفه‌ای (مثلاً 400x400)"
     )
-
     banner_image = models.ImageField(
         upload_to='static/images/psychologists/banners',
         blank=True, null=True,
@@ -164,11 +190,52 @@ class Psychologist(models.Model):
     specialties = models.ManyToManyField(Specialty,verbose_name="زمینه کاری", related_name='psychologists', blank=True)
     is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
 
-    bio = models.TextField(
+    bio = CKEditor5Field(
         verbose_name="بیوگرافی",
         blank=True, 
-        null=True, 
+        null=True,
         help_text="Availability details, e.g., days and hours of consultation"
+    )
+    authored_books = CKEditor5Field(
+        verbose_name="تألیفات و کتاب‌ها",
+        blank=True,
+        null=True,
+        help_text="لیست کتاب‌ها، سال انتشار، ناشر و توضیح کوتاه (می‌توانید از لیست یا جدول استفاده کنید)"
+    )
+
+    awards = CKEditor5Field(
+        verbose_name="جوایز و افتخارات",
+        blank=True,
+        null=True,
+        help_text="جوایز علمی، رتبه‌های جشنواره‌ها، تقدیرنامه‌ها و ..."
+    )
+
+    associations = CKEditor5Field(
+        verbose_name="عضویت در انجمن‌ها و سازمان‌ها",
+        blank=True,
+        null=True,
+        help_text="مثلاً عضو نظام روانشناسی، انجمن روانشناسی ایران، APA، ISST و ..."
+    )
+
+    work_experience = CKEditor5Field(
+        verbose_name="سوابق کاری و حرفه‌ای",
+        blank=True,
+        null=True,
+        help_text="کلینیک‌ها، بیمارستان‌ها، مراکز مشاوره قبلی به همراه سال‌ها"
+    )
+
+    therapeutic_approaches = CKEditor5Field(
+        verbose_name="رویکردهای درمانی",
+        blank=True,
+        null=True,
+        help_text="مثلاً CBT، طرحواره‌درمانی، ACT، روان‌تحلیلگری، ذهن‌آگاهی، EMDR و ..."
+    )
+
+    disorders_treated = CKEditor5Field(
+        verbose_name="اختلالات و حوزه‌های ",
+        blank=True,
+        null=True,
+        help_text="اضطراب، افسردگی، وسواس، اختلالات شخصیت، مشاوره زوج، کودک و نوجوان و ..."
     )
 
     is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")

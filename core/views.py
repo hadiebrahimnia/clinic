@@ -22,9 +22,19 @@ class HomeView(TemplateView):
         psychologists = Psychologist.objects.filter(
             is_active=True, 
             is_deleted=False
-        ).select_related('profile', 'profile__city', 'profile__city__province', 'profile__city__province__country') \
-         .prefetch_related('degrees__field', 'degrees__specialization', 'degrees__university', 
-                           'specialties', 'social_media')
+        ).select_related(
+            'profile', 
+            'profile__city', 
+            'profile__city__province', 
+            'profile__city__province__country'
+            ) \
+        .prefetch_related(
+             'degrees__field', 
+             'degrees__specialization', 
+             'degrees__university', 
+            'specialties', 
+            'social_media'
+        )
 
         psychologists_list = []
 
@@ -55,6 +65,7 @@ class HomeView(TemplateView):
             psych_dict = {
                 'id': psych.id,
                 'full_name': f"{psych.profile.get_full_name() or psych.profile.username}",
+                'PsychologistType':psych.PsychologistType,
                 'username': psych.profile.username,
                 'profile_picture': psych.profile_picture.url if psych.profile_picture else None,
                 'banner_image': psych.banner_image.url if psych.banner_image else None,

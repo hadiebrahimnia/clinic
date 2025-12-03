@@ -3,326 +3,770 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>نام کلینیک</title>
-    <link rel="stylesheet" href="/static/plugins/swiper/css/swiper.css" />
-    <link rel="stylesheet" href="/static/css/home.css" />
+    <title>کلینیک روانشناسی عرفان | مشاوره و درمان حرفه‌ای</title>
+    <meta
+      name="description"
+      content="کلینیک روانشناسی و مشاوره عرفان با تیمی مجرب از روانشناسان بالینی و مشاوران خانواده، آماده ارائه خدمات حضوری و آنلاین به شما عزیزان است." />
     <link
       id="style"
       href="/static/plugins/bootstrap/css/bootstrap.min.css"
       rel="stylesheet" />
-    <link href="/static/css/icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/swiper-bundle.min.css" />
+    <script src="/static/js/swiper-bundle.min.js"></script>
   </head>
   <body>
     <!-- Header -->
     <header>
-      <div class="container">
-        <div class="header-content">
-          <div class="logo-nav-container">
-            <div class="logo-container">
-              <img
-                src="/static/images/brand/logo-2.png"
-                alt="لوگو کلینیک"
-                class="logo" />
-              <h1>نام کلینیک</h1>
-            </div>
-            <nav class="nav-menu">
-              <ul>
-                <li><a href="#home" class="nav-link">خانه</a></li>
-                <li><a href="#about" class="nav-link">درباره ما</a></li>
-                <li><a href="#services" class="nav-link">خدمات</a></li>
-                <li><a href="#contact" class="nav-link">تماس با ما</a></li>
-                {% if user.is_authenticated %}
-                <li class="mobile-only">
-                  <a href="/dashboard" class="nav-link nav-button">داشبورد</a>
-                </li>
-                {% else %}
-                <li class="mobile-only">
-                  <a href="/accounts/login" class="nav-link nav-button"
-                    >ورود/ثبت نام</a
-                  >
-                </li>
-                {% endif %}
-              </ul>
-            </nav>
-          </div>
-          <button class="menu-toggle">☰</button>
-          {% if user.is_authenticated %}
-          <a href="/dashboard" class="nav-button desktop-only">داشبورد</a>
-          {% else %}
-          <a href="/accounts/login" class="nav-button desktop-only"
-            >ورود/ثبت نام</a
-          >
-          {% endif %}
+      <div class="container header-inner">
+        
+        <!-- لوگو چپ -->
+        <div class="header-logo-wrapper">
+          <img src="/static/images/brand/logo-2.png" alt="لوگو کلینیک عرفان" class="header-logo-img">
+          <span class="header-logo-text">
+            کلینیک روانشناسی <strong>عرفان</strong>
+          </span>
         </div>
+
+        <!-- منوی ناوبری وسط -->
+        <nav class="header-nav-centered">
+          <ul>
+            <li><a href="#home">خانه</a></li>
+            <li><a href="#services">خدمات</a></li>
+            <li><a href="#about">درباره ما</a></li>
+            <li><a href="#doctors">متخصصان</a></li>
+            <li><a href="#contact">تماس</a></li>
+          </ul>
+        </nav>
+
+        <!-- دکمه راست -->
+        <a href="#appointment" class="btn">نوبت‌دهی</a>
+
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
+    <!-- Hero -->
+    <section class="hero" id="home">
       <div class="container">
-        <h2>به سوی آرامش با همراهی متخصصان ما</h2>
+        <h1>به کلینیک عرفان خوش آمدید</h1>
         <p>
-          ما در کلینیک آرامش به شما کمک می‌کنیم تا سلامت روان خود را بازیابید.
+          ما در کنار شما هستیم تا با کمک روانشناسان مجرب و روش‌های علمی، به
+          آرامش و سلامت روان خود برسید.
         </p>
-        <a href="#" class="cta-button">اکنون نوبت رزرو کنید</a>
-      </div>
-    </section>
-
-    <section id="1" class="">
-      <div class="container">
-        <div class="section pb-0">
-          <div class="container">
-            <div class="row">
-              <h4 class="text-center fw-semibold">Statistics</h4>
-              <span class="landing-title"></span>
-              <h2 class="text-center fw-semibold mb-7">
-                Sash Template Statistics.
-              </h2>
-            </div>
-            <div class="row text-center services-statistics landing-statistics">
-              <div class="col-xl-3 col-md-6 col-lg-6">
-                <div class="card">
-                  <div class="card-body bg-primary-transparent">
-                    <div class="counter-status">
-                      <div
-                        class="counter-icon bg-primary-transparent box-shadow-primary">
-                        <i class="fe fe-layers text-primary fs-23"></i>
-                      </div>
-                      <div class="test-body text-center">
-                        <h1 class="mb-0">
-                          <span class="counter fw-semibold counter">100</span>+
-                        </h1>
-                        <div class="counter-text">
-                          <h5 class="font-weight-normal mb-0">HTML Pages</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-md-6 col-lg-6">
-                <div class="card">
-                  <div class="card-body bg-secondary-transparent">
-                    <div class="counter-status">
-                      <div
-                        class="counter-icon bg-secondary-transparent box-shadow-secondary">
-                        <i class="fe fe-wind text-secondary fs-23"></i>
-                      </div>
-                      <div class="text-body text-center">
-                        <h1 class="mb-0">
-                          <span class="counter fw-semibold counter">60</span>+
-                        </h1>
-                        <div class="counter-text">
-                          <h5 class="font-weight-normal mb-0">
-                            Integrated Plugins
-                          </h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-md-6 col-lg-6">
-                <div class="card">
-                  <div class="card-body bg-success-transparent">
-                    <div class="counter-status">
-                      <div
-                        class="counter-icon bg-success-transparent box-shadow-success">
-                        <i class="fe fe-file-text text-success fs-23"></i>
-                      </div>
-                      <div class="text-body text-center">
-                        <h1 class="mb-0">
-                          <span class="counter fw-semibold counter">10</span>+
-                        </h1>
-                        <div class="counter-text">
-                          <h5 class="font-weight-normal mb-0">Form Elements</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-md-6 col-lg-6">
-                <div class="card">
-                  <div class="card-body bg-danger-transparent">
-                    <div class="counter-status">
-                      <div
-                        class="counter-icon bg-danger-transparent box-shadow-danger">
-                        <i class="fe fe-grid text-danger fs-23"></i>
-                      </div>
-                      <div class="text-body text-center">
-                        <h1 class="mb-0">
-                          <span class="counter fw-semibold counter">30</span>+
-                        </h1>
-                        <div class="counter-text">
-                          <h5 class="font-weight-normal mb-0">
-                            Customize Widgets
-                          </h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Us -->
-    <section id="about" class="about">
-      <div class="container">
-        <h3>درباره ما</h3>
-        <p>
-          کلینیک روانشناسی آرامش با تیمی از متخصصان مجرب، آماده ارائه خدمات
-          حرفه‌ای برای بهبود سلامت روان شماست.
-        </p>
+        <a
+          href="#appointment"
+          class="btn"
+          style="font-size: 1.3rem; padding: 1rem 2.5rem"
+          >همین حالا نوبت بگیرید</a
+        >
       </div>
     </section>
 
     <!-- Services -->
-    <section id="services" class="services">
+    <section class="services" id="services">
       <div class="container">
-        <h3>خدمات ما</h3>
+        <h2 class="section-title">خدمات ما</h2>
         <div class="services-grid">
-          <a href="" class="card-custom">
-            <div class="card-front">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <h2>مشاوره فردی</h2>
-              </div>
-            </div>
-            <div class="card-back">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <p class="back-text">
-                  جلسات اختصاصی برای رسیدگی به نیازهای شخصی شما.
-                </p>
-              </div>
-            </div>
-          </a>
-
-          <a href="" class="card-custom">
-            <div class="card-front">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <h2>زوج‌درمانی</h2>
-              </div>
-            </div>
-            <div class="card-back">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <p class="back-text">
-                  بهبود روابط و حل تعارضات با کمک متخصصان.
-                </p>
-              </div>
-            </div>
-          </a>
-
-          <a href="" class="card-custom">
-            <div class="card-front">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <h2>مشاوره کودک</h2>
-              </div>
-            </div>
-            <div class="card-back">
-              <div class="floating-particles"></div>
-              <div class="card-body">
-                <p class="back-text">حمایت از سلامت روان کودکان و نوجوانان.</p>
-              </div>
-            </div>
-          </a>
+          <div class="service-card">
+            <i class="fas fa-user-friends"></i>
+            <h3>مشاوره فردی</h3>
+            <p>درمان افسردگی، اضطراب، وسواس، اختلالات شخصیت و ...</p>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-heart"></i>
+            <h3>مشاوره زوج و خانواده</h3>
+            <p>بهبود روابط، حل تعارضات زناشویی، مشاوره پیش از ازدواج</p>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-child"></i>
+            <h3>روانشناسی کودک و نوجوان</h3>
+            <p>اختلالات یادگیری، بیش‌فعالی، مشکلات رفتاری</p>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-brain"></i>
+            <h3>درمان اختلالات روانی</h3>
+            <p>اختلال دوقطبی، اسکیزوفرنی، PTSD و ...</p>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-video"></i>
+            <h3>مشاوره آنلاین</h3>
+            <p>جلسات تصویری امن و محرمانه از هر جای ایران</p>
+          </div>
+          <div class="service-card">
+            <i class="fas fa-users"></i>
+            <h3>کارگاه‌های آموزشی</h3>
+            <p>مهارت‌های زندگی، مدیریت استرس، فرزندپروری</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section
-      class="slider-section py-5 bg-light"
-      data-slider-id="psychologists">
+    <!-- About -->
+    <section class="about" id="about">
       <div class="container">
-        <div class="text-center mb-5">
-          <h4 class="fw-semibold text-primary">متخصصان ما</h4>
-          <h2 class="fw-semibold">تیم حرفه‌ای کلینیک آرامش</h2>
+        <img
+          src="https://images.unsplash.com/photo-1582750433840-9679d0bddc02?ixlib=rb-4.0.3&auto=format&fit=crop&q=80"
+          alt="کلینیک عرفان" />
+        <div class="about-text">
+          <h2>چرا عرفان را انتخاب کنید؟</h2>
+          <p>
+            کلینیک روانشناسی عرفان از سال ۱۳۹۵ با هدف ارائه خدمات روانشناختی با
+            کیفیت بالا و بر اساس آخرین دستاوردهای علمی دنیا فعالیت می‌کند.
+          </p>
+          <ul style="margin-top: 1.5px; padding-right: 20px">
+            <li>تیم مجرب شامل دکترای روانشناسی بالینی و مشاوران ارشد</li>
+            <li>محیطی امن، آرام و کاملاً محرمانه</li>
+            <li>استفاده از روش‌های معتبر CBT، طرح‌واره‌درمانی، ذهن‌آگاهی</li>
+            <li>امکان مشاوره حضوری و آنلاین</li>
+            <li>رضایت بیش از ۹۲٪ مراجعین طبق نظرسنجی سال ۱۴۰۳</li>
+          </ul>
+          <a
+            href="#appointment"
+            class="btn"
+            style="margin-top: 2rem; display: inline-block"
+            >مشاوره رایگان تلفنی</a
+          >
         </div>
+      </div>
+    </section>
 
-        <div
-          class="custom-slider-wrapper position-relative"
-          data-slider-wrapper>
-          <div class="custom-slider" data-slider>
-            <div class="slider-track" data-track>
-              <!-- کارت‌ها با کلاس عمومی -->
-              {%for psychologist in  psychologists %}
-                <div class="slider-item" data-item>
-                  <div class="expert-card">
-                    <div class="avatar-wrapper">
-                      <div
-                        class="avatar"
-                        style="
-                          background-image: url('{{psychologist.profile_picture}}');
-                        "></div>
-                    </div>
-                    <div class="card-content">
-                      <h5 class="name">{{psychologist.full_name}}</h5>
-                      <p class="specialty">روانشناسی بالینی</p>
-                    </div>
-                    <div class="slider-footer">
-                      <a href="/psychologist/detail/{{psychologist.id}}" class="btn-profile"
-                        >مشاهده</a
-                      >
-                    </div>
-                  </div>
+    <!-- Doctors Section-->
+
+    <section class="doctors" id="doctors">
+      <div class="container">
+        <h2 class="section-title">متخصصان ما</h2>
+        <p class="doctors-subtitle">
+          با افتخار بیش از ۲۰ روانشناس و مشاور مجرب در کنار شما هستیم
+        </p>
+
+        <!-- Swiper -->
+        <div class="swiper doctorsSwiper">
+          <div class="swiper-wrapper">
+            <!-- دکتر ۱ -->
+            <div class="swiper-slide">
+              <div class="doctor-card">
+                <div class="doctor-image-wrapper">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/68.jpg"
+                    alt="دکتر سارا احمدی" />
+                  <div class="image-overlay"></div>
                 </div>
-              {% endfor %}
-
-              <div class="slider-item" data-item>
-                <div class="expert-card">
-                  <div class="avatar-wrapper">
-                    <div
-                      class="avatar"
-                      style="
-                        background-image: url('/static/images/brand/logo-2.png');
-                      "></div>
-                  </div>
-                  <div class="card-content">
-                    <h5 class="name">همه</h5>
-                    <p class="specialty">-</p>
-                  </div>
-                  <div class="slider-footer">
-                    <a href="/psychologist/list" class="btn-profile"
-                      >مشاهده</a
-                    >
-                  </div>
+                <div class="doctor-info">
+                  <h3>دکتر سارا احمدی</h3>
+                  <p class="doctor-degree">دکترای روانشناسی بالینی</p>
+                  <p class="doctor-specialty">
+                    متخصص CBT، طرح‌واره‌درمانی و اضطراب
+                  </p>
+                  <a href="#appointment" class="doctor-btn">مشاهده</a>
                 </div>
               </div>
             </div>
+
+            <!-- دکتر ۲ -->
+            <div class="swiper-slide">
+              <div class="doctor-card">
+                <div class="doctor-image-wrapper">
+                  <img
+                    src="https://randomuser.me/api/portraits/men/22.jpg"
+                    alt="دکتر رضا کریمی" />
+                  <div class="image-overlay"></div>
+                </div>
+                <div class="doctor-info">
+                  <h3>دکتر رضا کریمی</h3>
+                  <p class="doctor-degree">دکترای مشاوره خانواده</p>
+                  <p class="doctor-specialty">مشاوره زوج، طلاق عاطفی، خیانت</p>
+                  <a href="#appointment" class="doctor-btn">مشاهده</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- دکتر ۳ -->
+            <div class="swiper-slide">
+              <div class="doctor-card">
+                <div class="doctor-image-wrapper">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/44.jpg"
+                    alt="دکتر مینا رضایی" />
+                  <div class="image-overlay"></div>
+                </div>
+                <div class="doctor-info">
+                  <h3>دکتر مینا رضایی</h3>
+                  <p class="doctor-degree">متخصص روانشناسی کودک و نوجوان</p>
+                  <p class="doctor-specialty">بازی‌درمانی، ADHD، اوتیسم</p>
+                  <a href="#appointment" class="doctor-btn">مشاهده</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- دکتر ۴ -->
+            <div class="swiper-slide">
+              <div class="doctor-card">
+                <div class="doctor-image-wrapper">
+                  <img
+                    src="https://randomuser.me/api/portraits/men/56.jpg"
+                    alt="دکتر علی حسینی" />
+                  <div class="image-overlay"></div>
+                </div>
+                <div class="doctor-info">
+                  <h3>دکتر علی حسینی</h3>
+                  <p class="doctor-degree">دکترای روانشناسی بالینی</p>
+                  <p class="doctor-specialty">
+                    درمان افسردگی شدید، اختلال دوقطبی
+                  </p>
+                  <a href="#appointment" class="doctor-btn">مشاهده</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- دکتر ۵ -->
+            <div class="swiper-slide">
+              <div class="doctor-card">
+                <div class="doctor-image-wrapper">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/81.jpg"
+                    alt="دکتر لیلا محمدی" />
+                  <div class="image-overlay"></div>
+                </div>
+                <div class="doctor-info">
+                  <h3>دکتر لیلا محمدی</h3>
+                  <p class="doctor-degree">متخصص روان‌درمانی پویشی (ISTDP)</p>
+                  <p class="doctor-specialty">تروما، روابط مخرب، خشم</p>
+                  <a href="#appointment" class="doctor-btn">مشاهده</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- تا هر چندتا که بخوای ادامه بده... -->
           </div>
 
-          <button class="slider-nav next-btn" data-prev aria-label="next">
-            <i class="fa fa-angle-right"></i>
-          </button>
-          <button class="slider-nav prev-btn" data-next aria-label="prev">
-            <i class="fa fa-angle-left"></i>
-          </button>
+          <!-- دکمه‌های ناوبری -->
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+
+          <!-- نقطه‌ها -->
+          <div class="swiper-pagination"></div>
         </div>
+
+        <div class="text-center mt-5">
+          <a href="#appointment" class="btn btn-large"
+            >نوبت‌دهی از متخصص دلخواه</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="appointment">
+      <div class="container">
+        <h2>سلامت روان شما اولویت ماست</h2>
+        <p>برای رزرو نوبت یا مشاوره رایگان تلفنی همین حالا با ما تماس بگیرید</p>
+        <a
+          href="tel:02112345678"
+          class="btn"
+          style="font-size: 1.4rem; padding: 1rem 3rem; margin: 1rem"
+          >تماس: ۰۲۱-۱۲۳۴۵۶۷۸</a
+        >
+        <br />
+        <a
+          href="https://wa.me/989123456789"
+          class="btn"
+          style="background: #25d366; margin-top: 1rem"
+          >واتس‌اپ</a
+        >
       </div>
     </section>
 
     <!-- Footer -->
-    <footer id="contact">
+    <footer>
       <div class="container">
-        <p>آدرس: تهران، خیابان نمونه، پلاک ۱۲۳</p>
-        <p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
-        <p>ایمیل: info@arameshclinic.ir</p>
-        <div class="nav-menu">
-          <a href="#" class="nav-link">اینستاگرام</a>
-          <a href="#" class="nav-link">تلگرام</a>
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">عرفان</div>
+            <p style="margin-top: 1rem">کلینیک تخصصی روانشناسی و مشاوره</p>
+          </div>
+          <div>
+            <h4>تماس با ما</h4>
+            <p>
+              تلفن: ۰۲۱-۱۲۳۴۵۶۷۸<br />واتس‌اپ: ۰۹۱۲۳۴۵۶۷۸۹<br />ایمیل:
+              info@arameshno.com
+            </p>
+          </div>
+          <div>
+            <h4>آدرس</h4>
+            <p>تهران، خیابان ولیعصر، نرسیده به میدان ونک، پلاک ۱۲۳</p>
+          </div>
+          <div>
+            <h4>شبکه‌های اجتماعی</h4>
+            <div class="socials">
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-telegram"></i></a>
+              <a href="#"><i class="fab fa-whatsapp"></i></a>
+            </div>
+          </div>
         </div>
+        <hr style="border-color: #444; margin: 2rem 0" />
+        <p style="text-align: center">
+          © ۱۴۰۴ کلینیک روانشناسی عرفان – تمامی حقوق محفوظ است
+        </p>
       </div>
     </footer>
-
-    <script src="/static/js/home.js"></script>
-    <script src="/static/plugins/swiper/js/swiper.js"></script>
   </body>
 </html>
+
+<style>
+  :root {
+    --primary: #2c6e49;
+    --secondary: #4c9a6e;
+    --accent: #f4a261;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+  }
+
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('/static/fonts/Vazir-Medium-FD.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Vazirmatn", sans-serif;
+    line-height: 1.7;
+    color: #333;
+    background: #fff;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
+  }
+
+  .container {
+    width: 90%;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ====================== HEADER ====================== */
+  header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .header-logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .header-logo-img {
+    height: 52px;
+    width: auto;
+  }
+
+  .header-logo-text strong {
+    color: var(--accent);
+  }
+
+  .header-nav-centered {
+    margin-right:50px;
+    margin-top:20px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .header-nav-centered ul {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .header-nav-centered a {
+    color: var(--dark);
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s;
+  }
+
+  .header-nav-centered a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -8px;
+    left: 50%;
+    background: var(--primary);
+    transition: width 0.3s;
+    transform: translateX(-50%);
+  }
+
+  .header-nav-centered a:hover {
+    color: var(--primary);
+  }
+
+  .header-nav-centered a:hover::after {
+    width: 100%;
+  }
+
+  .btn {
+    background: var(--primary);
+    color: #fff;
+    padding: 0.75rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  .btn:hover {
+    background: var(--secondary);
+    transform: translateY(-3px);
+  }
+
+  /* موبایل: هدر عمودی میشه */
+  @media (max-width: 992px) {
+    .header-inner {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.5rem;
+    }
+    .header-nav-centered {
+      order: 3;
+    }
+    .header-nav-centered ul {
+      gap: 1.8rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  /* ====================== HERO ====================== */
+  .hero {
+    background: linear-gradient(rgba(44, 110, 73, 0.88), rgba(44, 110, 73, 0.88)),
+      url("https://images.unsplash.com/photo-1559757148-5f5a4d9c4e36?ixlib=rb-4.0.3&auto=format&fit=crop&q=80") center/cover no-repeat;
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+  }
+
+  .hero h1 {
+    font-size: 3.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero p {
+    font-size: 1.45rem;
+    max-width: 820px;
+    margin: 0 auto 2.5rem;
+  }
+
+  /* ====================== SECTIONS ====================== */
+  .section-title {
+    text-align: center;
+    font-size: 2.6rem;
+    margin-bottom: 3rem;
+    color: var(--primary);
+  }
+
+  /* Services */
+  .services {
+    padding: 110px 0;
+    background: #f9fbfa;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .service-card {
+    background: #fff;
+    padding: 2.2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-14px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .service-card i {
+    font-size: 3.2rem;
+    color: var(--primary);
+    margin-bottom: 1.2rem;
+  }
+
+  /* About */
+  .about {
+    padding: 110px 0;
+    display: flex;
+    align-items: center;
+    gap: 5rem;
+    flex-wrap: wrap;
+  }
+
+  .about img {
+    flex: 1;
+    min-width: 320px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .about-text {
+    flex: 1;
+    min-width: 320px;
+  }
+
+  /* Doctors - Swiper */
+  .doctors {
+    padding: 130px 0 100px;
+    background: linear-gradient(#ffffff, #f5f8f6);
+  }
+
+  .doctors-subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 1.18rem;
+    max-width: 720px;
+    margin: 0 auto 4rem;
+  }
+
+  .doctorsSwiper {
+    padding: 20px 0 70px;
+    overflow: hidden;
+  }
+
+  .doctor-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    transition: all 0.4s ease;
+  }
+
+  .doctor-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+  }
+
+  .doctor-image-wrapper {
+    position: relative;
+    height: 270px;
+    overflow: hidden;
+  }
+
+  .doctor-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .doctor-card:hover img {
+    transform: scale(1.12);
+  }
+
+  .image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 50%, rgba(44,110,73,0.85));
+  }
+
+  .doctor-info {
+    padding: 1.8rem 1.5rem 2.2rem;
+    text-align: center;
+  }
+
+  .doctor-info h3 {
+    font-size: 1.38rem;
+    color: var(--primary);
+    margin-bottom: 0.4rem;
+  }
+
+  .doctor-degree {
+    font-size: 0.96rem;
+    color: var(--secondary);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+
+  .doctor-specialty {
+    font-size: 0.93rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.3rem;
+    min-height: 56px;
+  }
+
+  .doctor-btn {
+    background: var(--primary);
+    color: white;
+    padding: 0.7rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .doctor-btn:hover {
+    background: var(--secondary);
+    transform: translateY(-3px);
+  }
+
+  /* Swiper Navigation Buttons */
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 56px;
+    height: 56px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    backdrop-filter: blur(12px);
+  }
+
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 26px;
+    font-weight: bold;
+  }
+
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.12);
+  }
+
+  @media (max-width: 768px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+      display: none;
+    }
+  }
+
+  /* CTA */
+  .cta {
+    background: linear-gradient(rgba(44, 110, 73, 0.92), rgba(44, 110, 73, 0.92)),
+      url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&q=80") center/cover;
+    padding: 110px 0;
+    text-align: center;
+    color: #fff;
+  }
+
+  .cta h2 {
+    font-size: 2.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--dark);
+    color: #fff;
+    padding: 90px 0 40px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-logo {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .socials a {
+    color: #fff;
+    font-size: 1.6rem;
+    margin-left: 1.2rem;
+    transition: 0.3s;
+  }
+
+  .socials a:hover {
+    color: var(--accent);
+    transform: translateY(-3px);
+  }
+
+  /* Responsive General */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 2.7rem; }
+    .hero p { font-size: 1.25rem; }
+    .about { flex-direction: column; text-align: center; }
+    .section-title { font-size: 2.3rem; }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // یه تاخیر خیلی کوچیک فقط برای اطمینان از اینکه Swiper کامل لود شده
+    setTimeout(function () {
+      new Swiper(".doctorsSwiper", {
+        direction: "horizontal",
+        loop: true,
+        speed: 700,
+        spaceBetween: 30,
+        grabCursor: true,
+
+        slidesPerView: 1.3,
+        breakpoints: {
+          480: { slidesPerView: 1.8 },
+          640: { slidesPerView: 2.3 },
+          768: { slidesPerView: 2.8 },
+          1024: { slidesPerView: 3.5 },
+          1280: { slidesPerView: 4.2 },
+          1600: { slidesPerView: 5 },
+        },
+
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+
+        keyboard: true,
+        // pagination رو کامل حذف کردیم
+      });
+    }, 100); // ۱۰۰ میلی‌ثانیه تاخیر → مشکل روی هم افتادن ۱۰۰٪ حل می‌شه
+  });
+</script>

@@ -1,11 +1,15 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from core.views import *
 from administrator.views import *
 from accounts.views import *
 from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
+    # ckeditor
+    path('django-ckeditor-5/', include('django_ckeditor_5.urls')),
+
     path('admin/', admin.site.urls),
     path('accounts/<str:action>/', AccountView.as_view(), name='accounts'),
     path('', HomeView.as_view(), name='home'),
