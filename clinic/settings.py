@@ -1,25 +1,23 @@
-# import pymysql
-# pymysql.install_as_MySQLdb()
 from pathlib import Path
 import os
+import environ
 
-# مسیر اصلی پروژه
+env = environ.Env(
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, 'django-insecure-default-change-me'),
+)
+
+# خواندن فایل .env در محیط لوکال (اگر وجود داشته باشه)
 BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(BASE_DIR / '.env')
+
 
 # =============================================================================
 # تنظیمات امنیتی و هاست (برای پروداکشن)
 # =============================================================================
-SECRET_KEY = 'django-insecure-5kzj7q&y_69s7r^t9x+*5f9n_#&6a%j*%69o$je3lo(a1_40_k'  # حتماً بعد از دیپلوی عوض کن!
-
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    'erfan-clinic.com',
-    'www.erfan-clinic.com',
-    'localhost',
-    '127.0.0.1',
-    # اگر از ساب‌دامین استفاده می‌کنی، اینجا هم اضافه کن
-]
+SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('DEBUG')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 # =============================================================================
 # اپلیکیشن‌ها
@@ -79,29 +77,17 @@ WSGI_APPLICATION = 'clinic.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'clinic',          # اسم دیتابیس روی سرور
-        'USER': 'root',            # بعداً یوزر واقعی cPanel رو بذار
-        'PASSWORD': '2010',        # بعداً پسورد واقعی رو بذار
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': env('DATABASE_NAME'),          # اسم دیتابیس روی سرور
+        'USER': env('DATABASE_USER'),            # بعداً یوزر واقعی cPanel رو بذار
+        'PASSWORD': env('DATABASE_PASSWORD'),        # بعداً پسورد واقعی رو بذار
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT'),
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'erfancli_clinic',
-#         'USER': 'erfancli_0016588746',
-#         'PASSWORD': '@Hadi2010',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
 
 
+DATABASES['default']['OPTIONS'] = {'charset': 'utf8mb4'}
 
 # =============================================================================
 # اعتبارسنجی پسورد و زبان
@@ -127,10 +113,18 @@ AUTH_USER_MODEL = 'accounts.Profile'
 
 # URL استاتیک (همون /static/)
 STATIC_URL = '/static/'
+
+# جایی که collectstatic همه فایل‌ها رو جمع می‌کنه → این خط باعث رفع ارور می‌شه
+STATIC_ROOT = BASE_DIR / 'staticfiles'        # پوشه‌ای که روی سرور سرو می‌شه
+
+# اگر خودت هم پوشه static داخل پروژه داری (css/js/img و …)
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# مدیا (فایل‌های آپلود شده توسط کاربر و CKEditor)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'               # پوشه media در ریشه پروژه
 
 # تنظیمات CKEditor 5
 CKEDITOR_5_UPLOAD_PATH = "uploads/ckeditor5/"

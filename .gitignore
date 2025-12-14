@@ -1,0 +1,54 @@
+# Python و Django
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+
+# فایل‌های محیطی و حساس — خیلی مهم!
+.env
+.local.env
+.env.* 
+*.env
+
+# فایل‌های Django محلی
+db.sqlite3
+# فایل‌های ویرایشگر
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# فایل‌های سیستم
+.DS_Store
+Thumbs.db
+
+# مجازی محیط (virtual environment)
+venv/
+env/
+.venv/
+ENV/
+
+# فایل‌های لاگ
+*.log
+
+# فایل‌های مهاجرت موقت یا تست
+migrations/
+
+# اگر از coverage استفاده می‌کنی
+htmlcov/
+.coverage
+.coverage.*
+
+# فایل‌های کش Django
+cache/
+
+# فایل‌های آپلود شده توسط CKEditor (اگر نمی‌خوای آپلود بشن)
+static/uploads/
+media/uploads/
+
+# فایل‌های موقت
+*.bak
+*.swp
+*~

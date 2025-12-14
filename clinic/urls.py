@@ -7,7 +7,6 @@ from accounts.views import *
 urlpatterns = [
     # ckeditor
     path('django-ckeditor-5/', include('django_ckeditor_5.urls')),
-
     path('admin/', admin.site.urls),
     path('accounts/<str:action>/', AccountView.as_view(), name='accounts'),
     path('', HomeView.as_view(), name='home'),
