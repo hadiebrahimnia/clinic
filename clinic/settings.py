@@ -1,3 +1,5 @@
+# import pymysql
+# pymysql.install_as_MySQLdb()
 from pathlib import Path
 import os
 
@@ -9,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =============================================================================
 SECRET_KEY = 'django-insecure-5kzj7q&y_69s7r^t9x+*5f9n_#&6a%j*%69o$je3lo(a1_40_k'  # حتماً بعد از دیپلوی عوض کن!
 
-DEBUG = False  # روی سرور حتماً False باشه
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'erfan-clinic.com',
@@ -17,7 +19,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     # اگر از ساب‌دامین استفاده می‌کنی، اینجا هم اضافه کن
-    # 'clinic.erfan-clinic.com',
 ]
 
 # =============================================================================
@@ -30,8 +31,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # اپ‌های خودت
     'accounts.apps.AccountsConfig',
     'core',
     'administrator',
@@ -88,6 +87,22 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'erfancli_clinic',
+#         'USER': 'erfancli_0016588746',
+#         'PASSWORD': '@Hadi2010',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
+
+
+
 # =============================================================================
 # اعتبارسنجی پسورد و زبان
 # =============================================================================
@@ -112,18 +127,10 @@ AUTH_USER_MODEL = 'accounts.Profile'
 
 # URL استاتیک (همون /static/)
 STATIC_URL = '/static/'
-
-# جایی که collectstatic همه فایل‌ها رو جمع می‌کنه → این خط باعث رفع ارور می‌شه
-STATIC_ROOT = BASE_DIR / 'staticfiles'        # پوشه‌ای که روی سرور سرو می‌شه
-
-# اگر خودت هم پوشه static داخل پروژه داری (css/js/img و …)
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# مدیا (فایل‌های آپلود شده توسط کاربر و CKEditor)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'               # پوشه media در ریشه پروژه
 
 # تنظیمات CKEditor 5
 CKEDITOR_5_UPLOAD_PATH = "uploads/ckeditor5/"

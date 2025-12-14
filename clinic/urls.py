@@ -3,8 +3,6 @@ from django.urls import path, include
 from core.views import *
 from administrator.views import *
 from accounts.views import *
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     # ckeditor
