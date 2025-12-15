@@ -1,5 +1,5 @@
-import pymysql
-pymysql.install_as_MySQLdb()
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 from pathlib import Path
 import os
@@ -87,8 +87,6 @@ DATABASES = {
         'PORT': env('DATABASE_PORT'),
     }
 }
-
-
 
 DATABASES['default']['OPTIONS'] = {'charset': 'utf8mb4'}
 
