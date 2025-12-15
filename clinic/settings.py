@@ -18,7 +18,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 # تنظیمات امنیتی و هاست (برای پروداکشن)
 # =============================================================================
 SECRET_KEY = env('SECRET_KEY')
-SECRET_DEBUG = env('DEBUG')
+DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 # =============================================================================
