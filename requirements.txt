@@ -2,7 +2,6 @@ asgiref==3.10.0
 Django==5.2.7
 django-ckeditor-5==0.2.18
 django-environ==0.12.0
-mysqlclient==2.2.7
 pillow==12.0.0
 PyMySQL==1.1.2
 sqlparse==0.5.3
