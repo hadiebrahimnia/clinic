@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
   <head>
+    <meta name="google-site-verification" content="zDspwRkooNor2I9IVRWC2lR-bEk9ekM2AP6e38Vb9ck" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>کلینیک روانشناسی عرفان | مشاوره و درمان حرفه‌ای</title>
+    <title>کلینیک روانشناسی عرفان</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/brand/favicon.png">
     <meta
       name="description"
       content="کلینیک روانشناسی و مشاوره عرفان با تیمی مجرب از روانشناسان بالینی و مشاوران خانواده، آماده ارائه خدمات حضوری و آنلاین به شما عزیزان است." />
@@ -21,7 +23,7 @@
         
         <!-- لوگو چپ -->
         <div class="header-logo-wrapper">
-          <img src="/static/images/brand/logo-2.png" alt="لوگو کلینیک عرفان" class="header-logo-img">
+          <img src="/static/images/brand/logo.png" alt="لوگو" class="header-logo-img">
           <span class="header-logo-text">
             کلینیک روانشناسی <strong>عرفان</strong>
           </span>
@@ -30,11 +32,16 @@
         <!-- منوی ناوبری وسط -->
         <nav class="header-nav-centered">
           <ul>
-            <li><a href="#home">خانه</a></li>
+            {% comment %} <li><a href="#home">خانه</a></li> {% endcomment %}
             <li><a href="#services">خدمات</a></li>
             <li><a href="#about">درباره ما</a></li>
             <li><a href="#doctors">متخصصان</a></li>
             <li><a href="#contact">تماس</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="/dashboard/">داشبورد</a></li>
+            {% else %}
+            <li><a href="/accounts/login">ورود/ثبت‌نام</a></li>
+            {% endif %}
           </ul>
         </nav>
 
@@ -104,7 +111,7 @@
     <section class="about" id="about">
       <div class="container">
         <img
-          src="https://images.unsplash.com/photo-1582750433840-9679d0bddc02?ixlib=rb-4.0.3&auto=format&fit=crop&q=80"
+          src="/static/images/clinic/1.jpg"
           alt="کلینیک عرفان" />
         <div class="about-text">
           <h2>چرا عرفان را انتخاب کنید؟</h2>

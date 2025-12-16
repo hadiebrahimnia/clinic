@@ -70,17 +70,17 @@ class AccountView(View):
                 '''
             })
         
-        elif action == 'profile':
+        elif action == 'update':
             if not request.user.is_authenticated:
                 return redirect('accounts', action='login')
             
             base_context.update({
                 'title': 'ویرایش پروفایل',
                 'back_url': '/',
-                'back_text': 'صفحه اصلی',
-                'back_class': 'btn btn-outline-secondary',
-                'back_icon': 'mdi mdi-home',
-                'form_action': reverse('accounts', args=['profile']),
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form_action': reverse('accounts', args=['update']),
                 'submit_text': 'به‌روزرسانی پروفایل',
                 'submit_class': 'btn btn-info btn-block ',
                 'card_header_class': 'card-header bg-info text-white',
@@ -102,7 +102,7 @@ class AccountView(View):
             form = CustomUserCreationForm()
         elif action == 'login':
             form = CustomAuthenticationForm()
-        elif action == 'profile':
+        elif action == 'update':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
                 return redirect('accounts', action='login')
@@ -121,7 +121,7 @@ class AccountView(View):
                 user = form.save()
                 login(request, user)
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد! به پروفایل خود خوش آمدید.')
-                return redirect('accounts', action='profile')
+                return redirect('/dashboard/', action='update')
             
         elif action == 'login':
             form = CustomAuthenticationForm(request, data=request.POST)
@@ -133,11 +133,11 @@ class AccountView(View):
                 if user is not None:
                     login(request, user)
                     messages.success(request, 'با موفقیت وارد شدید.')
-                    return redirect('accounts', action='profile')
+                    return redirect('/dashboard/', action='update')
                 else:
                     messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
         
-        elif action == 'profile':
+        elif action == 'update':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
                 return redirect('accounts', action='login')
@@ -146,7 +146,7 @@ class AccountView(View):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'پروفایل با موفقیت به‌روزرسانی شد.')
-                return redirect('accounts', action='profile')
+                return redirect('accounts', action='update')
         
         else:
             messages.error(request, 'عملیات نامعتبر است.')

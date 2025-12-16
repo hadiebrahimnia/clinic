@@ -5,63 +5,55 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from .models import Profile
 import re
+from core.widget import *
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(
-        label=_('ایمیل'),
-        max_length=254,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'ایمیل خود را وارد کنید',
-            'autocomplete': 'email',
-            'required': True
-        })
-    )
     
     phone_number = forms.CharField(
         label=_('شماره موبایل'),
         max_length=15,
         min_length=11,
-        widget=forms.TextInput(attrs={
+        widget=PersianPhoneInput(attrs={
             'class': 'form-control',
-            'placeholder': '09xxxxxxxxx',
-            'pattern': r'^09[0-9]{9}$',
-            'autocomplete': 'tel',
+            'placeholder': 'شماره موبایل',
             'required': True
         }),
-        help_text=_('شماره موبایل باید با 09 شروع شود')
     )
     
     date_of_birth = forms.DateField(
         label=_('تاریخ تولد'),
-        widget=forms.DateInput(attrs={
-            'type': 'date',
-            'class': 'form-control',
-            'max': timezone.now().date().strftime('%Y-%m-%d'),
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ تولد',
+            'data-jdp-max-date': 'today',
             'required': True
-        })
+        }),
     )
     
+    password1 = forms.CharField(
+        label=_("رمز عبور"),
+        widget=PasswordStrengthInput()  # اصلی: قوانین + progress + چشم
+    )
+    password2 = forms.CharField(
+        label=_("تکرار رمز عبور"),
+        widget=PasswordStrengthInput(is_confirm=True)  # فقط نشانگر تطابق + چشم
+    )
 
     class Meta:
         model = Profile
-        fields = ('username', 'email', 'phone_number', 'date_of_birth', 'password1', 'password2')
+        fields = ('username', 'phone_number', 'date_of_birth', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Labels فارسی
-        self.fields['username'].label = _('نام کاربری')
-        self.fields['password1'].label = _('رمز عبور')
-        self.fields['password2'].label = _('تکرار رمز عبور')
+        self.fields['username'].label = _('کدملی')
+        self.fields['username'].help_text = None
+        self.fields['password1'].help_text = None
+        self.fields['password2'].help_text = None
         
-        # Help texts فارسی
-        self.fields['password1'].help_text = password_validation.password_validators_help_text_html()
-        self.fields['password2'].help_text = _('برای تأیید، رمز عبور را دوباره وارد کنید.')
-        
-        # Styling
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'نام کاربری',
+            'placeholder': 'کدملی',
             'autocomplete': 'username'
         })
 
@@ -73,11 +65,6 @@ class CustomUserCreationForm(UserCreationForm):
             raise forms.ValidationError(_('این شماره قبلاً استفاده شده است.'))
         return phone
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Profile.objects.filter(email=email).exists():
-            raise forms.ValidationError(_('این ایمیل قبلاً استفاده شده است.'))
-        return email
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = UsernameField(
@@ -101,13 +88,6 @@ class CustomAuthenticationForm(AuthenticationForm):
     )
 
 class ProfileUpdateForm(forms.ModelForm):
-    email = forms.EmailField(
-        label=_('ایمیل'),
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'ایمیل خود را وارد کنید'
-        })
-    )
     
     phone_number = forms.CharField(
         label=_('شماره موبایل'),
@@ -119,30 +99,36 @@ class ProfileUpdateForm(forms.ModelForm):
             'pattern': r'^09[0-9]{9}$'
         })
     )
-
+    date_of_birth = forms.DateField(
+        label=_('تاریخ تولد'),
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ تولد',
+            'data-jdp-max-date': 'today',
+            'required': True
+        }),
+    )
     class Meta:
         model = Profile
-        fields = ('username', 'email', 'phone_number', 'date_of_birth',)
+        fields = ('username', 'phone_number', 'date_of_birth',)
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'نام کاربری'
-            }),
-            'date_of_birth': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control'
+                'placeholder': 'کدملی'
             }),
         }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self.fields['username'].help_text = None
+
+
         
         # Labels فارسی
         for field in self.fields:
             self.fields[field].label = {
-                'username': 'نام کاربری',
-                'email': 'ایمیل',
+                'username': 'کدملی',
                 'phone_number': 'شماره موبایل',
                 'date_of_birth': 'تاریخ تولد',
             }.get(field, field.title())
@@ -153,8 +139,3 @@ class ProfileUpdateForm(forms.ModelForm):
             raise forms.ValidationError(_('این شماره قبلاً استفاده شده است.'))
         return phone
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and Profile.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError(_('این ایمیل قبلاً استفاده شده است.'))
-        return email

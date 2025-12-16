@@ -3,26 +3,23 @@
 
 <head>
     <!-- META DATA -->
+    <meta name="google-site-verification" content="zDspwRkooNor2I9IVRWC2lR-bEk9ekM2AP6e38Vb9ck" />
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Sash – Bootstrap 5  Admin & Dashboard Template">
     <meta name="author" content="Spruko Technologies Private Limited">
     <meta name="keywords" content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
-    <!-- FAVICON -->
-    <link rel="shortcut icon" type="image/x-icon" href="/static/images/brand/favicon.ico" />
     <!-- TITLE -->
-    <title>نام کلینیک</title>
+    <title>کلینیک روانشناسی عرفان</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/brand/favicon.png">
+    <!-- static -->
     <link id="style" href="/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/static/css/style.css" rel="stylesheet" />
     <link href="/static/css/dark-style.css" rel="stylesheet" />
     <link href="/static/css/icons.css" rel="stylesheet" />
     <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/plugins/bootstrap/js/popper.min.js"></script>
-    <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
-
     {% block extra_head %}
-
     {% endblock %}
 </head>
 
@@ -60,11 +57,16 @@
         {% include 'base/alert.html' %}
     {% endblock %}
 
+    
+    <script src="/static/plugins/bootstrap/js/popper.min.js"></script>
+    <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/js/custom.js"></script>
-
+    {{ form.media}}
     {% block extra_scripts %}
     <!-- اسکریپت‌های اضافی صفحات خاص اینجا -->
     {% endblock %}
     
+
 </body>
+
 </html>

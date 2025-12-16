@@ -4,8 +4,8 @@
         <div class="app-sidebar">
             <div class="side-header">
                 <a class="header-brand1" href="/" style="display:ruby;">
-                <img class="logo-sidebar" src="/static/images/brand/logo-2.png" alt="لوگو کلینیک" class="logo">
-                    <h1 class="title-sidebar text-dark" style="font-size: 24px; font-weight: bold;">نام کلینیک</h1>
+                <img class="logo-sidebar" src="/static/images/brand/logo.png" alt="لوگو" class="logo">
+                    <h1 class="title-sidebar text-dark" style="font-size: 24px; font-weight: bold;">کلینیک عرفان</h1>
                 </a>
             </div>
             <div class="main-sidemenu">
@@ -15,7 +15,7 @@
                     </svg>
                 </div>
                 <ul class="side-menu">
-                    {% for category in sidebar1 %}
+                    {% for category in sidebar_menu %}
                         <li class="sub-category">
                             <h3 class="fw-900">{{ category.title }}</h3>
                         </li>
