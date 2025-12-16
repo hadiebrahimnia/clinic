@@ -115,8 +115,9 @@ AUTH_USER_MODEL = 'accounts.Profile'
 STATIC_URL = '/static/'
 
 # جایی که collectstatic همه فایل‌ها رو جمع می‌کنه → این خط باعث رفع ارور می‌شه
-STATIC_ROOT = BASE_DIR / 'staticfiles'        # پوشه‌ای که روی سرور سرو می‌شه
-
+# STATIC_ROOT = BASE_DIR / 'staticfiles'        # پوشه‌ای که روی سرور سرو می‌شه
+# STATIC_ROOT = '/home/erfancli/public_html/static'
+STATIC_ROOT = env('STATIC_ROOT')
 # اگر خودت هم پوشه static داخل پروژه داری (css/js/img و …)
 STATICFILES_DIRS = [
     BASE_DIR / 'static',

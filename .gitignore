@@ -52,5 +52,3 @@ media/uploads/
 *.bak
 *.swp
 *~
-
-passenger_wsgi.
