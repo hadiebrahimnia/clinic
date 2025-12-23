@@ -38,7 +38,6 @@
         <!-- منوی ناوبری وسط -->
         <nav class="header-nav-centered mobile-menu">
           <ul>
-            {% comment %} <li><a href="#home">خانه</a></li> {% endcomment %}
             <li><a href="#services">خدمات</a></li>
             <li><a href="#about">درباره ما</a></li>
             <li><a href="#doctors">متخصصان</a></li>
@@ -729,7 +728,6 @@
   }
 
   .mobile-menu a {
-      font-size: 1.4rem;
       width: 100%;
       padding: 0.5rem 0;
   }
@@ -783,6 +781,10 @@
       .header-nav-centered ul {
           display: block;
       }
+
+      .mobile-menu a{
+        font-size:1.4rem;
+      }
   }
 
   @media (max-width: 768px) {
@@ -791,6 +793,39 @@
       .about { flex-direction: column; text-align: center; }
       .section-title { font-size: 2.3rem; }
   }
+
+
+  /* ====================== DESKTOP NAV FIX ====================== */
+@media (min-width: 993px) {
+  .header-nav-centered.mobile-menu {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+    margin-left: 200px;
+  }
+
+  .header-nav-centered ul {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .menu-overlay {
+    display: none !important;
+  }
+  .mobile-menu a{
+    font-size:1rem;
+  }
+}
 </style>
 
 <script>
