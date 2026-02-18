@@ -210,3 +210,209 @@ class PasswordStrengthInput(forms.PasswordInput):
         js = (
             static('js/password_strength.js'),
         )
+
+
+class ImageInput(forms.ClearableFileInput):
+    """
+    ویجت انتخاب عکس با تنظیمات قابل کنترل:
+    - allowed_formats: ['jpg', 'png', 'jpeg', 'gif']
+    - max_size_mb: حداکثر حجم فایل
+    - min_width, min_height, max_width, max_height: محدودیت ابعاد
+    """
+    def __init__(self, attrs=None,
+                 allowed_formats=None,
+                 max_size_mb=None,
+                 min_width=None, min_height=None,
+                 max_width=None, max_height=None):
+        self.allowed_formats = allowed_formats or ['jpg', 'jpeg', 'png']
+        self.max_size_mb = max_size_mb or 2
+        self.min_width = min_width or 200
+        self.min_height = min_height or 200
+        self.max_width = max_width or 4000
+        self.max_height = max_height or 4000
+
+        mime_types = ','.join([f'image/{ext}' for ext in self.allowed_formats])
+        default_attrs = {
+            'class': 'form-control-file d-none',
+            'accept': mime_types,
+            'data-allowed-formats': ','.join(self.allowed_formats),
+            'data-max-size': str(self.max_size_mb),
+            'data-min-width': str(self.min_width),
+            'data-min-height': str(self.min_height),
+            'data-max-width': str(self.max_width),
+            'data-max-height': str(self.max_height),
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        input_html = super().render(name, value, attrs, renderer)
+        input_id = attrs.get('id', f'id_{name}')
+        has_image = bool(value and hasattr(value, 'url'))
+
+        current_image_html = ''
+        if has_image:
+            current_image_html = f'''
+            <img src="{value.url}" alt="تصویر فعلی" id="preview-{input_id}"
+                 class="img-thumbnail mb-2 d-block" style="max-width: 180px; height: auto;">
+            '''
+
+        select_btn_class = '' if not has_image else 'd-none'
+        remove_btn_class = 'd-none' if not has_image else ''
+
+        html = f'''
+        <div class="form-control text-center" >
+            <div class="image-upload {select_btn_class}"  id="select-btn-{input_id}" onclick="document.getElementById('{input_id}').click()">
+                <span>انتخاب تصویر</span>
+                <i class="fa fa-upload"></i>
+            </div>
+            {current_image_html if has_image else f'<img id="preview-{input_id}" src="#" class="img-thumbnail mb-2 d-none" style="max-width: 180px; height: auto;">'}
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" id="remove-btn-{input_id}" class="btn btn-outline-danger btn-sm {remove_btn_class}"
+                        onclick="clearImageSelection('{input_id}')">
+                    <i class="fas fa-times-circle"></i> حذف
+                </button>
+            </div>
+            {input_html}
+        </div>
+        '''
+
+        return mark_safe(html)
+
+    class Media:
+        css = {
+            'all': (
+                static('css/imageinput.css'),
+            )
+        }
+        js = (
+            static('js/imageinput.js'),
+        )
+
+
+class ForeignKeySearchWidget(forms.Select):
+    """
+    ویجت اختصاصی ForeignKey با قابلیت جستجو
+    بدون نیاز به پلاگین خارجی (Vanilla JS)
+    """
+
+    def __init__(self, attrs=None, placeholder='انتخاب کنید...'):
+        default_attrs = {
+            'class': 'fk-select d-none',  # مخفی می‌شود، نسخه سفارشی رندر می‌شود
+            'data-placeholder': placeholder,
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        select_html = super().render(name, value, attrs, renderer)
+        input_id = attrs.get('id', f'id_{name}')
+
+        html = f"""
+        <div class="fk-widget" id="wrapper-{input_id}">
+            <div class="fk-display" onclick="toggleDropdown('{input_id}')">
+                <span class="fk-placeholder">{self.attrs.get('data-placeholder', 'انتخاب کنید...')}</span>
+                <span class="fk-selected"></span>
+                <i class="fk-arrow"></i>
+            </div>
+            <div class="fk-dropdown" id="dropdown-{input_id}">
+                <input type="text" class="fk-search" placeholder="جستجو...">
+                <ul class="fk-options"></ul>
+            </div>
+            {select_html}
+        </div>
+        """
+        return mark_safe(html)
+
+    class Media:
+        css = {'all': (static('css/foreignkey_widget.css'),)}
+        js = (static('js/foreignkey_widget.js'),)
+
+
+
+class ManyToManySearchWidget(forms.SelectMultiple):
+    """
+    ویجت اختصاصی برای فیلدهای ManyToMany با قابلیت جستجو و انتخاب چندگانه
+    بدون نیاز به پلاگین خارجی (Vanilla JS)
+    """
+
+    def __init__(self, attrs=None, placeholder='موارد را انتخاب کنید...'):
+        default_attrs = {
+            'class': 'm2m-select d-none',
+            'data-placeholder': placeholder,
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        select_html = super().render(name, value, attrs, renderer)
+        input_id = attrs.get('id', f'id_{name}')
+
+        html = f"""
+        <div class="m2m-widget" id="wrapper-{input_id}">
+            <div class="m2m-display" onclick="toggleM2MDropdown('{input_id}')">
+                <div class="m2m-selected-items"></div>
+                <span class="m2m-placeholder"><div class="text-m2m-placeholder">{self.attrs.get('data-placeholder')}</div></span>
+                <i class="m2m-arrow"></i>
+            </div>
+            <div class="m2m-dropdown" id="dropdown-{input_id}">
+                <input type="text" class="m2m-search" placeholder="جستجو...">
+                <ul class="m2m-options"></ul>
+            </div>
+            {select_html}
+        </div>
+        """
+        return mark_safe(html)
+
+    class Media:
+        css = {'all': (static('css/m2m_widget.css'),)}
+        js = (static('js/m2m_widget.js'),)
+
+
+
+class BooleanToggleWidget(forms.CheckboxInput):
+    """
+    ویجت سفارشی برای BooleanField
+    نمایش به صورت دو دکمه چسبیده (مثل فعال / غیرفعال)
+    """
+
+    input_type = 'hidden'
+
+    def __init__(self, attrs=None, label_true="فعال", label_false="غیرفعال"):
+        self.label_true = label_true
+        self.label_false = label_false
+        default_attrs = {'class': 'boolean-button-widget'}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        value = bool(value) if value is not None else False
+        input_id = attrs.get('id', f'id_{name}')
+        active_true = 'active' if value else ''
+        active_false = '' if value else 'active'
+
+        html = f"""
+        <div class="boolean-button-group" id="wrapper-{input_id}">
+            <input type="hidden" name="{name}" id="{input_id}" value="{int(value)}">
+            <button type="button" class="boolean-btn left {active_true}"
+                    data-value="1" onclick="toggleBooleanButtons('{input_id}', true)">
+                {self.label_true}
+            </button>
+            <button type="button" class="boolean-btn right {active_false}"
+                    data-value="0" onclick="toggleBooleanButtons('{input_id}', false)">
+                {self.label_false}
+            </button>
+        </div>
+        """
+        return mark_safe(html)
+
+    class Media:
+        css = {'all': (static('css/boolean_toggle.css'),)}
+        js = (static('js/boolean_toggle.js'),)
+
+
+        

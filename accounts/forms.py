@@ -3,9 +3,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django.contrib.auth import password_validation
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from .models import Profile
+from .models import *
 import re
 from core.widget import *
+from core.validators import validate_image
+
 
 class CustomUserCreationForm(UserCreationForm):
     
@@ -138,4 +140,93 @@ class ProfileUpdateForm(forms.ModelForm):
         if phone and Profile.objects.filter(phone_number=phone).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError(_('این شماره قبلاً استفاده شده است.'))
         return phone
+
+
+class PsychologistCreationUpdateForm(forms.ModelForm):
+    start_date_Psychology = forms.DateField(
+        label=_('تاریخ شروع فعالیت کاری'),
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ شروع فعالیت کاری',
+            'data-jdp-max-date': 'today',
+            'required': True
+        }),
+    )
+    PsychologistType = forms.ModelChoiceField(
+        queryset=PsychologistType.objects.all(),
+        required=True,  # اجباری یا اختیاری بودن را خودت تعیین کن
+        empty_label="نوع روانشناس را انتخاب کنید",
+        label="نوع روانشناس",
+        widget=ForeignKeySearchWidget(
+            placeholder="نوع روانشناس را انتخاب کنید",
+        )
+    )    
+
+    class Meta:
+        model = Psychologist
+        
+        fields = [
+            'PsychologistType',
+            'profile_picture',
+            'banner_image',
+            'start_date_Psychology',
+            'specialties',
+            'is_accepting_new_patients',
+        ]
+
+        widgets = {
+            'profile_picture': ImageInput(
+                allowed_formats=['jpg', 'jpeg', 'png'],
+                max_size_mb=1,
+                min_width=200, min_height=200,
+                max_width=800, max_height=800,
+            ),
+            # 🎯 تصویر بنر: مجاز تا 5MB، ابعاد بزرگ‌تر، می‌تواند wide باشد
+            'banner_image': ImageInput(
+                allowed_formats=['jpg', 'jpeg', 'png', 'webp'],
+                max_size_mb=5,
+                min_width=1000, min_height=400,
+                max_width=5000, max_height=3000,
+            ),
+            'specialties': ManyToManySearchWidget(
+                placeholder='زمینه‌های کاری را انتخاب کنید...'
+            ),
+            'is_accepting_new_patients': BooleanToggleWidget(
+                label_true="بله می‌بینم",
+                label_false="خیر نمی‌بینیم",
+            ),
+            
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, ImageInput):
+                image = cleaned_data.get(field_name)
+                if image:
+                    attrs = field.widget.attrs
+                    # خواندن مقادیر از data attributes
+                    allowed_formats = attrs.get('data-allowed-formats', 'jpg,jpeg,png').split(',')
+                    max_size_mb = float(attrs.get('data-max-size', 2))
+                    min_width = int(attrs.get('data-min-width', 0))
+                    min_height = int(attrs.get('data-min-height', 0))
+                    max_width = int(attrs.get('data-max-width', 10000))
+                    max_height = int(attrs.get('data-max-height', 10000))
+
+                    try:
+                        validate_image(
+                            image,
+                            allowed_formats=allowed_formats,
+                            max_size_mb=max_size_mb,
+                            min_width=min_width,
+                            min_height=min_height,
+                            max_width=max_width,
+                            max_height=max_height,
+                        )
+                    except forms.ValidationError as e:
+                        self.add_error(field_name, e)
+
+        return cleaned_data
+
 

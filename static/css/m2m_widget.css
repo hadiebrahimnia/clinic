@@ -1,0 +1,128 @@
+/* 🎨 ManyToManySearchWidget CSS */
+
+.m2m-widget {
+    position: relative;
+    width: 100%;
+    font-family: "Vazirmatn", sans-serif;
+}
+
+.m2m-display {
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+    transition: all 0.2s ease;
+    min-height: 60px;
+}
+
+.m2m-display:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0,123,255,0.15);
+}
+
+.m2m-placeholder {
+    margin: auto;
+    color: #999;
+    font-size: 16px;
+}
+.text-m2m-placeholder{
+    margin-left: -80px;
+}
+
+.m2m-selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.m2m-chip {
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    padding: 0.2rem 0.6rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.m2m-chip i {
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.m2m-arrow {
+    margin-right: auto;
+    border: solid #666;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.m2m-widget.open .m2m-arrow {
+    transform: rotate(-135deg);
+}
+
+.m2m-dropdown {
+    display: none;
+    position: absolute;
+    top: 105%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 250px;
+    overflow: hidden;
+}
+
+.m2m-widget.open .m2m-dropdown {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.m2m-search {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.m2m-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.m2m-options li {
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.m2m-options li:hover {
+    background-color: #f1f8ff;
+}
+
+.m2m-options li.selected {
+    background-color: #007bff;
+    color: white;
+}

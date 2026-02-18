@@ -1,0 +1,54 @@
+/* 🎨 BooleanButtonWidget CSS - گروه دکمه‌های چسبیده */
+
+.boolean-button-group {
+    width: 100%;
+    height: 60px;
+    display: inline-flex;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.boolean-btn {
+    flex: 1;
+    border: none;
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+}
+
+.boolean-btn:hover {
+    background-color: #e9ecef;
+}
+
+/* ✅ حالت فعال */
+.boolean-btn.active {
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* 🔄 حالت غیرفعال (کمرنگ) */
+.boolean-btn.inactive {
+    opacity: 0.6;
+}
+
+/* 👌 چسباندن و گوشه‌ها */
+.boolean-btn.left {
+    border-right: 1px solid #ccc;
+
+}
+.boolean-btn.right {
+    border-left: 1px solid #ccc;
+}
+
+.boolean-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+

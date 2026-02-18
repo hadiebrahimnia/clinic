@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
 from django.utils.text import Truncator
 
+
 class AccountView(View):
     template_name = 'form.html'
 
@@ -97,7 +98,6 @@ class AccountView(View):
             logout(request)
             messages.success(request, 'با موفقیت از سیستم خارج شدید.')
             return redirect('accounts', action='login')
-
         if action == 'register':
             form = CustomUserCreationForm()
         elif action == 'login':
@@ -156,6 +156,7 @@ class AccountView(View):
         context = self._get_form_context(request, action, form)
         return render(request, self.template_name, context)
     
+# Psychologist 
 class PsychologistActionView(View):
     def get(self, request, subject, action, pk=None):
         if action == 'list':
@@ -185,6 +186,35 @@ class PsychologistActionView(View):
                 'content': self._render_full_list_page(page_obj, search_query, specialty_filter),
             }
             return render(request, 'index2.html', context)
+        
+        elif action == 'register':
+            form = PsychologistCreationUpdateForm()
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت‌نام متخصص',
+                'back_url': '/dashboard/',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('accounts', args=['register']),
+                'submit_text': 'ثبت‌نام',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'footer_content': 
+                    '''
+                        
+                    '''
+            })
+
+            return render(request, 'form.html', base_context)
 
         elif action == 'detail' and pk:
             psychologist = get_object_or_404(Psychologist, pk=pk)
@@ -199,6 +229,18 @@ class PsychologistActionView(View):
 
         else:
             raise Http404("Action not supported")
+        
+    def post(self, request, action):
+        if action == 'register':
+            form = PsychologistCreationUpdateForm(request.POST, request.FILES)
+            if form.is_valid():
+                psychologist = form.save(commit=False)
+                # اگر لازم است:
+                # psychologist.profile = request.user.profile  یا هر منطق دیگری
+                psychologist.save()
+                form.save_m2m()   # اگر ManyToMany دارید (مثل specialties)
+                messages.success(...)
+                return redirect(...)
 
     # ========== متدهای کمکی (داخل کلاس) ==========
 

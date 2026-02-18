@@ -229,14 +229,14 @@ class DashboardView(View):
                                 <i class="fa fa-user-o text-white fs-30"></i>
                                 </div>
                                 <div class="text-white">
-                                <h2 style="margin: 0">ثبت نام متخصص</h2>
+                                <h2 style="margin: 0">درخواست همکاری</h2>
                                 </div>
                             </div>
                             </div>
 
                             <div class="card-back">
                             <div class="card-body">
-                                <p class="back-text">در صورتی که از متخصصین  کلینیک عرفان هستید ثبت نام نمایید </p>
+                                <p class="back-text">در صورت تمایل به همکاری با کلینیک عرفان ثبت نام نمایید</p>
                             </div>
                             </div>
                         </a>

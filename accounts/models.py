@@ -188,7 +188,6 @@ class Psychologist(models.Model):
     )
     start_date_Psychology = models.DateTimeField(blank=True,verbose_name="شروع فعالیت")
     specialties = models.ManyToManyField(Specialty,verbose_name="زمینه کاری", related_name='psychologists', blank=True)
-    is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
 
     bio = CKEditor5Field(
         verbose_name="بیوگرافی",
@@ -237,7 +236,7 @@ class Psychologist(models.Model):
         null=True,
         help_text="اضطراب، افسردگی، وسواس، اختلالات شخصیت، مشاوره زوج، کودک و نوجوان و ..."
     )
-
+    is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
     is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)

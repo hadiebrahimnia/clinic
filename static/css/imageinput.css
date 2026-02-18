@@ -1,0 +1,62 @@
+.image-upload{
+    cursor: pointer;
+    
+}
+
+.form-control img {
+    border-radius: 0.75rem;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    max-width: 180px;
+    height: auto;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.97);
+}
+
+.form-control img:not(.d-none) {
+    opacity: 1;
+    transform: scale(1);
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.form-control .btn {
+    min-width: 120px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease;
+}
+
+.form-control .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+@media (max-width: 576px) {
+    .image-upload-widget {
+        padding: 0.75rem;
+    }
+    .image-upload-widget img {
+        max-width: 140px;
+    }
+    .image-upload-widget .btn {
+        min-width: 100px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+
+    .form-control:hover {
+        border-color: #0d6efd;
+    }
+    .form-control img {
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    }
+}

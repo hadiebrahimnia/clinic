@@ -1,0 +1,117 @@
+/* 🎨 ForeignKeySearchWidget CSS */
+
+.fk-widget {
+    position: relative;
+    width: 100%;
+    font-family: "Vazirmatn", sans-serif;
+}
+
+.fk-display {
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background-color: #fff;
+    cursor: pointer;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    transition: all 0.2s ease-in-out;
+    font-size: 16px;
+}
+
+.fk-display:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.2);
+}
+
+.fk-placeholder{
+    margin: auto;
+}
+
+.fk-display .fk-placeholder {
+    color: #999;
+}
+
+.fk-display .fk-selected {
+    font-weight: 500;
+    color: #333;
+}
+
+.fk-arrow {
+    border: solid #666;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.fk-widget.open .fk-arrow {
+    transform: rotate(-135deg);
+}
+
+.fk-dropdown {
+    display: none;
+    position: absolute;
+    top: 105%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 250px;
+    overflow: hidden;
+}
+
+.fk-widget.open .fk-dropdown {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fk-search {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.fk-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.fk-options li {
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.fk-options li:hover {
+    background-color: #f1f8ff;
+}
+
+.fk-options li.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.fk-options::-webkit-scrollbar {
+    width: 6px;
+}
+.fk-options::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
