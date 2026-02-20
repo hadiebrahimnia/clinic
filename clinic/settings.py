@@ -124,8 +124,8 @@ STATICFILES_DIRS = [
 ]
 
 # مدیا (فایل‌های آپلود شده توسط کاربر و CKEditor)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'               # پوشه media در ریشه پروژه
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # تنظیمات CKEditor 5
 CKEDITOR_5_UPLOAD_PATH = "uploads/ckeditor5/"

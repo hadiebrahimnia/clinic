@@ -413,6 +413,7 @@ def render_psychologist_detail(psychologist):
     full_name = f"{psychologist.profile.first_name or ''} {psychologist.profile.last_name or ''}".strip()
     profile_picture=psychologist.profile_picture
     banner_image=psychologist.banner_image
+    PsychologistType=psychologist.PsychologistType
 
 
     # --- HTML نهایی ---
@@ -450,7 +451,7 @@ def render_psychologist_detail(psychologist):
                                                 <div class="col-lg-12 col-md-12">
                                                     <div class="row">
                                                         <div class="panel profile-cover">
-                                                            <div class="profile-cover__action bg-img" style=" background-image: url('/{banner_image}'); "></div>
+                                                            <div class="profile-cover__action bg-img" style=" background-image: url('/static/images/clinic/1.jpg'); "></div>
                                                             <div class="profile-cover__img">
                                                                 <div class="profile-img-1">
                                                                     <img src="/{profile_picture}" alt="img">
@@ -458,14 +459,16 @@ def render_psychologist_detail(psychologist):
                                                                 <div class="profile-img-content text-dark text-start">
                                                                     <div class="text-dark">
                                                                         <h3 class="h3 mb-2">{full_name}</h3>
-                                                                        <h5 class="text-muted">Web Developer</h5>
+                                                                        <h5 class="text-muted">{PsychologistType}</h5>
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <!--
                                                             <div class="btn-profile">
                                                                 <button class="btn btn-primary mt-1 mb-1"> <i class="fa fa-rss"></i> <span>Follow</span></button>
                                                                 <button class="btn btn-secondary mt-1 mb-1"> <i class="fa fa-envelope"></i> <span>Message</span></button>
                                                             </div>
+                                                            -->
                                                         </div>
                                                     </div>
                                                     <div class="row">
@@ -473,21 +476,28 @@ def render_psychologist_detail(psychologist):
                                                             <div class="social social-profile-buttons mt-5 float-end">
                                                                 <div class="mt-3">
                                                                     <a class="social-icon text-primary" href="https://www.facebook.com/" target="_blank"><i class="fa fa-facebook"></i></a>
+
+                                                                    <!--  کامنت  -->
+                                                                    <!--
+                                                                    <a class="social-icon text-primary" href="https://www.facebook.com/" target="_blank"><i class="fa fa-facebook"></i></a>
                                                                     <a class="social-icon text-primary" href="https://twitter.com/" target="_blank"><i class="fa fa-twitter"></i></a>
                                                                     <a class="social-icon text-primary" href="https://www.youtube.com/" target="_blank"><i class="fa fa-youtube"></i></a>
                                                                     <a class="social-icon text-primary" href="javascript:void(0)"><i class="fa fa-rss"></i></a>
                                                                     <a class="social-icon text-primary" href="https://www.linkedin.com/" target="_blank"><i class="fa fa-linkedin"></i></a>
                                                                     <a class="social-icon text-primary" href="https://myaccount.google.com/" target="_blank"><i class="fa fa-google-plus"></i></a>
+                                                                    -->
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!--
+
                                 <div class="row">
                                     <div class="col-xl-3">
                                         <div class="card">
@@ -506,6 +516,7 @@ def render_psychologist_detail(psychologist):
                                                             </div>
                                                         </div>
                                                     </div>
+                                                   
                                                     <div class="me-5 mt-5 mt-md-0">
                                                         <div class="media mb-4 d-flex">
                                                             <div class="media-icon bg-danger bradius text-white me-3 mt-1">
@@ -988,6 +999,8 @@ def render_psychologist_detail(psychologist):
                                         </div>
                                     </div>
                                 </div>
+
+                                -->
                             </div>
                             <!-- COL-END -->
                         </div>

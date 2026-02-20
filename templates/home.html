@@ -152,28 +152,45 @@
         <!-- Swiper -->
         <div class="swiper doctorsSwiper">
           <div class="swiper-wrapper">
-            <!-- دکتر ۱ -->
+            {% for item in psychologists %}
+              <div class="swiper-slide">
+                <div class="doctor-card">
+                  <div class="doctor-image-wrapper">
+                    <img
+                      src="{{ item.profile_picture }}"
+                      alt="{{ item.profile_picture }}" />
+                    <div class="image-overlay"></div>
+                  </div>
+                  <div class="doctor-info">
+                    <h3>{{ item.full_name }}</h3>
+                    <p class="doctor-degree">دکترای روانشناسی بالینی</p>
+                    <p class="doctor-specialty">
+                      متخصص افسردگی و اضطراب،ازدواج
+                    </p>
+                    <a href="/psychologist/detail/{{ item.id }}" class="doctor-btn">مشاهده</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+
             <div class="swiper-slide">
               <div class="doctor-card">
                 <div class="doctor-image-wrapper">
                   <img
-                    src="/static/images/psychologists/profiles/fathi.png"
-                    alt="دکتر علی فتحی آشتیانی" />
+                    src="#"
+                    alt="همه متخصصان" />
                   <div class="image-overlay"></div>
                 </div>
                 <div class="doctor-info">
-                  <h3>دکتر علی فتحی آشتیانی</h3>
-                  <p class="doctor-degree">دکترای روانشناسی بالینی</p>
+                  <h3> همه متخصصان کلینیک</h3>
+                  <p class="doctor-degree">-</p>
                   <p class="doctor-specialty">
-                    متخصص افسردگی و اضطراب،ازدواج
+                    -
                   </p>
-                  <a href="#" class="doctor-btn">مشاهده</a>
+                  <a href="/psychologist/list" class="doctor-btn">مشاهده همه</a>
                 </div>
               </div>
             </div>
-
-            
-            <!-- تا هر چندتا که بخوای ادامه بده... -->
           </div>
 
           <!-- دکمه‌های ناوبری -->

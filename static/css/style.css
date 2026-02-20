@@ -16275,7 +16275,7 @@ ul.inbox-pagination li {
 .profile-cover__img .profile-img-1 > img {
   max-width: 120px;
   border: 5px solid #ffffff;
-  border-radius: 50%;
+  border-radius: 20px;
   margin-top: 55px;
   margin-left: -9px;
 }
@@ -29016,10 +29016,6 @@ body.rtl {
   .rtl.sidebar-mini.sidenav-toggled.sidenav-toggled-open .side-badge {
     left: 20px;
     right: inherit;
-  }
-
-  .rtl.sidebar-mini footer.footer {
-    padding: 1.25rem 220px 1.25rem 1.25rem;
   }
 
   .rtl.horizontal
@@ -62565,9 +62561,6 @@ ul {
     width: 80px !important;
   }
 
-  .sidebar-mini footer.footer {
-    padding: 1.25rem 1.25rem 1.25rem 220px;
-  }
 
   .sidebar-mini.sidenav-toggled footer.footer {
     padding: 1.25rem 1.25rem 1.25rem 80px;
