@@ -13,7 +13,7 @@ class CustomUserCreationForm(UserCreationForm):
     
     phone_number = forms.CharField(
         label=_('شماره موبایل'),
-        max_length=15,
+        max_length=11,
         min_length=11,
         widget=PersianPhoneInput(attrs={
             'class': 'form-control',
@@ -31,6 +31,15 @@ class CustomUserCreationForm(UserCreationForm):
             'required': True
         }),
     )
+
+    gender = forms.ChoiceField(
+        label=_('جنسیت'),
+        choices=[('', 'جنسیت را انتخاب نمایید')] + list(Profile.GENDER_CHOICES),
+        widget=forms.Select(attrs={
+            'class': 'form-control text-center',
+            'required': True
+        })
+    )
     
     password1 = forms.CharField(
         label=_("رمز عبور"),
@@ -43,7 +52,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = Profile
-        fields = ('username', 'phone_number', 'date_of_birth', 'password1', 'password2')
+        fields = ('username', 'phone_number', 'date_of_birth','gender', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,17 +99,18 @@ class CustomAuthenticationForm(AuthenticationForm):
     )
 
 class ProfileUpdateForm(forms.ModelForm):
-    
+
     phone_number = forms.CharField(
         label=_('شماره موبایل'),
-        max_length=15,
+        max_length=11,
         min_length=11,
-        widget=forms.TextInput(attrs={
+        widget=PersianPhoneInput(attrs={
             'class': 'form-control',
-            'placeholder': '09xxxxxxxxx',
-            'pattern': r'^09[0-9]{9}$'
-        })
+            'placeholder': 'شماره موبایل',
+            'required': True
+        }),
     )
+    
     date_of_birth = forms.DateField(
         label=_('تاریخ تولد'),
         widget=PersianDateInput(attrs={
@@ -110,9 +120,26 @@ class ProfileUpdateForm(forms.ModelForm):
             'required': True
         }),
     )
+
+    gender = forms.ChoiceField(
+        label=_('جنسیت'),
+        choices=[('', 'جنسیت را انتخاب نمایید')] + list(Profile.GENDER_CHOICES),
+        widget=forms.Select(attrs={
+            'class': 'form-control text-center',
+            'required': True
+        })
+    )
+
+    city = forms.ModelChoiceField(
+        queryset=City.objects.all().select_related('province__country'),
+        label='شهر محل سکونت',
+        required=False,
+        widget=ChainedLocationWidget()
+    )
+
     class Meta:
         model = Profile
-        fields = ('username', 'phone_number', 'date_of_birth',)
+        fields = ('username', 'phone_number', 'date_of_birth','gender','city')
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -124,7 +151,8 @@ class ProfileUpdateForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['username'].help_text = None
-
+        if self.instance and self.instance.pk and getattr(self.instance, 'city', None):
+            self.fields['city'].initial = self.instance.city.pk
 
         
         # Labels فارسی
@@ -133,6 +161,8 @@ class ProfileUpdateForm(forms.ModelForm):
                 'username': 'کدملی',
                 'phone_number': 'شماره موبایل',
                 'date_of_birth': 'تاریخ تولد',
+                'gender': 'جنسیت',
+                'city': 'محل سکونت',
             }.get(field, field.title())
 
     def clean_phone_number(self):
@@ -206,7 +236,6 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
                 image = cleaned_data.get(field_name)
                 if image:
                     attrs = field.widget.attrs
-                    # خواندن مقادیر از data attributes
                     allowed_formats = attrs.get('data-allowed-formats', 'jpg,jpeg,png').split(',')
                     max_size_mb = float(attrs.get('data-max-size', 2))
                     min_width = int(attrs.get('data-min-width', 0))

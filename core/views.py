@@ -94,159 +94,198 @@ class HomeView(TemplateView):
 class DashboardView(View):
     def get(self, request):
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            '  خوش آمدید !',
-            extra_tags=json.dumps({
-                "title":"پیام",
-                "style": 'success',
-                "size": "medium",
-                "duration": 3000,
-                "location": "top-right",
-                "fixed": False
-            })
-        )
+        # messages.add_message(
+        #     request,
+        #     messages.SUCCESS,
+        #     '  خوش آمدید !',
+        #     extra_tags=json.dumps({
+        #         "title":"پیام",
+        #         "style": 'success',
+        #         "size": "medium",
+        #         "duration": 3000,
+        #         "location": "top-right",
+        #         "fixed": False
+        #     })
+        # )
 
         content = """
-        <div class="main-content with-sidebar">
-            <div class="side-app with_header">
-                <div class="main-container container-fluid">
-                <div class="page-header">
-                    <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="/"> <i class="mdi mdi-home"></i>خانه </a>
-                    </li>
-                    <li class="breadcrumb-item text-dark" aria-current="page">
-                        <i class="mdi mdi-view-dashboard"></i>داشبورد
-                    </li>
-                    <li class="breadcrumb-back">
-                        <a href="/" class="btn btn-outline-default fw-900"
-                        >بازگشت
-                        <i class="mdi mdi-arrow-left-thick"></i>
-                        </a>
-                    </li>
-                    </ol>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-xl-4">
-                        <a
-                            href="#"
-                            class="card card-custom"
-                            style="
-                            --front-gradient: linear-gradient(
-                                135deg,
-                                #667eea 0%,
-                                #764ba2 100%
-                            );
-                            --back-gradient: linear-gradient(
-                                135deg,
-                                #ff6b6b 0%,
-                                #ee5a24 100%
-                            );
-                            ">
-                            <div class="card-front img-card">
-                            <div class="floating-particles"></div>
-                            <div class="card-body">
-                                <div>
-                                <i class="fa fa-user-o text-white fs-30"></i>
-                                </div>
-                                <div class="text-white">
-                                <h2 style="margin: 0">لیست نوبت‌ها</h2>
-                                </div>
-                            </div>
+            <div class="main-content with-sidebar">
+                <div class="side-app with_header">
+                    <div class="main-container container-fluid">
+                        <div class="page-header">
+                            <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/"> <i class="mdi mdi-home"></i>خانه </a>
+                            </li>
+                            <li class="breadcrumb-item text-dark" aria-current="page">
+                                <i class="mdi mdi-view-dashboard"></i>داشبورد
+                            </li>
+                            <li class="breadcrumb-back">
+                                <a href="/" class="btn btn-outline-default fw-900"
+                                >بازگشت
+                                <i class="mdi mdi-arrow-left-thick"></i>
+                                </a>
+                            </li>
+                            </ol>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 col-xl-4">
+                                <a
+                                    href="/psychologist/register"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #667eea 0%,
+                                        #764ba2 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #ff6b6b 0%,
+                                        #ee5a24 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="fa fa-user-plus text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">ثبت اطلاعات متخصص</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text">
+                                      در صورتی که از همکاران کلینیک هستید از این قسمت اطلاعات را ثبت کنید
+                                        </p>
+                                    </div>
+                                    </div>
+                                </a>
                             </div>
 
-                            <div class="card-back">
-                            <div class="card-body">
-                                <p class="back-text">
-                                لیست نوبت‌های رزور شده را از این قسمت مشاهده نمایید
-                                </p>
+                            <!-- ______________________ Comment _________________________________
+                            <div class="col-md-6 col-xl-4">
+                                <a
+                                    href="#"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #667eea 0%,
+                                        #764ba2 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #ff6b6b 0%,
+                                        #ee5a24 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="fa fa-user-o text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">لیست نوبت‌ها</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text">
+                                        لیست نوبت‌های رزور شده را از این قسمت مشاهده نمایید
+                                        </p>
+                                    </div>
+                                    </div>
+                                </a>
                             </div>
+
+                            <div class="col-md-6 col-xl-4">
+                                <a
+                                    href="#"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #4facfe 0%,
+                                        #00f2fe 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #43e97b 0%,
+                                        #38f9d7 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="fa fa-user-o text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">لیست نتایج</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text">
+                                        لیست نتایج آزمون های تکمیل شده توسط شما را از این قسمت مشاهده
+                                        نمایید
+                                        </p>
+                                    </div>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
+
+                            <div class="col-md-6 col-xl-4">
+                                <a
+                                    href="#"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #fa709a 0%,
+                                        #fee140 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #a8edea 0%,
+                                        #fed6e3 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="fa fa-user-o text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">درخواست همکاری</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text">در صورت تمایل به همکاری با کلینیک عرفان ثبت نام نمایید</p>
+                                    </div>
+                                    </div>
+                                </a>
+                            </div>
+                            ______________________ Comment _________________________________ -->
+                        </div>
                     </div>
-
-                    <div class="col-md-6 col-xl-4">
-                    <a
-                        href="#"
-                        class="card card-custom"
-                        style="
-                        --front-gradient: linear-gradient(
-                            135deg,
-                            #4facfe 0%,
-                            #00f2fe 100%
-                        );
-                        --back-gradient: linear-gradient(
-                            135deg,
-                            #43e97b 0%,
-                            #38f9d7 100%
-                        );
-                        ">
-                        <div class="card-front img-card">
-                        <div class="floating-particles"></div>
-                        <div class="card-body">
-                            <div>
-                            <i class="fa fa-user-o text-white fs-30"></i>
-                            </div>
-                            <div class="text-white">
-                            <h2 style="margin: 0">لیست نتایج</h2>
-                            </div>
-                        </div>
-                        </div>
-
-                        <div class="card-back">
-                        <div class="card-body">
-                            <p class="back-text">
-                            لیست نتایج آزمون های تکمیل شده توسط شما را از این قسمت مشاهده
-                            نمایید
-                            </p>
-                        </div>
-                        </div>
-                    </a>
-                    </div>
-
-                    <div class="col-md-6 col-xl-4">
-                        <a
-                            href="#"
-                            class="card card-custom"
-                            style="
-                            --front-gradient: linear-gradient(
-                                135deg,
-                                #fa709a 0%,
-                                #fee140 100%
-                            );
-                            --back-gradient: linear-gradient(
-                                135deg,
-                                #a8edea 0%,
-                                #fed6e3 100%
-                            );
-                            ">
-                            <div class="card-front img-card">
-                            <div class="floating-particles"></div>
-                            <div class="card-body">
-                                <div>
-                                <i class="fa fa-user-o text-white fs-30"></i>
-                                </div>
-                                <div class="text-white">
-                                <h2 style="margin: 0">درخواست همکاری</h2>
-                                </div>
-                            </div>
-                            </div>
-
-                            <div class="card-back">
-                            <div class="card-body">
-                                <p class="back-text">در صورت تمایل به همکاری با کلینیک عرفان ثبت نام نمایید</p>
-                            </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
                 </div>
             </div>
-        </div>
-
-
         """
         
         extra_css = [
@@ -288,6 +327,7 @@ class FormView(View):
     
 class DynamicEntityView(View):
     ROUTES = {
+        
         'psychologist': 'accounts.views.PsychologistActionView',
     }
 
@@ -300,8 +340,9 @@ class DynamicEntityView(View):
             module = importlib.import_module(module_path)
             view_class = getattr(module, view_name)
         except (ImportError, AttributeError) as e:
-            logger.error(f"Dynamic view import failed: {e}")
-            return _error_response(request, 500, "خطای سرور", "ویوی مورد نظر یافت نشد.")
+            pass
+            # logger.error(f"Dynamic view import failed: {e}")
+            # return _error_response(request, 500, "خطای سرور", "ویوی مورد نظر یافت نشد.")
 
         try:
             view = view_class.as_view()
@@ -312,5 +353,6 @@ class DynamicEntityView(View):
         except PermissionDenied:
             return _error_response(request, 403, "دسترسی ممنوع", "شما اجازه انجام این عمل را ندارید.")
         except Exception as e:
-            logger.exception(f"Unexpected error in dynamic view: {e}")
-            return _error_response(request, 500, "خطای داخلی", "مشکلی رخ داده است.")
+            pass
+            # logger.exception(f"Unexpected error in dynamic view: {e}")
+            # return _error_response(request, 500, "خطای داخلی", "مشکلی رخ داده است.")

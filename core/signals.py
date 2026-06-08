@@ -14,7 +14,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.db import models
-from core.models import Logs
+from core.models import *
 # from appreserve.models import Turn, Plan, Relative
 from core.middleware import get_current_profile
 
@@ -24,6 +24,8 @@ from core.middleware import get_current_profile
 # =====================================================
 
 LOGGED_MODELS = [
+    "Profile"
+    "Psychologist"
     "Turn",
     "Plan",
 ]

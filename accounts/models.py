@@ -175,7 +175,7 @@ class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
     PsychologistType = models.ForeignKey(PsychologistType, on_delete=models.CASCADE, related_name='PsychologistType',null=True,blank=True)
     profile_picture = models.ImageField(
-        upload_to='static/images/psychologists/profiles',
+        upload_to='images/psychologists/profiles',
         blank=True, null=True,
         verbose_name="عکس پروفایل",
         help_text="عکس پرسنلی یا حرفه‌ای (مثلاً 400x400)"

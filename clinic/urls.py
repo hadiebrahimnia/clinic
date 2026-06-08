@@ -3,10 +3,17 @@ from django.urls import path, include
 from core.views import *
 from administrator.views import *
 from accounts.views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # ckeditor
     path('django-ckeditor-5/', include('django_ckeditor_5.urls')),
+    # ajax
+    path('ajax/provinces/', get_provinces, name='get_provinces'),
+    path('ajax/cities/', get_cities, name='get_cities'),
+
+    # Mian
     path('admin/', admin.site.urls),
     path('accounts/<str:action>/', AccountView.as_view(), name='accounts'),
     path('', HomeView.as_view(), name='home'),
@@ -15,4 +22,11 @@ urlpatterns = [
     path('form/', FormView.as_view(), name='form'),
     path('<str:subject>/<str:action>/', DynamicEntityView.as_view(), name='entity-action'),
     path('<str:subject>/<str:action>/<int:pk>/', DynamicEntityView.as_view(), name='entity-detail'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )

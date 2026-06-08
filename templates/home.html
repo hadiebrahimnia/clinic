@@ -20,20 +20,21 @@
     <!-- Header -->
     <header>
       <div class="container header-inner">
-        
-        <!-- لوگو چپ -->
-        <div class="header-logo-wrapper">
-          <img src="/static/images/brand/logo.png" alt="لوگو" class="header-logo-img">
-          <span class="header-logo-text">
-            کلینیک روانشناسی <strong>عرفان</strong>
-          </span>
-        </div>
-
         <div class="hamburger-menu">
             <span></span>
             <span></span>
             <span></span>
         </div>
+
+        <!-- لوگو چپ -->
+        <div class="header-logo-wrapper">
+          <img src="/static/images/brand/logo.png" alt="لوگو" class="header-logo-img">
+          {% comment %} <span class="header-logo-text">
+            کلینیک روانشناسی <strong>عرفان</strong>
+          </span> {% endcomment %}
+        </div>
+
+        
 
         <!-- منوی ناوبری وسط -->
         <nav class="header-nav-centered mobile-menu">
@@ -148,30 +149,44 @@
         <p class="doctors-subtitle">
           با افتخار بیش از ۲۰ روانشناس و مشاور مجرب در کنار شما هستیم
         </p>
-
+        
         <!-- Swiper -->
         <div class="swiper doctorsSwiper">
           <div class="swiper-wrapper">
+            
+            <div class="swiper-slide">
+              <div class="doctor-card" style="height: 509px;background:#2c6e49!important;">
+                <div class="doctor-info" style=" margin-top: 267px;">
+                  <h3 style="color:#fff;"> لیست متخصصان</h3>
+                </div>
+                <div class="doctor-info" style=" margin-top: 50px;">
+                  <a href="/psychologist/list" class="doctor-btn" style="background:#fff!important;color:#2c6e49;">مشاهده</a>
+                </div>
+                
+              </div>
+            </div>
+            
             <!-- دکتر ۱ -->
+             {% for item in psychologists %}
             <div class="swiper-slide">
               <div class="doctor-card">
                 <div class="doctor-image-wrapper">
                   <img
-                    src="/static/images/psychologists/profiles/fathi.png"
-                    alt="دکتر علی فتحی آشتیانی" />
+                    src="{{item.profile_picture}}"
+                    alt="{{item.full_name}}" />
                   <div class="image-overlay"></div>
                 </div>
                 <div class="doctor-info">
-                  <h3>دکتر علی فتحی آشتیانی</h3>
-                  <p class="doctor-degree">دکترای روانشناسی بالینی</p>
+                  <h3>{{item.full_name}}</h3>
+                  <p class="doctor-degree">مدرک</p>
                   <p class="doctor-specialty">
-                    متخصص افسردگی و اضطراب،ازدواج
+                   {{item.PsychologistType}}
                   </p>
-                  <a href="#" class="doctor-btn">مشاهده</a>
+                  <a href="/psychologist/detail/{{item.id}}" class="doctor-btn">مشاهده</a>
                 </div>
               </div>
             </div>
-
+            {% endfor %}
             
             <!-- تا هر چندتا که بخوای ادامه بده... -->
           </div>
@@ -298,7 +313,7 @@
   header {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
@@ -328,6 +343,7 @@
   .header-logo-img {
     height: 52px;
     width: auto;
+    opacity:0.7;
   }
 
   .header-logo-text strong {
@@ -758,7 +774,7 @@
       }
 
       .header-logo-wrapper {
-          order: 1;
+          order: 2;
       }
 
       .btn { /* دکمه نوبت‌دهی */
@@ -769,7 +785,7 @@
 
       .hamburger-menu {
           display: flex;
-          order: 2;
+          order: 1;
       }
 
       .header-nav-centered {
@@ -808,7 +824,6 @@
     padding: 0 !important;
     box-shadow: none !important;
     transition: none !important;
-    margin-left: 200px;
   }
 
   .header-nav-centered ul {

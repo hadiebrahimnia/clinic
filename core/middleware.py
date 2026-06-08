@@ -28,9 +28,9 @@ class CustomErrorMiddleware(MiddlewareMixin):
             return _error_response(request, 405, "متد مجاز نیست", f"متد {request.method} پشتیبانی نمی‌شود.")
         
         # خطاهای غیرمنتظره (مثل Exception)
-        else:
-            logger.error(f"500 Internal Server Error: {exception}", exc_info=True)
-            return _error_response(request, 500, "خطای سرور", "مشکلی رخ داده است.")
+        # else:
+        #     logger.error(f"500 Internal Server Error: {exception}", exc_info=True)
+        #     return _error_response(request, 500, "خطای سرور", "مشکلی رخ داده است.")
 
     def process_response(self, request, response):
         # اگر پاسخ 404 بود (مثلاً URL ناموجود)

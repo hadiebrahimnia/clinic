@@ -6,6 +6,8 @@ import re
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.urls import reverse
+from accounts.models import Country, Province, City
 
 class PersianDateInput(forms.DateInput):
     """
@@ -78,7 +80,6 @@ class PersianDateInput(forms.DateInput):
         js = (
             static('plugins/jalalidatepicker/jalalidatepicker.js'),
         )
-
 
 
 class PersianPhoneInput(forms.TextInput):
@@ -290,7 +291,6 @@ class ImageInput(forms.ClearableFileInput):
             static('js/imageinput.js'),
         )
 
-
 class ForeignKeySearchWidget(forms.Select):
     """
     ویجت اختصاصی ForeignKey با قابلیت جستجو
@@ -415,4 +415,132 @@ class BooleanToggleWidget(forms.CheckboxInput):
         js = (static('js/boolean_toggle.js'),)
 
 
-        
+class ChainedLocationWidget(forms.Widget):
+
+    class Media:
+        js = ('js/location.js',)
+
+    template_name = None
+
+    def get_context(self, name, value, attrs):
+
+        selected_country = None
+        selected_province = None
+        selected_city = None
+
+        provinces = []
+        cities = []
+
+        if value:
+            try:
+                city = City.objects.select_related(
+                    'province__country'
+                ).get(pk=value)
+
+                selected_city = city
+                selected_province = city.province
+                selected_country = city.province.country
+
+                provinces = Province.objects.filter(
+                    country=selected_country
+                )
+
+                cities = City.objects.filter(
+                    province=selected_province
+                )
+
+            except City.DoesNotExist:
+                pass
+
+        return {
+            'name': name,
+            'countries': Country.objects.all(),
+
+            'selected_country': selected_country,
+            'selected_province': selected_province,
+            'selected_city': selected_city,
+
+            'provinces': provinces,
+            'cities': cities,
+
+            'province_url': reverse('get_provinces'),
+            'city_url': reverse('get_cities'),
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+
+        context = self.get_context(name, value, attrs)
+
+        html = """
+            <div class="chained-location-widget">
+            <div class="form-group mb-3">
+                <select id="id_country" class="form-control" data-url="{province_url}">
+                    <option value="">کشور را انتخاب نمایید</option>
+                    {country_options}
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <select id="id_province" class="form-control" data-url="{city_url}" {province_disabled}>
+                    <option value="">استان را انتخاب نمایید</option>
+                    {province_options}
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <select id="id_city"
+                        name="{name}"
+                        class="form-control"
+                        {city_disabled}>
+                    <option value="">شهر محل سکونت را انتخاب نمایید</option>
+                    {city_options}
+                </select>
+            </div>
+        </div>
+        """
+
+        country_options = ''.join([
+            f'''
+            <option value="{country.id}"
+            {"selected" if context["selected_country"] and context["selected_country"].id == country.id else ""}>
+                {country.name}
+            </option>
+            '''
+            for country in context['countries']
+        ])
+
+        province_options = ''.join([
+            f'''
+            <option value="{province.id}"
+            {"selected" if context["selected_province"] and context["selected_province"].id == province.id else ""}>
+                {province.name}
+            </option>
+            '''
+            for province in context['provinces']
+        ])
+
+        city_options = ''.join([
+            f'''
+            <option value="{city.id}"
+            {"selected" if context["selected_city"] and context["selected_city"].id == city.id else ""}>
+                {city.name}
+            </option>
+            '''
+            for city in context['cities']
+        ])
+
+        return mark_safe(
+            html.format(
+                name=context['name'],
+                province_url=context['province_url'],
+                city_url=context['city_url'],
+                country_options=country_options,
+                province_options=province_options,
+                city_options=city_options,
+                province_disabled='' if context['selected_country'] else 'disabled',
+                city_disabled='' if context['selected_province'] else 'disabled'
+            )
+        )
+
+    def value_from_datadict(self, data, files, name):
+        return data.get(name)

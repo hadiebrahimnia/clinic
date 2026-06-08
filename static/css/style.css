@@ -24093,7 +24093,7 @@ ul.timeline > li:before {
 }
 
 .responsive-navbar .profile-1 .dropdown-item {
-  padding: 0.75rem 1.75rem !important;
+  padding: 0.75rem 1.5rem !important;
 }
 
 .responsive-navbar .profile-1 .dropdown-item .dropdown-icon {
@@ -63106,9 +63106,9 @@ ul {
     overflow: hidden;
   }
 
-  .sidebar-mini.sidenav-toggled .app-sidebar:hover {
+  /* .sidebar-mini.sidenav-toggled .app-sidebar:hover {
     overflow: visible;
-  }
+  } */
 
   .sidebar-mini.sidenav-toggled .slide-menu {
     position: absolute;
@@ -64241,10 +64241,10 @@ ul {
     width: 120px;
     overflow: hidden;
   }
-
+/* 
   .icontext-menu.sidebar-mini.sidenav-toggled .app-sidebar:hover {
     overflow: visible;
-  }
+  } */
 
   .icontext-menu.sidebar-mini.sidenav-toggled .slide-menu {
     position: absolute;
@@ -65363,9 +65363,9 @@ ul {
     overflow: hidden;
   }
 
-  .closed-leftmenu.sidebar-mini.sidenav-toggled .app-sidebar:hover {
+  /* .closed-leftmenu.sidebar-mini.sidenav-toggled .app-sidebar:hover {
     overflow: visible;
-  }
+  } */
 
   .closed-leftmenu.sidebar-mini.sidenav-toggled .slide-menu {
     position: absolute;
@@ -66246,9 +66246,9 @@ ul {
     overflow: hidden;
   }
 
-  .hover-submenu.sidebar-mini.sidenav-toggled .app-sidebar:hover {
+  /* .hover-submenu.sidebar-mini.sidenav-toggled .app-sidebar:hover {
     overflow: visible;
-  }
+  } */
 
   .hover-submenu.sidebar-mini.sidenav-toggled .slide-menu {
     position: absolute;
@@ -67533,9 +67533,9 @@ ul {
     overflow: hidden;
   }
 
-  .hover-submenu1.sidebar-mini.sidenav-toggled .app-sidebar:hover {
+  /* .hover-submenu1.sidebar-mini.sidenav-toggled .app-sidebar:hover {
     overflow: visible;
-  }
+  } */
 
   .hover-submenu1.sidebar-mini.sidenav-toggled .slide-menu {
     position: absolute;

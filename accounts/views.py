@@ -12,6 +12,30 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
 from django.utils.text import Truncator
+from django.views.decorators.http import require_GET
+
+
+@require_GET
+def get_provinces(request):
+    country_id = request.GET.get('country_id')
+    if not country_id:
+        return JsonResponse([], safe=False)
+    
+    provinces = Province.objects.filter(
+        country_id=country_id
+    ).values('id', 'name')
+    
+    return JsonResponse(list(provinces), safe=False)
+
+
+def get_cities(request):
+    province_id = request.GET.get('province_id')
+
+    cities = City.objects.filter(
+        province_id=province_id
+    ).values('id', 'name')
+
+    return JsonResponse(list(cities), safe=False)
 
 
 class AccountView(View):
@@ -77,7 +101,7 @@ class AccountView(View):
             
             base_context.update({
                 'title': 'ویرایش پروفایل',
-                'back_url': '/',
+                'back_url': '/dashboard/',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -107,6 +131,8 @@ class AccountView(View):
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
                 return redirect('accounts', action='login')
             form = ProfileUpdateForm(user=request.user, instance=request.user)
+            if not form.is_valid():
+                print("Form errors:", form.errors.as_json())
         else:
             messages.error(request, 'عملیات نامعتبر است.')
             return redirect('accounts', action='login')
@@ -202,7 +228,7 @@ class PsychologistActionView(View):
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
                 'form':form,
-                'form_action': reverse('accounts', args=['register']),
+                'form_action': reverse('entity-action', kwargs={'subject': 'psychologist', 'action': 'register'}),
                 'submit_text': 'ثبت‌نام',
                 'submit_class': 'btn btn-success btn-lg btn-block ',
                 'submit_style': '',
@@ -230,17 +256,41 @@ class PsychologistActionView(View):
         else:
             raise Http404("Action not supported")
         
-    def post(self, request, action):
+    def post(self, request, subject, action, pk=None): 
         if action == 'register':
             form = PsychologistCreationUpdateForm(request.POST, request.FILES)
+            
             if form.is_valid():
                 psychologist = form.save(commit=False)
-                # اگر لازم است:
-                # psychologist.profile = request.user.profile  یا هر منطق دیگری
+                psychologist.profile = request.user
                 psychologist.save()
-                form.save_m2m()   # اگر ManyToMany دارید (مثل specialties)
-                messages.success(...)
-                return redirect(...)
+                form.save_m2m()
+                messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
+                return redirect('entity-action', subject='psychologist', action='detail', pk=psychologist.pk)
+            else:
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                }
+                base_context.update({
+                    'title': 'ثبت‌نام متخصص',
+                    'back_url': '/dashboard/',
+                    'back_text': 'بازگشت ',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form': form,
+                    'form_action': reverse('entity-action', kwargs={'subject': 'psychologist', 'action': 'register'}),
+                    'submit_text': 'ثبت‌نام',
+                    'submit_class': 'btn btn-success btn-lg btn-block ',
+                    'card_header_class': 'card-header',
+                    'card_header_style': 'background-color: #6383a8;color: #fff;',
+                })
+                return render(request, 'form.html', base_context)
+        
+
+        raise Http404("Action not supported")
 
     # ========== متدهای کمکی (داخل کلاس) ==========
 

@@ -3,7 +3,6 @@ from accounts.models import Profile
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-
 class Logs(models.Model):
     ACTION_CHOICES = [
         ('create', 'ایجاد'),
