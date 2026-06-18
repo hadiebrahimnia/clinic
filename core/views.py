@@ -327,7 +327,6 @@ class FormView(View):
     
 class DynamicEntityView(View):
     ROUTES = {
-        
         'psychologist': 'accounts.views.PsychologistActionView',
     }
 

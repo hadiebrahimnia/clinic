@@ -121,11 +121,25 @@ class AccountView(View):
         if action == 'logout':
             logout(request)
             messages.success(request, 'با موفقیت از سیستم خارج شدید.')
-            return redirect('accounts', action='login')
-        if action == 'register':
+            return redirect('home')
+        elif action == 'register':
             form = CustomUserCreationForm()
         elif action == 'login':
             form = CustomAuthenticationForm()
+            if form.is_valid():
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                user = authenticate(request, username=username, password=password)
+                print(user)
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, 'با موفقیت وارد شدید.')
+                    return redirect('/dashboard/', action='update')
+                else:
+                    messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
+                    # messages.error(request, 'کاربری با این مشخصات یافت نشد.')
+                messages.error(request, 'نام کاربری یا رمز عبور وارد شده صحیح نمی‌باشد.')
+    
         elif action == 'update':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
