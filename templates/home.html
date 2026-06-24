@@ -155,12 +155,12 @@
           <div class="swiper-wrapper">
             
             <div class="swiper-slide">
-              <div class="doctor-card" style="height: 509px;background:#2c6e49!important;">
+              <div class="doctor-card" style="height: 509px;background:#1ab0fc!important;">
                 <div class="doctor-info" style=" margin-top: 267px;">
                   <h3 style="color:#fff;"> لیست متخصصان</h3>
                 </div>
                 <div class="doctor-info" style=" margin-top: 50px;">
-                  <a href="/psychologist/list" class="doctor-btn" style="background:#fff!important;color:#2c6e49;">مشاهده</a>
+                  <a href="/psychologist/list" class="doctor-btn" style="background:#fff!important;color:#1ab0fc;">مشاهده</a>
                 </div>
                 
               </div>
@@ -264,8 +264,9 @@
 
 <style>
   :root {
-    --primary: #2c6e49;
-    --secondary: #4c9a6e;
+    --info: #1ab0fc;
+    --success: #2c6e49;
+    --secondary: #053698;
     --accent: #f4a261;
     --light: #f8f9fa;
     --dark: #212529;
@@ -336,7 +337,7 @@
     gap: 14px;
     font-size: 1.8rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--success);
     flex-shrink: 0;
   }
 
@@ -377,13 +378,13 @@
     height: 2px;
     bottom: -8px;
     left: 50%;
-    background: var(--primary);
+    background: var(--secondary);
     transition: width 0.3s;
     transform: translateX(-50%);
   }
 
   .header-nav-centered a:hover {
-    color: var(--primary);
+    color: var(--secondary);
   }
 
   .header-nav-centered a:hover::after {
@@ -391,7 +392,7 @@
   }
 
   .btn {
-    background: var(--primary);
+    background: var(--info);
     color: #fff;
     padding: 0.75rem 1.8rem;
     border-radius: 50px;
@@ -401,7 +402,7 @@
   }
 
   .btn:hover {
-    background: var(--secondary);
+    background: var(--accent);
     transform: translateY(-3px);
   }
 
@@ -424,15 +425,14 @@
 
   /* ====================== HERO ====================== */
   .hero {
-    background: linear-gradient(rgba(44, 110, 73, 0.88), rgba(44, 110, 73, 0.88));
-    height: 100vh;
-    min-height: 600px;
+    background: #c2eafc;
+    height: 80vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #fff;
+    color: #000000;
   }
 
   .hero h1 {
@@ -451,7 +451,7 @@
     text-align: center;
     font-size: 2.6rem;
     margin-bottom: 3rem;
-    color: var(--primary);
+    color: var(--secondary);
   }
 
   /* Services */
@@ -482,7 +482,7 @@
 
   .service-card i {
     font-size: 3.2rem;
-    color: var(--primary);
+    color: var(--success);
     margin-bottom: 1.2rem;
   }
 
@@ -532,6 +532,7 @@
     overflow: hidden;
     box-shadow: 0 15px 40px rgba(0,0,0,0.1);
     transition: all 0.4s ease;
+    
   }
 
   .doctor-card:hover {
@@ -559,7 +560,7 @@
   .image-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(transparent 50%, rgba(44,110,73,0.85));
+    background: linear-gradient(transparent 50%, rgba(26,176,252,0.85));
   }
 
   .doctor-info {
@@ -569,7 +570,7 @@
 
   .doctor-info h3 {
     font-size: 1.38rem;
-    color: var(--primary);
+    color: var(--success);
     margin-bottom: 0.4rem;
   }
 
@@ -589,7 +590,7 @@
   }
 
   .doctor-btn {
-    background: var(--primary);
+    background: var(--info);
     color: white;
     padding: 0.7rem 2rem;
     border-radius: 50px;
@@ -598,7 +599,7 @@
   }
 
   .doctor-btn:hover {
-    background: var(--secondary);
+    background: var(--accent);
     transform: translateY(-3px);
   }
 
@@ -609,7 +610,7 @@
     height: 56px;
     background: rgba(255,255,255,0.95);
     border-radius: 50%;
-    color: var(--primary);
+    color: var(--success);
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     backdrop-filter: blur(12px);
   }
@@ -622,7 +623,7 @@
 
   .swiper-button-next:hover,
   .swiper-button-prev:hover {
-    background: var(--primary);
+    background: var(--success);
     color: white;
     transform: scale(1.12);
   }
@@ -636,10 +637,10 @@
 
   /* CTA */
   .cta {
-    background: linear-gradient(rgba(44, 110, 73, 0.92), rgba(44, 110, 73, 0.92));
+    background: #c2eafc;
     padding: 110px 0;
     text-align: center;
-    color: #fff;
+    color: #000000;
   }
 
   .cta h2 {
@@ -649,7 +650,7 @@
 
   /* Footer */
   footer {
-    background: var(--dark);
+    background: #053698;
     color: #fff;
     padding: 90px 0 40px;
   }
@@ -702,7 +703,7 @@
   .hamburger-menu span {
       width: 30px;
       height: 3px;
-      background: var(--primary);
+      background: var(--success);
       transition: all 0.3s ease;
       border-radius: 3px;
   }

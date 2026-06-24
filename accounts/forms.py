@@ -78,14 +78,17 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = UsernameField(
-         label=_('کد ملی'),
-        widget=forms.TextInput(attrs={
+    
+    username = forms.CharField(
+        label=_('کدملی'),
+        max_length=10,
+        min_length=10,
+        widget=UsernameInput(attrs={
             'class': 'form-control',
-            'placeholder': 'کد ملی',
-            'autocomplete': 'username',
-            'autofocus': True
-        })
+            'placeholder': 'کدملی',
+            'data-input-type': 'number',
+            'required': True
+        }),
     )
     
     password = forms.CharField(
@@ -98,15 +101,25 @@ class CustomAuthenticationForm(AuthenticationForm):
         })
     )
 
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+
+        self.fields['username'].max_length = 10
+        self.fields['username'].widget.attrs['maxlength'] = 10
+        self.fields['username'].widget.attrs['minlength'] = 10
+
+
 class ProfileUpdateForm(forms.ModelForm):
 
     phone_number = forms.CharField(
         label=_('شماره موبایل'),
         max_length=11,
         min_length=11,
+        
         widget=PersianPhoneInput(attrs={
             'class': 'form-control',
             'placeholder': 'شماره موبایل',
+            'data-input-type': 'number',
             'required': True
         }),
     )
@@ -173,24 +186,29 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class PsychologistCreationUpdateForm(forms.ModelForm):
-    start_date_Psychology = forms.DateField(
-        label=_('تاریخ شروع فعالیت کاری'),
-        widget=PersianDateInput(attrs={
-            'class': 'form-control text-center date',
-            'placeholder': 'تاریخ شروع فعالیت کاری',
-            'data-jdp-max-date': 'today',
-            'required': True
-        }),
-    )
+    
     PsychologistType = forms.ModelChoiceField(
         queryset=PsychologistType.objects.all(),
-        required=True,  # اجباری یا اختیاری بودن را خودت تعیین کن
-        empty_label="نوع روانشناس را انتخاب کنید",
-        label="نوع روانشناس",
+        required=True,
+        empty_label="عنوان فعالیت را انتخاب کنید",
+        label="عنوان فعالیت",
         widget=ForeignKeySearchWidget(
-            placeholder="نوع روانشناس را انتخاب کنید",
+            placeholder="عنوان فعالیت را انتخاب کنید",
         )
-    )    
+    )   
+
+    profile_picture = forms.ImageField(
+        required=True,
+        label="عکس پروفایل",
+        widget=ImageInput(
+            allowed_formats=['jpg', 'jpeg', 'png'],
+            max_size_mb=1,
+            min_width=200,
+            min_height=200,
+            max_width=800,
+            max_height=800,
+        )
+    ) 
 
     class Meta:
         model = Psychologist
@@ -198,36 +216,9 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
         fields = [
             'PsychologistType',
             'profile_picture',
-            'banner_image',
-            'start_date_Psychology',
-            'specialties',
-            'is_accepting_new_patients',
         ]
 
-        widgets = {
-            'profile_picture': ImageInput(
-                allowed_formats=['jpg', 'jpeg', 'png'],
-                max_size_mb=1,
-                min_width=200, min_height=200,
-                max_width=800, max_height=800,
-            ),
-            # 🎯 تصویر بنر: مجاز تا 5MB، ابعاد بزرگ‌تر، می‌تواند wide باشد
-            'banner_image': ImageInput(
-                allowed_formats=['jpg', 'jpeg', 'png', 'webp'],
-                max_size_mb=5,
-                min_width=1000, min_height=400,
-                max_width=5000, max_height=3000,
-            ),
-            'specialties': ManyToManySearchWidget(
-                placeholder='زمینه‌های کاری را انتخاب کنید...'
-            ),
-            'is_accepting_new_patients': BooleanToggleWidget(
-                label_true="بله می‌بینم",
-                label_false="خیر نمی‌بینیم",
-            ),
-            
-        }
-
+    
     def clean(self):
         cleaned_data = super().clean()
 

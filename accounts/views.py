@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from accounts.models import *
 from django.http import JsonResponse
+import json
 from accounts.forms import *
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, Http404
@@ -62,7 +63,7 @@ class AccountView(View):
                 'submit_class': 'btn btn-success btn-lg btn-block ',
                 'submit_style': '',
                 'card_header_class': 'card-header',
-                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
                 'footer_content': '''
                     <p class="display-10">
                         قبلاً حساب کاربری دارید؟
@@ -82,7 +83,7 @@ class AccountView(View):
                 'submit_text': 'ورود',
                 'submit_class': 'btn btn-success btn-lg btn-block display-10',
                 'card_header_class': 'card-header',
-                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
                 'footer_content': '''
                     <p class="display-10">
                         هنوز ثبت‌نام نکرده‌اید؟
@@ -108,7 +109,8 @@ class AccountView(View):
                 'form_action': reverse('accounts', args=['update']),
                 'submit_text': 'به‌روزرسانی پروفایل',
                 'submit_class': 'btn btn-info btn-block ',
-                'card_header_class': 'card-header bg-info text-white',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
             })
         
         # اضافه کردن فرم
@@ -125,21 +127,10 @@ class AccountView(View):
         elif action == 'register':
             form = CustomUserCreationForm()
         elif action == 'login':
-            form = CustomAuthenticationForm()
-            if form.is_valid():
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password')
-                user = authenticate(request, username=username, password=password)
-                print(user)
-                if user is not None:
-                    login(request, user)
-                    messages.success(request, 'با موفقیت وارد شدید.')
-                    return redirect('/dashboard/', action='update')
-                else:
-                    messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
-                    # messages.error(request, 'کاربری با این مشخصات یافت نشد.')
-                messages.error(request, 'نام کاربری یا رمز عبور وارد شده صحیح نمی‌باشد.')
-    
+            if request.user.is_authenticated:
+                return redirect('/dashboard/')
+            else:
+                form = CustomAuthenticationForm()
         elif action == 'update':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
@@ -165,6 +156,7 @@ class AccountView(View):
             
         elif action == 'login':
             form = CustomAuthenticationForm(request, data=request.POST)
+            
             if form.is_valid():
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password')
@@ -172,10 +164,33 @@ class AccountView(View):
                 
                 if user is not None:
                     login(request, user)
-                    messages.success(request, 'با موفقیت وارد شدید.')
-                    return redirect('/dashboard/', action='update')
+                    messages.add_message(
+                        request, messages.SUCCESS,
+                        'با موفقیت وارد شدید',
+                        extra_tags=json.dumps({
+                            "style": "success",
+                            "size": "medium",
+                            "duration": 6000,
+                            "location": "top-right",
+                            "title": "پیام",
+                        })
+                    )
+                    return redirect('/dashboard/')
                 else:
                     messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
+            else:
+                messages.add_message(
+                    request, messages.ERROR,
+                    'نام کاربری یا رمز عبور اشتباه است.',
+                    extra_tags=json.dumps({
+                        "style": "error",
+                        "size": "medium",
+                        "duration": 6000,
+                        "location": "top-right",
+                        "title": "خطای ورود",
+                       
+                    })
+                )
         
         elif action == 'update':
             if not request.user.is_authenticated:
@@ -228,7 +243,13 @@ class PsychologistActionView(View):
             return render(request, 'index2.html', context)
         
         elif action == 'register':
-            form = PsychologistCreationUpdateForm()
+            if not request.user.is_authenticated:
+                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
+                return redirect('accounts', action='login')
+            else:
+                form = PsychologistCreationUpdateForm()
+                
+
             base_context = {
                 'col_class': 'col-md-5 col-12 m-auto',
                 'card_class': 'card shadow-lg',
@@ -247,13 +268,13 @@ class PsychologistActionView(View):
                 'submit_class': 'btn btn-success btn-lg btn-block ',
                 'submit_style': '',
                 'card_header_class': 'card-header',
-                'card_header_style': 'background-color: #6383a8;color: #fff;',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
                 'footer_content': 
                     '''
                         
                     '''
             })
-
+            
             return render(request, 'form.html', base_context)
 
         elif action == 'detail' and pk:
@@ -299,7 +320,7 @@ class PsychologistActionView(View):
                     'submit_text': 'ثبت‌نام',
                     'submit_class': 'btn btn-success btn-lg btn-block ',
                     'card_header_class': 'card-header',
-                    'card_header_style': 'background-color: #6383a8;color: #fff;',
+                    'card_header_style': 'background-color: #c2eafc;color: #fff;',
                 })
                 return render(request, 'form.html', base_context)
         
@@ -404,13 +425,9 @@ class PsychologistActionView(View):
             specs = [s.name for s in p.specialties.all()]
             specialties_text = ', '.join(specs) if specs else 'تخصصی ثبت نشده'
 
-            bio = p.bio or 'در حال تکمیل بیوگرافی...'
-            bio_snippet = bio[:180]
-            if len(bio) > 180:
-                bio_snippet += '...'
 
             # --- لینک ---
-            detail_url = reverse('entity-detail', kwargs={'subject': 'psychologist', 'action': 'detail', 'pk': p.pk})
+            detail_url = reverse('entity-action-detail', kwargs={'subject': 'psychologist', 'action': 'detail', 'pk': p.pk})
 
             # --- کارت افقی ---
             card = f'''
@@ -426,7 +443,6 @@ class PsychologistActionView(View):
                                 <strong>تخصص:</strong> {specialties_text}
                                 <span class="specialty-badge">{specialties_text}</span>
                             </p>
-                            <p class="card-text bio-snippet">{bio_snippet}</p>
                         </div>
                     </div>
                 </div>
@@ -489,14 +505,14 @@ def render_psychologist_detail(psychologist):
                     <div class="page-header">
                         <ol class="breadcrumb">
                         <li class="breadcrumb-item ">
-                            <a href="psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
+                            <a href="/psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
                         </li>
                         <li class="breadcrumb-item text-dark" aria-current="page">
                             <i class="fa fa-user-circle ml-2"></i>{full_name}
                         </li>
                         
                         <li class="breadcrumb-back">
-                            <a href="/" class="btn btn-outline-default fw-900"
+                            <a href="/psychologist/list" class="btn btn-outline-default fw-900"
                             >بازگشت
                             <i class="mdi mdi-arrow-left-thick"></i>
                             </a>

@@ -21,7 +21,7 @@ urlpatterns = [
     path('administrator/', AdministratorView.as_view(), name='administrator'),
     path('form/', FormView.as_view(), name='form'),
     path('<str:subject>/<str:action>/', DynamicEntityView.as_view(), name='entity-action'),
-    path('<str:subject>/<str:action>/<int:pk>/', DynamicEntityView.as_view(), name='entity-detail'),
+    path('<str:subject>/<str:action>/<int:pk>/', DynamicEntityView.as_view(), name='entity-action-detail'),
 
 ]
 

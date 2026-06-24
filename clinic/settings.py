@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'core',
     'administrator',
+    'assessments',
     'django_ckeditor_5',
 ]
 

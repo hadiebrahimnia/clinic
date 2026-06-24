@@ -68,13 +68,6 @@ class HomeView(TemplateView):
                 'PsychologistType':psych.PsychologistType,
                 'username': psych.profile.username,
                 'profile_picture': psych.profile_picture.url if psych.profile_picture else None,
-                'banner_image': psych.banner_image.url if psych.banner_image else None,
-                'bio': psych.bio or "بیوگرافی در دسترس نیست.",
-                'start_date': psych.start_date_Psychology.strftime('%Y-%m-%d') if psych.start_date_Psychology else None,
-                'is_accepting_new_patients': psych.is_accepting_new_patients,
-                'specialties': specialties,
-                'degrees': degrees,
-                'social_media': social_media,
                 'location': {
                     'city': psych.profile.city.name if psych.profile.city else None,
                     'province': psych.profile.city.province.name if psych.profile.city and psych.profile.city.province else None,
@@ -93,20 +86,6 @@ class HomeView(TemplateView):
 
 class DashboardView(View):
     def get(self, request):
-
-        # messages.add_message(
-        #     request,
-        #     messages.SUCCESS,
-        #     '  خوش آمدید !',
-        #     extra_tags=json.dumps({
-        #         "title":"پیام",
-        #         "style": 'success',
-        #         "size": "medium",
-        #         "duration": 3000,
-        #         "location": "top-right",
-        #         "fixed": False
-        #     })
-        # )
 
         content = """
             <div class="main-content with-sidebar">
@@ -130,45 +109,7 @@ class DashboardView(View):
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 col-xl-4">
-                                <a
-                                    href="/psychologist/register"
-                                    class="card card-custom"
-                                    style="
-                                    --front-gradient: linear-gradient(
-                                        135deg,
-                                        #667eea 0%,
-                                        #764ba2 100%
-                                    );
-                                    --back-gradient: linear-gradient(
-                                        135deg,
-                                        #ff6b6b 0%,
-                                        #ee5a24 100%
-                                    );
-                                    ">
-                                    <div class="card-front img-card">
-                                    <div class="floating-particles"></div>
-                                    <div class="card-body">
-                                        <div>
-                                        <i class="fa fa-user-plus text-white fs-30"></i>
-                                        </div>
-                                        <div class="text-white">
-                                        <h2 style="margin: 0">ثبت اطلاعات متخصص</h2>
-                                        </div>
-                                    </div>
-                                    </div>
 
-                                    <div class="card-back">
-                                    <div class="card-body">
-                                        <p class="back-text">
-                                      در صورتی که از همکاران کلینیک هستید از این قسمت اطلاعات را ثبت کنید
-                                        </p>
-                                    </div>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <!-- ______________________ Comment _________________________________
                             <div class="col-md-6 col-xl-4">
                                 <a
                                     href="#"
@@ -192,7 +133,7 @@ class DashboardView(View):
                                         <i class="fa fa-user-o text-white fs-30"></i>
                                         </div>
                                         <div class="text-white">
-                                        <h2 style="margin: 0">لیست نوبت‌ها</h2>
+                                        <h2 style="margin: 0">نوبت‌های من</h2>
                                         </div>
                                     </div>
                                     </div>
@@ -281,7 +222,6 @@ class DashboardView(View):
                                     </div>
                                 </a>
                             </div>
-                            ______________________ Comment _________________________________ -->
                         </div>
                     </div>
                 </div>
@@ -304,6 +244,7 @@ class DashboardView(View):
                 ]
             }
         ]
+        
 
         if request.user.is_superuser:
             sidebar_menu.append({
@@ -352,6 +293,21 @@ class DynamicEntityView(View):
         except PermissionDenied:
             return _error_response(request, 403, "دسترسی ممنوع", "شما اجازه انجام این عمل را ندارید.")
         except Exception as e:
-            pass
-            # logger.exception(f"Unexpected error in dynamic view: {e}")
-            # return _error_response(request, 500, "خطای داخلی", "مشکلی رخ داده است.")
+            messages.add_message(
+                request,
+                messages.ERROR,
+                str(e),
+                extra_tags=json.dumps({
+                    "style": "error",
+                    "size": "medium",
+                    "duration": 6000,
+                    "location": "top-right",
+                    "title": "خطا",
+                })
+            )
+            return _error_response(
+                request,
+                500,
+                "خطای داخلی",
+                str(e)
+            )

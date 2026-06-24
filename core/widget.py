@@ -112,6 +112,12 @@ class PersianPhoneInput(forms.TextInput):
         attrs.setdefault('onkeypress', "return event.charCode >= 48 && event.charCode <= 57")
         return attrs
 
+    
+    class Media:
+        
+        js = (
+            static('js/input-rules.js'),
+        )
 
 # اختیاری: اعتبارسنجی قوی‌تر در سطح فیلد فرم
 phone_validator = RegexValidator(
@@ -544,3 +550,29 @@ class ChainedLocationWidget(forms.Widget):
 
     def value_from_datadict(self, data, files, name):
         return data.get(name)
+    
+
+class UsernameInput(forms.TextInput):
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'class': 'form-control text-center',
+            'maxlength': '10',
+            'minlength': '10',
+            'inputmode': 'numeric',  # کیبورد عددی در موبایل
+            'pattern': '[0-9]{10}',  # برای اعتبارسنجی HTML5
+        }
+        if attrs:
+            default_attrs.update(attrs)
+
+        super().__init__(attrs=default_attrs)
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        attrs.setdefault('oninput', "this.value = this.value.replace(/[^0-9]/g, '')")
+        attrs.setdefault('onkeypress', "return event.charCode >= 48 && event.charCode <= 57")
+        return attrs
+
+    class Media:
+        js = (
+            static('js/input-rules.js'),
+        )
