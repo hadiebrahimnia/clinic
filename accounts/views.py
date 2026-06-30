@@ -7,8 +7,10 @@ from accounts.models import *
 from django.http import JsonResponse
 import json
 from accounts.forms import *
+from core.utils import *
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, Http404
+from django.core.exceptions import PermissionDenied
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
@@ -38,21 +40,49 @@ def get_cities(request):
 
     return JsonResponse(list(cities), safe=False)
 
+def get_specializations(request):
+    field_id = request.GET.get('field_id')
 
+    specializations = Specialization.objects.filter(
+        field_id=field_id
+    ).values('id', 'name')
+
+    return JsonResponse(list(specializations), safe=False)
+
+
+
+# ====================== Psychologist Main ======================
 class AccountView(View):
     template_name = 'form.html'
 
-    def _get_form_context(self, request, action, form=None):
-        """Context پایه برای همه فرم‌ها"""
-        base_context = {
-            'col_class': 'col-md-5 col-12 m-auto',
-            'card_class': 'card shadow-lg',
-            'card_header_class': 'card-header',
-            'card_body_class': 'card-body p-5',
-        }
+    def get(self, request, action):
+        if action == 'logout':
+            logout(request)
+            messages.add_message(
+                request, 
+                messages.SUCCESS, 
+                'با موفقیت از سیستم خارج شدید.',
+                extra_tags=json.dumps({
+                    "style": "success",
+                    "alert_class": "success",
+                    "size": "medium",
+                    "duration": 6000,
+                    "location": "top-right",
+                    "title": "پیام",
+                })
+            )
+            return redirect('accounts', action='login')
         
-        if action == 'register':
-            base_context.update({
+        elif action == 'register':
+            if request.user.is_authenticated:
+                return redirect('/dashboard/')
+            form = CustomUserCreationForm()
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
                 'title': 'ثبت‌نام',
                 'back_url': '/',
                 'back_text': 'بازگشت ',
@@ -62,18 +92,27 @@ class AccountView(View):
                 'submit_text': 'ثبت‌نام',
                 'submit_class': 'btn btn-success btn-lg btn-block ',
                 'submit_style': '',
-                'card_header_class': 'card-header',
                 'card_header_style': 'background-color: #1ab0fc;color: #fff;',
                 'footer_content': '''
                     <p class="display-10">
                         قبلاً حساب کاربری دارید؟
                         <a href="/accounts/login/" class="text-primary">ورود</a>
                     </p>
-                '''
-            })
+                ''',
+                'form': form
+            }
+            return render(request, self.template_name, base_context)
         
         elif action == 'login':
-            base_context.update({
+            if request.user.is_authenticated:
+                return redirect('/dashboard/')
+            form = CustomAuthenticationForm()
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
                 'title': 'ورود به حساب کاربری',
                 'back_url': '/',
                 'back_text': 'بازگشت',
@@ -82,7 +121,6 @@ class AccountView(View):
                 'form_action': reverse('accounts', args=['login']),
                 'submit_text': 'ورود',
                 'submit_class': 'btn btn-success btn-lg btn-block display-10',
-                'card_header_class': 'card-header',
                 'card_header_style': 'background-color: #1ab0fc;color: #fff;',
                 'footer_content': '''
                     <p class="display-10">
@@ -93,14 +131,23 @@ class AccountView(View):
                     <p class="">
                         <a href="#" class="text-primary">فراموشی رمز عبور</a>
                     </p>
-                '''
-            })
+                ''',
+                'form': form
+            }
+            return render(request, self.template_name, base_context)
         
         elif action == 'update':
             if not request.user.is_authenticated:
+                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
                 return redirect('accounts', action='login')
             
-            base_context.update({
+            form = ProfileUpdateForm(user=request.user, instance=request.user)
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
                 'title': 'ویرایش پروفایل',
                 'back_url': '/dashboard/',
                 'back_text': 'بازگشت',
@@ -109,41 +156,14 @@ class AccountView(View):
                 'form_action': reverse('accounts', args=['update']),
                 'submit_text': 'به‌روزرسانی پروفایل',
                 'submit_class': 'btn btn-info btn-block ',
-                'card_header_class': 'card-header',
                 'card_header_style': 'background-color: #1ab0fc;color: #fff;',
-            })
+                'form': form
+            }
+            return render(request, self.template_name, base_context)
         
-        # اضافه کردن فرم
-        if form:
-            base_context['form'] = form
-        
-        return base_context
-
-    def get(self, request, action):
-        if action == 'logout':
-            logout(request)
-            messages.success(request, 'با موفقیت از سیستم خارج شدید.')
-            return redirect('home')
-        elif action == 'register':
-            form = CustomUserCreationForm()
-        elif action == 'login':
-            if request.user.is_authenticated:
-                return redirect('/dashboard/')
-            else:
-                form = CustomAuthenticationForm()
-        elif action == 'update':
-            if not request.user.is_authenticated:
-                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
-                return redirect('accounts', action='login')
-            form = ProfileUpdateForm(user=request.user, instance=request.user)
-            if not form.is_valid():
-                print("Form errors:", form.errors.as_json())
         else:
             messages.error(request, 'عملیات نامعتبر است.')
             return redirect('accounts', action='login')
-
-        context = self._get_form_context(request, action, form)
-        return render(request, self.template_name, context)
 
     def post(self, request, action):
         if action == 'register':
@@ -152,11 +172,39 @@ class AccountView(View):
                 user = form.save()
                 login(request, user)
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد! به پروفایل خود خوش آمدید.')
-                return redirect('/dashboard/', action='update')
+                if not user.is_profile_complete:
+                    messages.warning(request, 'لطفاً اطلاعات پروفایل خود را کامل کنید (شماره تلفن، تاریخ تولد، جنسیت و شهر).')
+                    return redirect('accounts', action='update')
+                return redirect('/dashboard/')
+            else:
+                # نمایش دوباره فرم با خطاها
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                    'title': 'ثبت‌نام',
+                    'back_url': '/',
+                    'back_text': 'بازگشت ',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form_action': reverse('accounts', args=['register']),
+                    'submit_text': 'ثبت‌نام',
+                    'submit_class': 'btn btn-success btn-lg btn-block ',
+                    'submit_style': '',
+                    'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                    'footer_content': '''
+                        <p class="display-10">
+                            قبلاً حساب کاربری دارید؟
+                            <a href="/accounts/login/" class="text-primary">ورود</a>
+                        </p>
+                    ''',
+                    'form': form
+                }
+                return render(request, self.template_name, base_context)
             
         elif action == 'login':
             form = CustomAuthenticationForm(request, data=request.POST)
-            
             if form.is_valid():
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password')
@@ -175,6 +223,12 @@ class AccountView(View):
                             "title": "پیام",
                         })
                     )
+                    if not user.is_profile_complete:
+                        messages.warning(
+                            request, 
+                            'لطفاً اطلاعات پروفایل خود را کامل کنید (شماره تلفن، تاریخ تولد، جنسیت و شهر).'
+                        )
+                        return redirect('accounts', action='update')
                     return redirect('/dashboard/')
                 else:
                     messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
@@ -188,10 +242,37 @@ class AccountView(View):
                         "duration": 6000,
                         "location": "top-right",
                         "title": "خطای ورود",
-                       
                     })
                 )
-        
+
+            # نمایش دوباره فرم در صورت خطا
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+                'title': 'ورود به حساب کاربری',
+                'back_url': '/',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form_action': reverse('accounts', args=['login']),
+                'submit_text': 'ورود',
+                'submit_class': 'btn btn-success btn-lg btn-block display-10',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': '''
+                    <p class="display-10">
+                        هنوز ثبت‌نام نکرده‌اید؟
+                        <a href="/accounts/register/" class="text-primary">ثبت نام</a>
+                    </p>
+                    <p class="">
+                        <a href="#" class="text-primary">فراموشی رمز عبور</a>
+                    </p>
+                ''',
+                'form': form
+            }
+            return render(request, self.template_name, base_context)
+
         elif action == 'update':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
@@ -201,17 +282,33 @@ class AccountView(View):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'پروفایل با موفقیت به‌روزرسانی شد.')
-                return redirect('accounts', action='update')
+                return redirect('dashboard')
+            else:
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                    'title': 'ویرایش پروفایل',
+                    'back_url': '/dashboard/',
+                    'back_text': 'بازگشت',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form_action': reverse('accounts', args=['update']),
+                    'submit_text': 'به‌روزرسانی پروفایل',
+                    'submit_class': 'btn btn-info btn-block ',
+                    'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                    'form': form
+                }
+                return render(request, self.template_name, base_context)
         
         else:
             messages.error(request, 'عملیات نامعتبر است.')
             return redirect('accounts', action='login')
-
-        # در صورت خطا، فرم را با خطاها نمایش بده
-        context = self._get_form_context(request, action, form)
-        return render(request, self.template_name, context)
     
-# Psychologist 
+
+ 
+# ====================== Psychologist Main ======================
 class PsychologistActionView(View):
     def get(self, request, subject, action, pk=None):
         if action == 'list':
@@ -231,7 +328,7 @@ class PsychologistActionView(View):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'html': self._render_cards_html(page_obj),
-                    'pagination': self._render_pagination(page_obj, search_query, specialty_filter),
+                    'pagination': render_pagination(page_obj, search_query, specialty_filter),
                 })
 
             context = {
@@ -240,15 +337,18 @@ class PsychologistActionView(View):
                 'extra_js': ['/static/js/psychologist_list.js'],
                 'content': self._render_full_list_page(page_obj, search_query, specialty_filter),
             }
-            return render(request, 'index2.html', context)
-        
+            return render(request, 'index2.html', context)        
+
         elif action == 'register':
             if not request.user.is_authenticated:
                 messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
                 return redirect('accounts', action='login')
-            else:
-                form = PsychologistCreationUpdateForm()
-                
+            
+            psychologist = Psychologist.objects.filter(profile=request.user).first()
+            if psychologist:
+                return redirect('entity-action-detail', subject='psychologist', action='specialties', pk=psychologist.pk)
+            
+            form = PsychologistCreationUpdateForm(request=request)
 
             base_context = {
                 'col_class': 'col-md-5 col-12 m-auto',
@@ -269,12 +369,45 @@ class PsychologistActionView(View):
                 'submit_style': '',
                 'card_header_class': 'card-header',
                 'card_header_style': 'background-color: #1ab0fc;color: #fff;',
-                'footer_content': 
-                    '''
-                        
-                    '''
+                'footer_content': ''''''
             })
             
+            return render(request, 'form.html', base_context)
+        
+        elif action == 'update' and pk:
+            if not request.user.is_authenticated:
+                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
+                return redirect('accounts', action='login')
+
+            psychologist = get_object_or_404(Psychologist, pk=pk)
+
+            if psychologist.profile != request.user:
+                raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+            form = PsychologistCreationUpdateForm(instance=psychologist, request=request)
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت‌نام متخصص',
+                'back_url': '/dashboard/',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action', kwargs={'subject': 'psychologist', 'action': 'register'}),
+                'submit_text': 'ثبت‌نام',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+
             return render(request, 'form.html', base_context)
 
         elif action == 'detail' and pk:
@@ -293,15 +426,24 @@ class PsychologistActionView(View):
         
     def post(self, request, subject, action, pk=None): 
         if action == 'register':
-            form = PsychologistCreationUpdateForm(request.POST, request.FILES)
+            if not request.user.is_authenticated:
+                return redirect('accounts', action='login')
             
+            psychologist = Psychologist.objects.filter(profile=request.user).first()
+            if psychologist:
+                return redirect('entity-action-detail', subject='psychologist', action='update', pk=psychologist.pk)
+
+            form = PsychologistCreationUpdateForm(request.POST, request.FILES, request=request)
+
             if form.is_valid():
-                psychologist = form.save(commit=False)
+                psychologist = form.save()
                 psychologist.profile = request.user
                 psychologist.save()
                 form.save_m2m()
+
                 messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
-                return redirect('entity-action', subject='psychologist', action='detail', pk=psychologist.pk)
+                return redirect('entity-action-detail', subject='psychologist', action='detail', pk=psychologist.pk)
+                # return redirect('entity-action-detail', subject='psychologist', action='specialties', pk=psychologist.pk)
             else:
                 base_context = {
                     'col_class': 'col-md-5 col-12 m-auto',
@@ -323,16 +465,105 @@ class PsychologistActionView(View):
                     'card_header_style': 'background-color: #c2eafc;color: #fff;',
                 })
                 return render(request, 'form.html', base_context)
-        
+            
+        elif action == 'update' and pk:
+            if not request.user.is_authenticated:
+                return redirect('accounts', action='login')
 
+            psychologist = get_object_or_404(Psychologist, pk=pk)
+
+            if psychologist.profile != request.user:
+                raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+            form = PsychologistCreationUpdateForm(request.POST, request.FILES, instance=psychologist, request=request)
+
+            if form.is_valid():
+                psychologist = form.save(commit=False)
+                psychologist.profile = request.user
+                psychologist.save()
+                form.save_m2m()
+                messages.success(request, "اطلاعات متخصص با موفقیت ویرایش شد.")
+                return redirect('entity-action-detail', subject='psychologist', action='detail', pk=psychologist.pk)
+            else:
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                }
+                base_context.update({
+                    'title': 'ثبت‌نام متخصص',
+                    'back_url': '/dashboard/',
+                    'back_text': 'بازگشت ',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form': form,
+                    'form_action': reverse('entity-action', kwargs={'subject': 'psychologist', 'action': 'register'}),
+                    'submit_text': 'ثبت‌نام',
+                    'submit_class': 'btn btn-success btn-lg btn-block ',
+                    'card_header_class': 'card-header',
+                    'card_header_style': 'background-color: #c2eafc;color: #fff;',
+                })
+                return render(request, 'form.html', base_context)
+            
         raise Http404("Action not supported")
+    
 
-    # ========== متدهای کمکی (داخل کلاس) ==========
+    def _render_cards_html(self, page_obj):
+        cards = []
+        for p in page_obj:
+            # --- عکس ---
+            if p.profile_picture:
+                photo = f'<img src="{p.profile_picture.url}" class="card-img-left rounded-start h-100" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover; width: 100%;">'
+            else:
+                photo = '<div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start" style="min-height: 180px;"><i class="fas fa-user-md fa-4x text-muted"></i></div>'
 
+            full_name = f"{p.profile.first_name or ''} {p.profile.last_name or ''}".strip()
+            if not full_name:
+                full_name = p.profile.username or "نامشخص"
+
+            # === اصلاح شده ===
+            specs = []
+            for ps in p.specialties.all():           # ps = PsychologistSpecialties
+                if hasattr(ps, 'specialty') and ps.specialty:   # رابطه به مدل Specialty
+                    specs.append(ps.specialty.name)
+                elif hasattr(ps, 'name'):               # اگر مستقیم name داشته باشد
+                    specs.append(ps.name)
+
+            specialties_text = ', '.join(specs) if specs else 'تخصصی ثبت نشده'
+            # =====================
+
+            # --- لینک ---
+            detail_url = reverse('entity-action-detail', kwargs={'subject': 'psychologist', 'action': 'detail', 'pk': p.pk})
+
+            # --- کارت ---
+            card = f'''
+            <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
+                <div class="row g-0 align-items-center">
+                    <div class="col-md-2 position-relative overflow-hidden">
+                        {photo}
+                    </div>
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">{full_name}</h5>
+                            <p class="card-text text-muted mb-2">
+                                <strong>تخصص:</strong> {specialties_text}
+                                <span class="specialty-badge">{specialties_text}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            '''
+            cards.append(card)
+
+        if not cards:
+            cards.append('<div class="text-center py-5 text-muted">هیچ روانشناسی یافت نشد.</div>')
+
+        return ''.join(cards)
+    
     def _render_full_list_page(self, page_obj, search_query='', specialties_filter=''):
-        # لیست تخصص‌ها
         specialties = Specialty.objects.values_list('name', flat=True).distinct().order_by('name')
-
         # --- فرم فیلتر (ستون چپ) ---
         options_html = ''
         for s in specialties:
@@ -361,7 +592,7 @@ class PsychologistActionView(View):
         '''
 
         # --- صفحه‌بندی ---
-        pagination_html = self._render_pagination(page_obj, search_query, specialties_filter)
+        pagination_html = render_pagination(page_obj, search_query, specialties_filter)
 
         # --- لیست کارت‌ها ---
         cards_html = self._render_cards_html(page_obj)
@@ -400,99 +631,206 @@ class PsychologistActionView(View):
                 </div>
             </div>
         </div>
-
-
-
-
-
-
         '''
         return mark_safe(full_page)
 
-    def _render_cards_html(self, page_obj):
-        cards = []
-        for p in page_obj:
-            # --- عکس ---
-            if p.profile_picture:
-                photo = f'<img src="{p.profile_picture.url}" class="card-img-left rounded-start h-100" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover; width: 100%;">'
-            else:
-                photo = '<div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start" style="min-height: 180px;"><i class="fas fa-user-md fa-4x text-muted"></i></div>'
 
-            full_name = f"{p.profile.first_name or ''} {p.profile.last_name or ''}".strip()
-            if not full_name:
-                full_name = p.profile.username or "نامشخص"
+# ====================== Psychologist Specialties ======================
+class PsychologistSpecialtiesView(View):
+    def get(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
 
-            specs = [s.name for s in p.specialties.all()]
-            specialties_text = ', '.join(specs) if specs else 'تخصصی ثبت نشده'
+        specialties_obj = PsychologistSpecialties.objects.filter(psychologist=psychologist).first()
+        if not specialties_obj:
+            specialties_obj = PsychologistSpecialties(psychologist=psychologist)
+
+        form = PsychologistSpecialtiesForm(instance=specialties_obj)
+
+        base_context = {
+            'col_class': 'col-md-5 col-12 m-auto',
+            'card_class': 'card shadow-lg',
+            'card_header_class': 'card-header',
+            'card_body_class': 'card-body p-5',
+        }
+        base_context.update({
+            'title': 'زمینه کاری',
+            'back_url': '/dashboard/',
+            'back_text': 'بازگشت ',
+            'back_class': 'btn btn-default-light',
+            'back_icon': 'fa fa-arrow-left',
+            'form':form,
+            'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+            'submit_text': 'ثبت اطلاعات',
+            'submit_class': 'btn btn-success btn-lg btn-block ',
+            'submit_style': '',
+            'card_header_class': 'card-header',
+            'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+            'footer_content': ''''''
+        })
+
+        return render(request, 'form.html', base_context)
+
+    def post(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+        specialties_obj = PsychologistSpecialties.objects.filter(psychologist=psychologist).first()
+        if not specialties_obj:
+            specialties_obj = PsychologistSpecialties(psychologist=psychologist)
+
+        form = PsychologistSpecialtiesForm(request.POST, instance=specialties_obj)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "زمینه‌های کاری ثبت شد.")
+            return redirect('entity-action-detail', subject='psychologist', action='new-patients', pk=psychologist.pk)
+        else:
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'زمینه کاری',
+                'back_url': '/dashboard/',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+                'submit_text': 'ثبت اطلاعات',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+            })
+            return render(request, 'form.html', base_context)
+        
+
+# ====================== Psychologist New Patients ======================
+class PsychologistNewPatientsView(View):
+    def get(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+        new_patients_obj = PsychologistNewPatients.objects.filter(psychologist=psychologist).first()
+        if not new_patients_obj:
+            new_patients_obj = PsychologistNewPatients(psychologist=psychologist)
+
+        form = PsychologistNewPatientsForm(instance=new_patients_obj)
+
+        base_context = {
+            'col_class': 'col-md-5 col-12 m-auto',
+            'card_class': 'card shadow-lg',
+            'card_header_class': 'card-header',
+            'card_body_class': 'card-body p-5',
+        }
+        base_context.update({
+            'title': 'مراجع جدید',
+            'back_url': '/dashboard/',
+            'back_text': 'بازگشت ',
+            'back_class': 'btn btn-default-light',
+            'back_icon': 'fa fa-arrow-left',
+            'form':form,
+            'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+            'submit_text': 'ثبت اطلاعات',
+            'submit_class': 'btn btn-success btn-lg btn-block ',
+            'submit_style': '',
+            'card_header_class': 'card-header',
+            'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+            'footer_content': ''''''
+        })
+        return render(request, 'form.html', base_context)
+
+    def post(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+        new_patients_obj = PsychologistNewPatients.objects.filter(psychologist=psychologist).first()
+        if not new_patients_obj:
+            new_patients_obj = PsychologistNewPatients(psychologist=psychologist)
+
+        form = PsychologistNewPatientsForm(request.POST, instance=new_patients_obj)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "اطلاعات مراجع جدید ثبت شد.")
+            return redirect('entity-action-detail', subject='psychologist', action='degrees', pk=psychologist.pk)
+        else:
+            # similar error context as above...
+            pass
 
 
-            # --- لینک ---
-            detail_url = reverse('entity-action-detail', kwargs={'subject': 'psychologist', 'action': 'detail', 'pk': p.pk})
+# ====================== Psychologist Degrees ======================
+class PsychologistDegreeView(View):
+    def get(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
 
-            # --- کارت افقی ---
-            card = f'''
-            <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
-                <div class="row g-0 align-items-center">
-                    <div class="col-md-2 position-relative overflow-hidden">
-                        {photo}
-                    </div>
-                    <div class="col-md-10">
-                        <div class="card-body">
-                            <h5 class="card-title mb-2">{full_name}</h5>
-                            <p class="card-text text-muted mb-2">
-                                <strong>تخصص:</strong> {specialties_text}
-                                <span class="specialty-badge">{specialties_text}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            '''
-            cards.append(card)
+        formset = DegreeFormSet(
+            instance=psychologist, 
+            queryset=psychologist.degrees.all()
+        )
 
-        if not cards:
-            cards.append('<div class="text-center py-5 text-muted">هیچ روانشناسی یافت نشد.</div>')
+        base_context = {
+            'col_class': 'col-md-5 col-12 m-auto',
+            'card_class': 'card shadow-lg',
+            'card_header_class': 'card-header',
+            'card_body_class': 'card-body p-5',
+        }
+        base_context.update({
+            'title': 'مدارک تحصیلی',
+            'back_url': '/dashboard/',
+            'back_text': 'بازگشت ',
+            'back_class': 'btn btn-default-light',
+            'back_icon': 'fa fa-arrow-left',
+            'formset': formset,
+            'prefix':'مدرک',
+            'add_button_text':"اضافه کردن مدرک جدید",
+            'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+            'submit_text': 'ثبت و ادامه',
+            'submit_class': 'btn btn-success btn-lg btn-block ',
+            'submit_style': '',
+            'card_header_class': 'card-header',
+            'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+            'footer_content': ''''''
+        })
+        return render(request, 'formset.html', base_context)
 
-        return ''.join(cards)
+    def post(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, pk=pk)
+        if psychologist.profile != request.user:
+            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
 
-    def _render_pagination(self, page_obj, search_query='', specialty_filter=''):
-        if page_obj.paginator.num_pages <= 1:
-            return ''
+        formset = DegreeFormSet(request.POST, request.FILES, instance=psychologist)
 
-        items = []
-        if page_obj.has_previous():
-            items.append(self._page_link(page_obj.previous_page_number(), 'قبلی', search_query, specialty_filter))
-
-        for num in page_obj.paginator.page_range:
-            if num == page_obj.number:
-                items.append(f'<li class="page-item active"><span class="page-link">{num}</span></li>')
-            else:
-                items.append(self._page_link(num, num, search_query, specialty_filter))
-
-        if page_obj.has_next():
-            items.append(self._page_link(page_obj.next_page_number(), 'بعدی', search_query, specialty_filter))
-
-        return mark_safe('<nav><ul class="pagination">' + ''.join(items) + '</ul></nav>')
-
-    def _page_link(self, page, text, search_query, specialty_filter):
-        params = {}
-        if page != 1:
-            params['page'] = page
-        if search_query:
-            params['search'] = search_query
-        if specialty_filter:
-            params['specialty'] = specialty_filter
-
-        query_string = urlencode(params)
-        full_url = f"?{query_string}" if query_string else "?"
-
-        return f'<li class="page-item"><a class="page-link" href="#" data-page-url="{full_url}">{text}</a></li>'
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "مدارک تحصیلی ثبت شد.")
+            return redirect('entity-action-detail', subject='psychologist', action='detail', pk=psychologist.pk)
+        else:
+            # error handling similar to get
+            pass
     
 
+
+ 
+# ========== متدهای کمکی (داخل کلاس) ==========
+
+
+
+        
+
 def render_psychologist_detail(psychologist):
+    print("psychologist",psychologist)
     full_name = f"{psychologist.profile.first_name or ''} {psychologist.profile.last_name or ''}".strip()
-    profile_picture=psychologist.profile_picture
-    banner_image=psychologist.banner_image
+    profile_picture=psychologist.profile_picture.url
+    PsychologistType=psychologist.PsychologistType
 
 
     # --- HTML نهایی ---
@@ -523,51 +861,56 @@ def render_psychologist_detail(psychologist):
 
                     <div class="row" id="user-profile">
                             <div class="col-lg-12">
-                                <div class="card">
+                                <div class="card shadow-sm">
                                     <div class="card-body">
-                                        <div class="wideget-user mb-2">
-                                            <div class="row">
-                                                <div class="col-lg-12 col-md-12">
-                                                    <div class="row">
-                                                        <div class="panel profile-cover">
-                                                            <div class="profile-cover__action bg-img" style=" background-image: url('/{banner_image}'); "></div>
-                                                            <div class="profile-cover__img">
-                                                                <div class="profile-img-1">
-                                                                    <img src="/{profile_picture}" alt="img">
-                                                                </div>
-                                                                <div class="profile-img-content text-dark text-start">
-                                                                    <div class="text-dark">
-                                                                        <h3 class="h3 mb-2">{full_name}</h3>
-                                                                        <h5 class="text-muted">Web Developer</h5>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="btn-profile">
-                                                                <button class="btn btn-primary mt-1 mb-1"> <i class="fa fa-rss"></i> <span>Follow</span></button>
-                                                                <button class="btn btn-secondary mt-1 mb-1"> <i class="fa fa-envelope"></i> <span>Message</span></button>
+                                        <div class="row align-items-center g-3">
+
+                                            <!-- قسمت چپ: عکس + اطلاعات -->
+                                            <div class="col-md-9 col-12">
+                                                <div class="d-flex align-items-start gap-3">
+                                                    <!-- عکس مربعی با گوشه نرم -->
+                                                    <img src="{profile_picture}" 
+                                                        class="card-img-left flex-shrink-0 shadow-sm" 
+                                                        style="width: 130px; height: 160px;"
+                                                        alt="{full_name}">
+                                                    
+                                                    <div class="pt-2">
+                                                        <h3 class="mb-1 fw-bold">{full_name}</h3>
+                                                        <p class="text-muted mb-0 fs-5">{PsychologistType}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row col-md-3 col-12">
+
+                                                <div class="p-0">
+
+                                                    <div class="mb-5 row text-end">
+                                                        <div class="col-6 text-end">
+                                                            <button class="btn btn-primary mt-1 mb-1 col-10"> <i class="fa fa-rss"></i> <span>دنبال کردن</span></button>
+                                                        </div>
+                                                        <div class="col-6 text-start">
+                                                            <button class="btn btn-secondary mt-1 mb-1 col-10"> <i class="fa fa-envelope"></i> <span>پیام</span></button>
+                                                        </div>
+
+                                                    </div>
+                                                    
+                                                    <div class="card-footer mt-5">
+                                                        <div class="row user-social-detail">
+                                                            <div class="social-profile me-4 rounded text-center">
+                                                                <a href="javascript:void(0)"><i class="fa fa-google"></i></a>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="px-0 px-sm-4">
-                                                            <div class="social social-profile-buttons mt-5 float-end">
-                                                                <div class="mt-3">
-                                                                    <a class="social-icon text-primary" href="https://www.facebook.com/" target="_blank"><i class="fa fa-facebook"></i></a>
-                                                                    <a class="social-icon text-primary" href="https://twitter.com/" target="_blank"><i class="fa fa-twitter"></i></a>
-                                                                    <a class="social-icon text-primary" href="https://www.youtube.com/" target="_blank"><i class="fa fa-youtube"></i></a>
-                                                                    <a class="social-icon text-primary" href="javascript:void(0)"><i class="fa fa-rss"></i></a>
-                                                                    <a class="social-icon text-primary" href="https://www.linkedin.com/" target="_blank"><i class="fa fa-linkedin"></i></a>
-                                                                    <a class="social-icon text-primary" href="https://myaccount.google.com/" target="_blank"><i class="fa fa-google-plus"></i></a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+
                                                 </div>
 
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="row">
                                     <div class="col-xl-3">
                                         <div class="card">

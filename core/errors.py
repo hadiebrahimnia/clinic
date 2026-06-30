@@ -17,7 +17,7 @@ def _error_response(request, status_code, title, message, icon_svg=None):
     code_html = f"4<span class=\"text-center custom-emoji\">{icon_svg}</span>0" if status_code == 404 else status_code
 
     content = f"""
-    <div class="page">
+    <div class="page" style="background-image: linear-gradient(90deg, #756fd2, #3ca9ce);">
         <div class="page-content error-page error2 text-white">
             <div class="container text-center">
                 <div class="error-template">

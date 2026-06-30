@@ -1,0 +1,245 @@
+{% extends 'base/base.html' %} 
+{% block navbar %}{% endblock %} 
+{% block sidebar %}{% endblock %} 
+{% block footer %}{% endblock %} 
+{% block content %}
+
+  <div class="{{ col_class }}" >
+    <div class="card {{ card_class|default:'shadow-lg' }} mt-8">
+      
+      <div class="{{ card_header_class|default:'card-header' }}"  style="{{ card_header_style|default:'' }}">
+        <div class="page-header">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item ">
+                <h3 class="card-title mb-0 display-8">{{ title }}</h3>
+              </li>
+              <li class="breadcrumb-back">
+                <a href="{{ back_url }}" class="{{ back_class }}"> 
+                  {{ back_text }}
+                  {% if back_icon %}<i class="{{ back_icon }}"></i>{% endif %}
+                </a>
+              </li>
+            </ol>
+        </div>
+      </div>
+
+      <div class="{{ card_body_class|default:'card-body p-4' }}">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <form action="{{ form_action }}" method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          {{ formset.management_form }}
+          {% for form in formset %}
+              <div class="formset-item border rounded p-4 mb-4 position-relative" id="formset-item-{{ forloop.counter0 }}">
+                  
+                  <h5 class="mb-5">
+                      {{ prefix|default:"مورد" }} {{ forloop.counter }}
+                      {% if form.instance.pk %}<small class="text-muted">(ویرایش)</small>{% endif %}
+                  </h5>
+
+                  {% for field in form.visible_fields %}
+                      {% if field.name != 'DELETE' %}
+                      <div class="row mb-3">
+                        <label class="col-md-4 form-label" for="{{ field.id_for_label }}">
+                          {{ field.label }}{% if field.field.required %}<span class="text-danger mr-2 mb-2 fs-20">*</span>{% endif %}
+                        </label>
+                          
+                          <div class="col-md-8">
+                              {% if field.field.widget.input_type == 'file' %}
+                                  <div class="position-relative">
+                                      {{ field }}
+                                  </div>
+                              {% elif field.field.widget.input_type == 'checkbox' %}
+                                  <div class="form-check">
+                                      {{ field }}
+                                      <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                  </div>
+                              {% else %}
+                                  <div class="position-relative">
+                                      {{ field }}
+                                  </div>
+                              {% endif %}
+
+                              {% if field.errors %}
+                                  <div class="invalid-feedback d-block">{{ field.errors|first }}</div>
+                              {% endif %}
+                              {% if field.help_text %}
+                                  <small class="form-text text-muted">{{ field.help_text }}</small>
+                              {% endif %}
+                          </div>
+                      </div>
+                      {% endif %}
+                  {% endfor %}
+
+                  {% if form.DELETE %}
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <button type="button" 
+                                class="btn btn-danger btn-sm"
+                                onclick="confirmDeleteItem({{ forloop.counter0 }})">
+                            <i class="fe fe-trash-2 me-1"></i> حذف
+                        </button>
+                    </div>
+                {% endif %}
+              </div>
+          {% endfor %}
+
+          <!-- دکمه اضافه کردن مورد جدید -->
+          <button type="button" id="add-formset-btn" class="btn btn-outline-primary mb-4">
+              <i class="fa fa-plus"></i> {{ add_button_text|default:"اضافه کردن مورد جدید" }}
+          </button>
+
+          <!-- دکمه ارسال -->
+          <div class="text-center mt-4">
+              <button type="submit" class="{{ submit_class|default:'btn btn-success btn-lg' }}">
+                  {{ submit_text|default:'ذخیره' }}
+              </button>
+          </div>
+      </form>
+
+      {{ formset.media }}
+      </div>
+      {% if footer_content %}
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            {{ footer_content|safe }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+<script>
+  document.body.classList.add('login-img');
+</script>
+
+<script>
+    const prefixText = "{{ prefix|default:'مورد' }}";
+
+    function updateAllFormNumbers() {
+        document.querySelectorAll('.formset-item').forEach((item, idx) => {
+            const titleEl = item.querySelector('h5');
+            if (titleEl) {
+                const hasEdit = item.querySelector('small.text-muted') !== null;
+                
+                titleEl.innerHTML = `
+                    ${prefixText} ${idx + 1}
+                    ${hasEdit ? '<small class="text-muted">(ویرایش)</small>' : ''}
+                `;
+            }
+        });
+    }
+
+    let formCount = {{ formset|length }};
+
+    // ==================== اضافه کردن فرم جدید ====================
+    function addFormsetItem() {
+        const template = document.querySelector('.formset-item');
+        if (!template) return;
+
+        const newForm = template.cloneNode(true);
+        const newIndex = formCount;
+
+        newForm.id = `formset-item-${newIndex}`;
+
+        // به‌روزرسانی name و id
+        newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)-/g, `form-${newIndex}-`);
+        newForm.innerHTML = newForm.innerHTML.replace(/id_form-(\d+)-/g, `id_form-${newIndex}-`);
+
+        // پاک کردن مقادیر
+        newForm.querySelectorAll('input:not([type="hidden"]), textarea, select').forEach(field => {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.checked = false;
+            } else {
+                field.value = '';
+            }
+        });
+
+        // مورد جدید → بدون (ویرایش)
+        const titleEl = newForm.querySelector('h5');
+        if (titleEl) {
+            titleEl.innerHTML = `${prefixText} ${newIndex + 1}`;
+        }
+
+        const addBtn = document.getElementById('add-formset-btn');
+        if (addBtn) {
+            addBtn.parentNode.insertBefore(newForm, addBtn);
+        }
+
+        formCount++;
+        const totalForms = document.querySelector('input[name$="TOTAL_FORMS"]');
+        if (totalForms) totalForms.value = formCount;
+
+        updateAllFormNumbers();
+    }
+
+    // ==================== حذف ====================
+    window.confirmDeleteItem = function(index) {
+        window.itemToDelete = index;
+
+        document.getElementById('modalIcon').className = "icon icon-close fs-70 text-danger lh-1 my-4 d-inline-block";
+        document.getElementById('modalTitle').className = "text-danger mb-4 fw-semibold";
+        document.getElementById('modalTitle').textContent = "آیا مطمئن هستید؟";
+        document.getElementById('modalMessage').textContent = "این مورد حذف خواهد شد.";
+
+        const btn = document.getElementById('modalActionBtn');
+        btn.textContent = "بله، حذف شود";
+        btn.className = "btn btn-danger pd-x-25 px-4";
+
+        new bootstrap.Modal(document.getElementById('alertModal')).show();
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const addBtn = document.getElementById('add-formset-btn');
+        if (addBtn) addBtn.addEventListener('click', addFormsetItem);
+
+        const confirmBtn = document.getElementById('modalActionBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                const index = window.itemToDelete;
+                if (index == null) return;
+
+                const item = document.getElementById(`formset-item-${index}`);
+                if (item) {
+                    const deleteField = item.querySelector('input[name$="-DELETE"]');
+                    if (deleteField) deleteField.checked = true;
+
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '0';
+                    setTimeout(() => {
+                        item.remove();
+                        updateAllFormNumbers();
+                    }, 300);
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('alertModal'));
+                if (modal) modal.hide();
+                window.itemToDelete = null;
+            });
+        }
+
+        const modalEl = document.getElementById('alertModal');
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', () => window.itemToDelete = null);
+        }
+
+        // شماره‌گذاری اولیه
+        updateAllFormNumbers();
+    });
+</script>
+
+<style>
+    input[name$="-DELETE"] {
+        display: none !important;
+    }
+    
+</style>
+{% endblock %}

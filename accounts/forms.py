@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
+from django.forms.models import inlineformset_factory
 from django.contrib.auth import password_validation
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -146,7 +147,7 @@ class ProfileUpdateForm(forms.ModelForm):
     city = forms.ModelChoiceField(
         queryset=City.objects.all().select_related('province__country'),
         label='شهر محل سکونت',
-        required=False,
+        required=True,
         widget=ChainedLocationWidget()
     )
 
@@ -186,6 +187,26 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class PsychologistCreationUpdateForm(forms.ModelForm):
+
+    first_name = forms.CharField(
+        label=_('نام'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'نام',
+            'data-input-type': 'persian-letters',
+            'required': True,
+        }),
+    )
+
+    last_name = forms.CharField(
+        label=_('نام خانوادگی'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'نام خانوادگی',
+            'data-input-type': 'persian-letters',
+            'required': True,
+        }),
+    )
     
     PsychologistType = forms.ModelChoiceField(
         queryset=PsychologistType.objects.all(),
@@ -214,11 +235,31 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
         model = Psychologist
         
         fields = [
+            'first_name',
+            'last_name',
             'PsychologistType',
             'profile_picture',
         ]
 
     
+    def __init__(self, *args, **kwargs):
+        self.request = None        
+        if args and hasattr(args[0], 'user'):     
+            self.request = args[0]
+            args = args[1:]
+        else:
+            self.request = kwargs.pop('request', None)
+
+        super().__init__(*args, **kwargs)
+
+        # مقداردهی اولیه در حالت ویرایش
+        instance = kwargs.get('instance')
+        if instance and instance.profile:
+            self.fields['first_name'].initial = instance.profile.first_name
+            self.fields['last_name'].initial = instance.profile.last_name
+
+        self.order_fields(['first_name', 'last_name', 'PsychologistType', 'profile_picture'])
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -248,5 +289,177 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
                         self.add_error(field_name, e)
 
         return cleaned_data
+    
+    def save(self, commit=True):
+        psychologist = super().save(commit=False)
+
+        if not self.request or not hasattr(self.request, 'user') or not self.request.user.is_authenticated:
+            raise forms.ValidationError("کاربر معتبر یافت نشد.")
+        profile = self.request.user
+        profile.first_name = self.cleaned_data.get('first_name', profile.first_name)
+        profile.last_name = self.cleaned_data.get('last_name', profile.last_name)
+        if commit:
+            profile.save()                  
+            psychologist.profile = profile 
+            psychologist.save() 
+        else:
+            psychologist.profile = profile
+
+        return psychologist
+
+class PsychologistSpecialtiesForm(forms.ModelForm):
+    
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        required=True,
+        label="زمینه کاری",
+        widget=ManyToManySearchWidget(
+            placeholder="زمینه کاری را انتخاب کنید",
+        )
+    )  
+
+    class Meta:
+        model = PsychologistSpecialties
+        fields = ['specialties']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # اختیاری: مرتب‌سازی یا فیلتر queryset
+        self.fields['specialties'].queryset = Specialty.objects.all().order_by('name')
+        
+
+class PsychologistNewPatientsForm(forms.ModelForm):
+    
+    is_accepting_new_patients = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="آیا مراجع جدید می‌پذیرید؟",
+        widget=BooleanToggleWidget(
+            label_true="بله، مراجع جدید می‌پذیرم",
+            label_false="خیر، فعلاً مراجع جدید نمی‌پذیرم"
+        )
+    )
+
+    class Meta:
+        model = PsychologistNewPatients
+        fields = ['is_accepting_new_patients']
 
 
+class PsychologistDegreeForm(forms.ModelForm):
+    level = forms.ChoiceField(
+        label=_('مقطع تحصیلی'),
+        choices=[('', 'مقطع تحصیلی را انتخاب نمایید')] + list(PsychologistDegree.DEGREE_LEVELS),
+        widget=forms.Select(attrs={
+            'class': 'form-control text-center',
+            'required': True
+        })
+    )
+
+
+    study_status = forms.ChoiceField(
+        label=_('وضعیت'),
+        choices=[('', 'وضعیت این مقطع تحصیلی را انتخاب نمایید')] + list(PsychologistDegree.STUDY_STATUS),
+        widget=forms.Select(attrs={
+            'class': 'form-control text-center',
+            'required': True
+        })
+    )
+
+    specialization = forms.ModelChoiceField(
+        queryset=Specialization.objects.all().select_related('field'),
+        label='رشته',
+        required=True,
+        widget=ChainedStudyWidget()
+    )
+
+
+    university = forms.ModelChoiceField(
+        queryset=University.objects.all(),
+        required=True,
+        empty_label=" دانشگاه محل تحصیل را انتخاب کنید",
+        label="دانشگاه",
+        widget=ForeignKeySearchWidget(
+            placeholder="دانشگاه محل تحصیل را انتخاب کنید",
+        )
+    )  
+
+    start_year = forms.DateField(
+        label=_('تاریخ شروع '),
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ شروع تحصیل',
+            'data-jdp-max-date': 'today',
+            'required': True
+        }),
+    )
+
+    graduation_year = forms.DateField(
+        label=_('تاریخ پایان '),
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ پایان تحصیل',
+            'data-jdp-max-date': 'today',
+            'required': True
+        }),
+    )
+
+
+    gpa = forms.DecimalField(
+        label=_('معدل'),
+        widget=GPAWidget(),
+        required=False
+    )
+
+
+    degree_file = forms.ImageField(
+        required=True,
+        label="تصویر مدرک",
+        widget=ImageInput(
+            allowed_formats=['jpg', 'jpeg', 'png'],
+            max_size_mb=1,
+            min_width=200,
+            min_height=200,
+            max_width=800,
+            max_height=800,
+        )
+    ) 
+
+
+    # thesis_title = forms.CharField(
+    #     label="عنوان پایان‌نامه",
+    #     max_length=100,
+    #     required=False,
+    #     widget=CustomTextWidget(
+    #         input_type="persian",
+    #         attrs={
+    #             "maxlength": "100",
+    #         }
+    #     )
+    # )
+
+
+    class Meta:
+        model = PsychologistDegree
+        fields = [
+            'level', 
+            'specialization', 
+            'university',
+            'start_year', 
+            'graduation_year', 
+            'study_status',
+            'gpa', 
+            'thesis_title', 
+            'degree_file'
+        ]
+        
+  
+        
+DegreeFormSet = inlineformset_factory(
+    Psychologist, 
+    PsychologistDegree,
+    form=PsychologistDegreeForm,
+    extra=0,           # تعداد فرم خالی اولیه
+    can_delete=True,   # امکان حذف مدرک
+    max_num=10,        # حداکثر تعداد مدرک
+    min_num=1          # حداقل یک مدرک
+)

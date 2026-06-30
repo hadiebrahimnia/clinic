@@ -12,6 +12,8 @@ urlpatterns = [
     # ajax
     path('ajax/provinces/', get_provinces, name='get_provinces'),
     path('ajax/cities/', get_cities, name='get_cities'),
+    path('ajax/specializations/', get_specializations, name='get_specializations'),
+
 
     # Mian
     path('admin/', admin.site.urls),

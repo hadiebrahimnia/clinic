@@ -1,137 +1,186 @@
 // ====================== input-rules.js ======================
-
 document.addEventListener('DOMContentLoaded', function () {
 
     let errorTimeout = null;
 
+    // ====================== محدوده‌های کدهای عددی ======================
+    const PERSIAN_LETTERS_CODES = new Set([
+        ...Array.from({ length: 0x06FF - 0x0600 + 1 }, (_, i) => 0x0600 + i), // عربی/فارسی پایه
+        0x200C, // نیم‌فاصله (ZERO WIDTH NON-JOINER)
+        0x200D, // ZERO WIDTH JOINER
+    ]);
+
+    const PERSIAN_NUMBERS_CODES = new Set([
+        0x06F0, 0x06F1, 0x06F2, 0x06F3, 0x06F4,
+        0x06F5, 0x06F6, 0x06F7, 0x06F8, 0x06F9
+    ]);
+
+    const ENGLISH_LETTERS_CODES = new Set([
+        ...Array.from({ length: 26 }, (_, i) => 65 + i),   // A-Z
+        ...Array.from({ length: 26 }, (_, i) => 97 + i),   // a-z
+    ]);
+
+    function isPersianLetter(char) {
+        if (!char) return false;
+        const code = char.codePointAt(0);
+        return PERSIAN_LETTERS_CODES.has(code) || 
+               (code >= 0x0600 && code <= 0x06FF) || 
+               code === 0x200C || code === 0x200D;
+    }
+
+    function isPersianNumber(char) {
+        if (!char) return false;
+        const code = char.codePointAt(0);
+        return PERSIAN_NUMBERS_CODES.has(code);
+    }
+
+    function isEnglishLetter(char) {
+        if (!char) return false;
+        const code = char.codePointAt(0);
+        return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+    }
+
+    function isDigit(char) {
+        if (!char) return false;
+        const code = char.codePointAt(0);
+        return (code >= 48 && code <= 57) || isPersianNumber(char);
+    }
+
+    // ====================== اعمال قوانین ======================
     function enforceInputRules(input) {
         const type = input.dataset.inputType || 'text';
 
-        const config = {
-            // فقط number
-            onlyNumbers: type === 'number',
+        const isPersianLetters = type === 'persian-letters';
+        const isPersianNumbers = type === 'persian-numbers';
+        const isPersianAll    = type === 'persian';
+        const isEnglishLetters = type === 'english-letters';
+        const isEnglishNumbers = type === 'english-numbers';
+        const isOnlyNumbers   = type === 'number';
+        const isEnglishAll    = type === 'english';
 
-            // Persian Modes
-            persianLettersOnly: type === 'persian-letters',
-            persianNumbersOnly: type === 'persian-numbers',
-            persianAll: type === 'persian',           // حروف + اعداد فارسی
+        const maxLength = parseInt(input.getAttribute('maxlength')) || null;
 
-            // English Modes
-            englishLettersOnly: type === 'english-letters',
-            englishNumbersOnly: type === 'english-numbers',
-            englishAll: type === 'english',           // حروف + اعداد انگلیسی
-
-            maxLength: parseInt(input.getAttribute('maxlength')) || null,
-        };
-
-        // ====================== رویداد Input ======================
+        // ====================== Input Event ======================
         input.addEventListener('input', function () {
             let value = this.value;
-            let originalValue = value;
+            const original = value;
 
-            // ==================== Number (لاتین) ====================
-            if (config.onlyNumbers) {
-                value = value.replace(/[^0-9۰-۹]/g, '');
-            }
+            let cleaned = '';
 
-            // ==================== Persian ====================
-            if (config.persianLettersOnly) {
-                value = value.replace(/[^ء-ی\s]/g, '');           // فقط حروف فارسی
-            }
-            if (config.persianNumbersOnly) {
-                value = value.replace(/[^۰-۹]/g, '');             // فقط اعداد فارسی
-            }
-            if (config.persianAll) {
-                value = value.replace(/[^ء-ی۰-۹\s]/g, '');        // حروف + اعداد فارسی
-            }
+            for (let char of value) {
+                let allowed = false;
 
-            // ==================== English ====================
-            if (config.englishLettersOnly) {
-                value = value.replace(/[^a-zA-Z\s]/g, '');        // فقط حروف انگلیسی
-            }
-            if (config.englishNumbersOnly) {
-                value = value.replace(/[^0-9]/g, '');             // فقط اعداد انگلیسی
-            }
-            if (config.englishAll) {
-                value = value.replace(/[^a-zA-Z0-9\s]/g, '');     // حروف + اعداد انگلیسی
-            }
+                if (isPersianLetters) {
+                    allowed = isPersianLetter(char) || char === ' ' || char === '\u200C';
+                }
+                else if (isPersianNumbers) {
+                    allowed = isPersianNumber(char);
+                }
+                else if (isPersianAll) {
+                    allowed = isPersianLetter(char) || isPersianNumber(char) || char === ' ' || char === '\u200C';
+                }
+                else if (isEnglishLetters) {
+                    allowed = isEnglishLetter(char) || char === ' ';
+                }
+                else if (isOnlyNumbers || isEnglishNumbers) {
+                    allowed = isDigit(char);
+                }
+                else if (isEnglishAll) {
+                    allowed = isEnglishLetter(char) || isDigit(char) || char === ' ';
+                }
 
-            if (config.maxLength && value.length > config.maxLength) {
-                value = value.substring(0, config.maxLength);
+                if (allowed) {
+                    cleaned += char;
+                }
             }
 
-            if (value !== originalValue) {
-                this.value = value;
+            if (maxLength && cleaned.length > maxLength) {
+                cleaned = cleaned.substring(0, maxLength);
+            }
+
+            if (cleaned !== original) {
+                this.value = cleaned;
                 showDebouncedError(getAlertMessage(type));
             }
         });
 
-        // ====================== Keypress برای فیلد عددی لاتین ======================
-        if (config.onlyNumbers) {
-            input.addEventListener('keypress', function (e) {
-                if (!/^[0-9]$/.test(e.key)) {
-                    e.preventDefault();
-                    showDebouncedError('فقط اعداد مجاز هستند!');
-                }
-            });
-        }
+        // ====================== Keydown (پیشگیری لحظه‌ای) ======================
+        input.addEventListener('keydown', function (e) {
+            const key = e.key;
+
+            if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+                return;
+            }
+
+            let allowed = false;
+
+            if (isPersianLetters) {
+                allowed = isPersianLetter(key) || key === ' ';
+            }
+            else if (isPersianNumbers) {
+                allowed = isPersianNumber(key);
+            }
+            else if (isPersianAll) {
+                allowed = isPersianLetter(key) || isPersianNumber(key) || key === ' ';
+            }
+            else if (isEnglishLetters) {
+                allowed = isEnglishLetter(key) || key === ' ';
+            }
+            else if (isOnlyNumbers || isEnglishNumbers) {
+                allowed = /^\d$/.test(key) || isPersianNumber(key);
+            }
+            else if (isEnglishAll) {
+                allowed = isEnglishLetter(key) || /^\d$/.test(key) || key === ' ';
+            }
+
+            if (!allowed) {
+                e.preventDefault();
+                showDebouncedError(getAlertMessage(type));
+            }
+        });
 
         // ====================== Paste ======================
         input.addEventListener('paste', function (e) {
             setTimeout(() => {
-                if ((config.onlyNumbers || config.englishNumbersOnly) && /[^0-9]/.test(this.value)) {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    showGrowlError('فقط اعداد مجاز هستند!');
-                }
+                // دوباره از input event استفاده می‌شود
+                // اما برای اطمینان یکبار دیگر تمیز می‌کنیم
+                const event = new Event('input');
+                this.dispatchEvent(event);
             }, 10);
         });
     }
 
-    // ====================== پیام‌های هشدار ======================
+    // ====================== پیام‌ها ======================
     function getAlertMessage(type) {
-        switch(type) {
-            case 'number':
-                return 'فقط اعداد مجاز هستند!';
-            case 'persian-letters':
-                return 'فقط حروف فارسی مجاز هستند!';
-            case 'persian-numbers':
-                return 'فقط اعداد فارسی مجاز هستند!';
-            case 'persian':
-                return 'فقط حروف و اعداد فارسی مجاز هستند!';
-            case 'english-letters':
-                return 'فقط حروف انگلیسی مجاز هستند!';
-            case 'english-numbers':
-                return 'فقط اعداد انگلیسی مجاز هستند!';
-            case 'english':
-                return 'فقط حروف و اعداد انگلیسی مجاز هستند!';
-            default:
-                return 'ورودی نامعتبر است!';
-        }
+        const messages = {
+            'number': 'فقط اعداد مجاز هستند!',
+            'persian-letters': 'فقط حروف فارسی مجاز هستند!',
+            'persian-numbers': 'فقط اعداد فارسی مجاز هستند!',
+            'persian': 'فقط حروف و اعداد فارسی مجاز هستند!',
+            'english-letters': 'فقط حروف انگلیسی مجاز هستند!',
+            'english-numbers': 'فقط اعداد انگلیسی مجاز هستند!',
+            'english': 'فقط حروف و اعداد انگلیسی مجاز هستند!',
+        };
+        return messages[type] || 'ورودی نامعتبر است!';
     }
 
-    // ====================== Debounce نمایش ارور ======================
     function showDebouncedError(message) {
         if (errorTimeout) clearTimeout(errorTimeout);
-
-        errorTimeout = setTimeout(() => {
-            showGrowlError(message);
-        }, 450);
+        errorTimeout = setTimeout(() => showGrowlError(message), 400);
     }
 
     function showGrowlError(message) {
-        if (typeof Growl !== 'undefined' && typeof Growl.growl === 'function') {
+        if (typeof Growl !== 'undefined' && Growl.growl) {
             Growl.growl({
                 title: 'خطای ورودی',
                 message: message,
                 style: 'error',
                 size: 'medium',
-                duration: 3500,
+                duration: 3000,
                 location: 'top-right',
-                fixed: false,
-                delayOnHover: true,
             });
         } else {
-            console.warn('Growl:', message);
+            console.warn(message);
         }
     }
 
@@ -139,5 +188,4 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('input[data-input-type]').forEach(input => {
         enforceInputRules(input);
     });
-
 });

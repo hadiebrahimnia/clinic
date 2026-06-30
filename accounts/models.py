@@ -128,6 +128,16 @@ class Profile(AbstractUser):
     def __str__(self):
         return self.username
     
+    @property
+    def is_profile_complete(self):
+        """بررسی اینکه آیا اطلاعات پایه پروفایل تکمیل شده است"""
+        return all([
+            bool(self.phone_number),
+            bool(self.date_of_birth),
+            bool(self.gender),
+            bool(self.city),
+        ])
+    
 
 
 # مدل های مربوط به منشی ها
@@ -139,7 +149,7 @@ class Secretary(models.Model):
     )
 
     profile_picture = models.ImageField(
-        upload_to='images/psychologists/profiles',
+        upload_to='images/Secretary/profiles',
         blank=True, null=True,
         verbose_name="عکس پروفایل",
     )
@@ -201,12 +211,6 @@ class Psychologist(models.Model):
         blank=True, null=True,
         verbose_name="عکس پروفایل",
     )
-    banner_image = models.ImageField(
-        upload_to='static/images/psychologists/banners',
-        blank=True, null=True,
-        verbose_name="بنر تبلیغاتی",
-        help_text="تصویر هدر یا تبلیغاتی (مثلاً 1200x400)"
-    )
     is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -250,27 +254,22 @@ class PsychologistDegree(models.Model):
     )
 
     DEGREE_LEVELS = (
-        ('B', 'Bachelor'),
-        ('M', 'Master'),
-        ('P', 'PhD'),
-        ('O', 'Other'),
+        ('Associate', 'کاردانی'),
+        ('Bachelor', 'کارشناسی'),
+        ('Master', 'کارشناسی ارشد'),
+        ('PhD', 'دکتری'),
+        ('PostDoc', 'پسادکتری'),
     )
 
     STUDY_STATUS = (
-        ('studying', 'در حال تحصیل'),
-        ('graduated', 'فارغ‌التحصیل'),
-        ('dropped', 'انصراف داده'),
+        ('Studying', 'در حال تحصیل'),
+        ('Graduated', 'فارغ‌التحصیل'),
+        ('Dropped', 'انصراف داده'),
     )
 
     level = models.CharField(
-        max_length=1,
+        max_length=9,
         choices=DEGREE_LEVELS
-    )
-
-    field = models.ForeignKey(
-        FieldOfStudy,
-        on_delete=models.CASCADE,
-        related_name='degrees'
     )
 
     specialization = models.ForeignKey(
@@ -330,6 +329,12 @@ class PsychologistDegree(models.Model):
         verbose_name="فایل مدرک"
     )
 
+    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
     def __str__(self):
         return (
             f"{self.get_level_display()} "
@@ -381,13 +386,10 @@ class PsychologistSection(models.Model):
         default=0
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['order']
@@ -415,6 +417,12 @@ class PsychologistSocialMedia(models.Model):
 
     platform = models.CharField(max_length=2, choices=PLATFORM_CHOICES)
     url = models.URLField(validators=[URLValidator()])
+
+
+    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
 
     def __str__(self):

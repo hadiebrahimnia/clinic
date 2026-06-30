@@ -7,7 +7,7 @@ from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.urls import reverse
-from accounts.models import Country, Province, City
+from accounts.models import *
 
 class PersianDateInput(forms.DateInput):
     """
@@ -576,3 +576,185 @@ class UsernameInput(forms.TextInput):
         js = (
             static('js/input-rules.js'),
         )
+
+
+class ChainedStudyWidget(forms.Widget):
+
+    class Media:
+        js = ('js/study.js',)
+
+    def get_context(self, name, value, attrs):
+
+        selected_field = None
+        selected_specialization = None
+
+        specializations = []
+
+        if value:
+            try:
+                specialization = Specialization.objects.select_related(
+                    "field"
+                ).get(pk=value)
+
+                selected_specialization = specialization
+                selected_field = specialization.field
+
+                specializations = Specialization.objects.filter(
+                    field=selected_field
+                )
+
+            except Specialization.DoesNotExist:
+                pass
+
+        return {
+            "name": name,
+            "fields": FieldOfStudy.objects.all(),
+
+            "selected_field": selected_field,
+            "selected_specialization": selected_specialization,
+
+            "specializations": specializations,
+
+            "specialization_url": reverse("get_specializations"),
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+
+        context = self.get_context(name, value, attrs)
+
+        html = """
+        <div class="chained-specialization-widget">
+
+            <div class="form-group mb-3">
+                <select id="id_field"
+                        class="form-control"
+                        data-url="{specialization_url}">
+
+                    <option value="">رشته را انتخاب نمایید</option>
+
+                    {field_options}
+
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <select id="id_specialization"
+                        name="{name}"
+                        class="form-control"
+                        {disabled}>
+
+                    <option value="">گرایش را انتخاب نمایید</option>
+
+                    {specialization_options}
+
+                </select>
+            </div>
+
+        </div>
+        """
+
+        field_options = "".join([
+            f"""
+            <option value="{field.id}"
+            {"selected" if context["selected_field"] and context["selected_field"].id == field.id else ""}>
+                {field.name}
+            </option>
+            """
+            for field in context["fields"]
+        ])
+
+        specialization_options = "".join([
+            f"""
+            <option value="{specialization.id}"
+            {"selected" if context["selected_specialization"] and context["selected_specialization"].id == specialization.id else ""}>
+                {specialization.name}
+            </option>
+            """
+            for specialization in context["specializations"]
+        ])
+
+        return mark_safe(
+            html.format(
+                name=context["name"],
+                specialization_url=context["specialization_url"],
+                field_options=field_options,
+                specialization_options=specialization_options,
+                disabled="" if context["selected_field"] else "disabled",
+            )
+        )
+
+    def value_from_datadict(self, data, files, name):
+        return data.get(name)
+    
+
+
+class GPAWidget(forms.Widget):
+
+    class Media:
+        js = ('js/gpa.js',)
+
+    def get_context(self, name, value, attrs):
+
+        return {
+            "name": name,
+            "value": value if value is not None else "",
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+
+        context = self.get_context(name, value, attrs)
+
+        html = """
+        <div class="gpa-widget">
+
+            <div class="input-group">
+
+                <input
+                    id="id_{name}"
+                    name="{name}"
+                    type="number"
+                    class="form-control"
+                    min="0"
+                    max="20"
+                    step="0.01"
+                    value="{value}"
+                    placeholder="مثلاً 18.75">
+
+               
+                <button type="button"  class="btn " style="background:#527093;color:#fff;" disabled="" data-bs-toggle="button">از 20 </button>
+
+            </div>
+
+            <div id="id_{name}_status"
+                 class="small mt-2 text-muted">
+               معدل را به صورت عدد به همراه نقطه وارد کنید
+            </div>
+
+        </div>
+        """
+
+        return mark_safe(
+            html.format(
+                name=context["name"],
+                value=context["value"],
+            )
+        )
+
+    def value_from_datadict(self, data, files, name):
+        return data.get(name)
+    
+
+
+class CustomTextWidget(forms.TextInput):
+
+    class Media:
+        js = ('js/input-rules.js',)
+
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'class': 'form-control',
+            'data-input-type': 'persian-letters', 
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)

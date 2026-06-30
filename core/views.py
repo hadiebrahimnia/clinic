@@ -58,10 +58,7 @@ class HomeView(TemplateView):
                     'url': sm.url,
                 })
 
-            # جمع‌آوری تخصص‌ها
-            specialties = [spec.name for spec in psych.specialties.all()]
 
-            # ساخت دیکشنری کامل برای این متخصص
             psych_dict = {
                 'id': psych.id,
                 'full_name': f"{psych.profile.get_full_name() or psych.profile.username}",
@@ -269,6 +266,11 @@ class FormView(View):
 class DynamicEntityView(View):
     ROUTES = {
         'psychologist': 'accounts.views.PsychologistActionView',
+        'psychologistspecialties': 'accounts.views.PsychologistSpecialtiesView',
+        'psychologistnewpatients': 'accounts.views.PsychologistNewPatientsView',
+        'psychologistdegree': 'accounts.views.PsychologistDegreeView',
+        'psychologistsection': 'accounts.views.PsychologistSectionView',
+
     }
 
     def dispatch(self, request, subject, action, pk=None):
