@@ -415,9 +415,18 @@ class PsychologistActionView(View):
             full_name = f"{psychologist.profile.first_name or ''} {psychologist.profile.last_name or ''}".strip()
             context = {
                 'page_title': full_name,
-                'extra_css': ['/static/css/psychologist_detail.css'],
-                'extra_js': ['/static/js/psychologist_detail.js'],
-                'content': render_psychologist_detail(psychologist),
+                'extra_css': [
+                    '/static/css/psychologist_detail.css'
+                    
+                    ],
+                'extra_js': [
+                    '/static/js/psychologist_detail.js',
+                    '/static/plugins/rating/jquery-rate-picker.js',
+                    '/static/plugins/rating/rating-picker.js',
+                    '/static/plugins/ratings-2/jquery.star-rating.js',
+                    '/static/plugins/ratings-2/star-rating.js'
+                    ],
+                'content': render_psychologist_detail(psychologist,request),
             }
             return render(request, 'index2.html', context)
 
@@ -538,14 +547,17 @@ class PsychologistActionView(View):
 
             # --- کارت ---
             card = f'''
+
             <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
+                <div class="ribbone2">روانشناس</div>
+                
                 <div class="row g-0 align-items-center">
                     <div class="col-md-2 position-relative overflow-hidden">
                         {photo}
                     </div>
-                    <div class="col-md-10">
-                        <div class="card-body">
-                            <h5 class="card-title mb-2">{full_name}</h5>
+                    <div class="col-md-10 align-self-start bd-highlight">
+                        <div class="card-body px-0">
+                            <h3 class="mb-2 text-dark fw-bold">{full_name}</h3>
                             <p class="card-text text-muted mb-2">
                                 <strong>تخصص:</strong> {specialties_text}
                                 <span class="specialty-badge">{specialties_text}</span>
@@ -553,7 +565,10 @@ class PsychologistActionView(View):
                         </div>
                     </div>
                 </div>
+            
             </a>
+
+        
             '''
             cards.append(card)
 
@@ -817,94 +832,124 @@ class PsychologistDegreeView(View):
             # error handling similar to get
             pass
     
-
-
- 
 # ========== متدهای کمکی (داخل کلاس) ==========
-
-
-
-        
-
-def render_psychologist_detail(psychologist):
-    print("psychologist",psychologist)
+def render_psychologist_detail(psychologist, request=None):
     full_name = f"{psychologist.profile.first_name or ''} {psychologist.profile.last_name or ''}".strip()
-    profile_picture=psychologist.profile_picture.url
-    PsychologistType=psychologist.PsychologistType
+    profile_picture = psychologist.profile_picture.url if hasattr(psychologist, 'profile_picture') and psychologist.profile_picture else ''
+    PsychologistType = getattr(psychologist, 'PsychologistType', '')
+    if PsychologistType and hasattr(PsychologistType, 'name'):
+        PsychologistType = PsychologistType.name
 
+    membership_code = getattr(psychologist, 'membership_code', None)
+    license_code = getattr(psychologist, 'license_code', None)
 
-    # --- HTML نهایی ---
+    # دریافت وضعیت کاربر
+    user_info = get_user_status(psychologist, request)
+    is_owner = user_info.get('is_owner', False)
+
+    # --- HTML ---
     html = format_html(f"""
-
         <div class="main-content">
-                       
             <div class="side-app with_header">
                 <div class="main-container container-fluid">
                     <div class="page-header">
                         <ol class="breadcrumb">
-                        <li class="breadcrumb-item ">
-                            <a href="/psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
-                        </li>
-                        <li class="breadcrumb-item text-dark" aria-current="page">
-                            <i class="fa fa-user-circle ml-2"></i>{full_name}
-                        </li>
-                        
-                        <li class="breadcrumb-back">
-                            <a href="/psychologist/list" class="btn btn-outline-default fw-900"
-                            >بازگشت
-                            <i class="mdi mdi-arrow-left-thick"></i>
-                            </a>
-                        </li>
+                            <li class="breadcrumb-item ">
+                                <a href="/psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
+                            </li>
+                            <li class="breadcrumb-item text-dark" aria-current="page">
+                                <i class="fa fa-user-circle ml-2"></i>{full_name}
+                            </li>
+                            <li class="breadcrumb-back">
+                                <a href="/psychologist/list" class="btn btn-outline-default fw-900">
+                                    بازگشت
+                                    <i class="mdi mdi-arrow-left-thick"></i>
+                                </a>
+                            </li>
                         </ol>
                     </div>
-                    
 
                     <div class="row" id="user-profile">
-                            <div class="col-lg-12">
-                                <div class="card shadow-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center g-3">
+                        <div class="col-lg-12">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <div class="row align-items-start g-3">
 
-                                            <!-- قسمت چپ: عکس + اطلاعات -->
-                                            <div class="col-md-9 col-12">
-                                                <div class="d-flex align-items-start gap-3">
-                                                    <!-- عکس مربعی با گوشه نرم -->
-                                                    <img src="{profile_picture}" 
-                                                        class="card-img-left flex-shrink-0 shadow-sm" 
-                                                        style="width: 130px; height: 160px;"
-                                                        alt="{full_name}">
-                                                    
-                                                    <div class="pt-2">
-                                                        <h3 class="mb-1 fw-bold">{full_name}</h3>
-                                                        <p class="text-muted mb-0 fs-5">{PsychologistType}</p>
+                                        <!-- قسمت اصلی: عکس + اطلاعات -->
+                                        <div class="col-12 col-md-10">
+                                            <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
+                                                
+                                                <!-- عکس -->
+                                                <img src="{profile_picture}" 
+                                                    class="card-img-left flex-shrink-0 shadow-sm m-auto" 
+                                                    style="width: 130px; height: 160px;"
+                                                    alt="{full_name}">
+                                                
+                                                <!-- اطلاعات -->
+                                                <div class="NameType flex-grow-1 pt-1">
+                                                    <div class="NameType d-flex flex-column flex-sm-row justify-content-between align-items-start gap-2">
+                                                        <div class="NameType">
+                                                            <h3 class="mb-1 fw-bold">{full_name}</h3>
+                                                            <p class="text-muted mb-0 ">{PsychologistType}</p>
+                                                        </div>
+                                                        {format_html('<a href="javascript:void(0)" class="NameType btn btn-outline-info border-0 d-flex align-items-center gap-1 text-nowrap"> <i class="fa fa-pencil-square-o"></i> ویرایش </a>') if is_owner else ''}
+                                                    </div>
+
+                                                    <div class="mt-3 d-flex flex-column gap-2">
+""")
+
+    if membership_code:
+        html += format_html(f"""
+                                                            <div class="col-lg-3 col-md-4 col-12 px-0 mt-4">
+                                                                <span class="badge bg-primary fs-6 py-2 px-3 col-12">
+                                                                    <i class="fa fa-id-card me-1"></i>
+                                                                    کد عضویت: <strong>{membership_code}</strong>
+                                                                </span>
+                                                            </div>
+""")
+
+    if license_code:
+        html += format_html(f"""
+                                                            <div class="col-lg-3 col-md-4 col-12 px-0">
+                                                                <span class="badge bg-success fs-6 py-2 px-3 col-12">
+                                                                    <i class="fa fa-certificate me-1"></i>
+                                                                    پروانه اشتغال: <strong>{license_code}</strong>
+                                                                </span>
+                                                            </div>
+""")
+
+    html += format_html(f"""
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="row col-md-3 col-12">
-
-                                                <div class="p-0">
-
-                                                    <div class="mb-5 row text-end">
-                                                        <div class="col-6 text-end">
-                                                            <button class="btn btn-primary mt-1 mb-1 col-10"> <i class="fa fa-rss"></i> <span>دنبال کردن</span></button>
+                                            <!-- قسمت راست: دکمه‌ها -->
+                                            <div class="col-12 col-md-2">
+                                                <div class="d-flex flex-column gap-2 h-100">
+                                                    <div class="row g-2">
+                                                        <div class="col-6 col-sm-12">
+                                                            <button class="btn btn-primary w-100"> 
+                                                                <i class="fa fa-rss"></i> 
+                                                                <span>دنبال کردن</span>
+                                                            </button>
                                                         </div>
-                                                        <div class="col-6 text-start">
-                                                            <button class="btn btn-secondary mt-1 mb-1 col-10"> <i class="fa fa-envelope"></i> <span>پیام</span></button>
+                                                        <div class="col-6 col-sm-12">
+                                                            <button class="btn btn-secondary w-100"> 
+                                                                <i class="fa fa-envelope"></i> 
+                                                                <span>پیام</span>
+                                                            </button>
                                                         </div>
-
                                                     </div>
                                                     
-                                                    <div class="card-footer mt-5">
+                                                    <div class="card-footer">
                                                         <div class="row user-social-detail">
-                                                            <div class="social-profile me-4 rounded text-center">
+                                                            <div class="social-profile rounded text-center">
                                                                 <a href="javascript:void(0)"><i class="fa fa-google"></i></a>
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                 </div>
-
                                             </div>
 
                                         </div>
@@ -912,6 +957,147 @@ def render_psychologist_detail(psychologist):
                                 </div>
                                 
                                 <div class="row">
+                                    <div class="col-xl-3">
+                                        <!-- روزهای کاری -->
+                                        <div class="card">
+                                            <div class="card-header d-flex">
+                                                <div class="card-title">روزهای کاری</div>
+                                                {format_html('<div class="text-end mr-auto "><a href="javascript:void(0)" class="btn btn-outline-info border-0 d-flex align-items-center gap-1"><i class="fa fa-pencil-square-o mt-1"></i>ویرایش</a></div>') if is_owner else ''}
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3 mt-3">
+                                                    <div class="me-4 text-center text-primary">
+                                                        <span><i class="fe fe-briefcase fs-20"></i></span>
+                                                    </div>
+                                                    <div><strong>ثبت نشده</strong></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- زمینه کاری -->
+                                        <div class="card">
+                                            <div class="card-header d-flex">
+                                                <div class="card-title">زمینه کاری</div>
+                                                {format_html('<div class="text-end mr-auto "><a href="javascript:void(0)" class="btn btn-outline-info border-0 d-flex align-items-center gap-1"><i class="fa fa-pencil-square-o mt-1"></i>ویرایش</a></div>') if is_owner else ''}
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="tags">
+""")
+
+    # زمینه کاری - داینامیک
+    specialties_list = []
+    for ps in psychologist.specialties.all():
+        if hasattr(ps, 'specialties'):
+            for spec in ps.specialties.all():
+                if spec and spec.name:
+                    specialties_list.append(spec.name)
+
+    if specialties_list:
+        for spec_name in specialties_list:
+            html += format_html(f'                                                    <a href="javascript:void(0)" class="tag">{spec_name}</a>')
+    else:
+        html += format_html('                                                    <a href="javascript:void(0)" class="tag">ثبت نشده</a>')
+
+    html += format_html(f"""
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- تحصیلات -->
+                                        <div class="card">
+                                            <div class="card-header d-flex">
+                                                <div class="card-title">تحصیلات</div>
+                                                {format_html('<div class="text-end mr-auto "><a href="javascript:void(0)" class="btn btn-outline-info border-0 d-flex align-items-center gap-1"><i class="fa fa-pencil-square-o mt-1"></i>ویرایش</a></div>') if is_owner else ''}
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="main-profile-contact-list">
+""")
+
+    # تحصیلات - داینامیک
+    degrees = psychologist.degrees.filter(is_active=True, is_deleted=False).order_by('-graduation_year') if hasattr(psychologist, 'degrees') else []
+    if degrees:
+        for degree in degrees:
+            level = degree.get_level_display() if hasattr(degree, 'get_level_display') else ''
+            uni = degree.university.name if hasattr(degree, 'university') and degree.university else 'نامشخص'
+            spec = degree.specialization.name if hasattr(degree, 'specialization') and degree.specialization else ''
+            status = degree.get_study_status_display() if hasattr(degree, 'get_study_status_display') else ''
+            html += format_html(f"""
+                                                    <div class="me-5">
+                                                        <div class="media mb-4 d-flex">
+                                                            <div class="media-icon bg-primary mb-3 mb-sm-0 me-3 mt-1">
+                                                                <svg style="width:24px;height:24px;margin-top:-8px" viewBox="0 0 24 24">
+                                                                    <path fill="#fff" d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3M18.82 9L12 12.72L5.18 9L12 5.28L18.82 9M17 16L12 18.72L7 16V12.27L12 15L17 12.27V16Z"></path>
+                                                                </svg>
+                                                            </div>
+                                                            <div class="media-body">
+                                                                <h6 class="font-weight-semibold mb-1">{level}</h6>
+                                                                <span>{uni}</span>
+                                                                <p>{spec} - {status}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+""")
+    else:
+        html += format_html("""
+                                                    <div class="me-5">
+                                                        <div class="media mb-4 d-flex">
+                                                            <div class="media-icon bg-primary mb-3 mb-sm-0 me-3 mt-1">
+                                                                <svg style="width:24px;height:24px;margin-top:-8px" viewBox="0 0 24 24">
+                                                                    <path fill="#fff" d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3M18.82 9L12 12.72L5.18 9L12 5.28L18.82 9M17 16L12 18.72L7 16V12.27L12 15L17 12.27V16Z"></path>
+                                                                </svg>
+                                                            </div>
+                                                            <div class="media-body">
+                                                                <h6 class="font-weight-semibold mb-1">ثبت نشده</h6>
+                                                                <p>اطلاعات تحصیلی موجود نیست</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+""")
+
+    html += format_html(f"""
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- PsychologistSection ها -->
+                                    <div class="col-xl-6">
+""")
+
+    # PsychologistSection - داینامیک
+    sections = psychologist.sections.filter(is_active=True, is_deleted=False).order_by('order') if hasattr(psychologist, 'sections') else []
+    if sections:
+        for section in sections:
+            title = getattr(getattr(section, 'section_type', None), 'title', 'بخش')
+            content = section.content or 'محتوایی ثبت نشده است'
+            bg_color = getattr(section, 'background_color', '#ffffff')
+            text_color = getattr(section, 'color', '#000000')
+            
+            html += format_html(f"""
+                                        <div class="card" style="background-color: {bg_color}; color: {text_color}; margin-bottom: 20px;">
+                                            <div class="card-header d-flex">
+                                                <div class="card-title">{title}</div>
+                                                {format_html('<div class="text-end mr-auto "><a href="javascript:void(0)" class="btn btn-outline-info border-0 d-flex align-items-center gap-1"><i class="fa fa-pencil-square-o mt-1"></i>ویرایش</a></div>') if is_owner else ''}
+                                            </div>
+                                            <div class="card-body">
+                                                {content}
+                                            </div>
+                                        </div>
+""")
+    else:
+        html += format_html("""
+                                        <div class="card text-white bg-primary">
+                                            <div class="card-body">
+                                                <h4 class="card-title">اطلاعات اضافی</h4>
+                                                <p class="card-text">بخش‌های اضافی ثبت نشده است.</p>
+                                            </div>
+                                        </div>
+""")
+
+    html += format_html(f"""
+                                    </div>
+
+                                    <!-- ستون راست -->
                                     <div class="col-xl-3">
                                         <div class="card">
                                             <div class="card-body">
@@ -922,9 +1108,9 @@ def render_psychologist_detail(psychologist):
                                                                 <i class="fe fe-edit fs-20 text-white"></i>
                                                             </div>
                                                             <div class="media-body">
-                                                                <span class="text-muted">Posts</span>
+                                                                <span class="text-muted">مطالب علمی منتشر شده</span>
                                                                 <div class="fw-semibold fs-25">
-                                                                    328
+                                                                    0
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -937,9 +1123,9 @@ def render_psychologist_detail(psychologist):
                                                                 </span>
                                                             </div>
                                                             <div class="media-body">
-                                                                <span class="text-muted">Followers</span>
+                                                                <span class="text-muted">دنبال‌کنندگان</span>
                                                                 <div class="fw-semibold fs-25">
-                                                                    937k
+                                                                    0
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -952,9 +1138,9 @@ def render_psychologist_detail(psychologist):
                                                                 </span>
                                                             </div>
                                                             <div class="media-body">
-                                                                <span class="text-muted">Following</span>
+                                                                <span class="text-muted">پیام ها پاسخ داده شده</span>
                                                                 <div class="fw-semibold fs-25">
-                                                                    2,876
+                                                                    0
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -964,446 +1150,31 @@ def render_psychologist_detail(psychologist):
                                         </div>
                                         <div class="card">
                                             <div class="card-header">
-                                                <div class="card-title">About</div>
+                                                <div class="card-title">نظر مراجعین</div>
                                             </div>
                                             <div class="card-body">
-                                                <div>
-                                                    <h5>Biography<i class="fe fe-edit-3 text-primary mx-2"></i></h5>
-                                                    <p>Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.
-                                                        <a href="javascript:void(0)">Read more</a>
-                                                    </p>
-                                                </div>
-                                                <hr>
-                                                <div class="d-flex align-items-center mb-3 mt-3">
-                                                    <div class="me-4 text-center text-primary">
-                                                        <span><i class="fe fe-briefcase fs-20"></i></span>
+                                                <div class="row">
+                                                    <div class="col-md-4 col-5 m-auto text-center">
+                                                        نظر 1
                                                     </div>
-                                                    <div>
-                                                        <strong>San Francisco, CA </strong>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-3 mt-3">
-                                                    <div class="me-4 text-center text-primary">
-                                                        <span><i class="fe fe-map-pin fs-20"></i></span>
-                                                    </div>
-                                                    <div>
-                                                        <strong>Francisco, USA</strong>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-3 mt-3">
-                                                    <div class="me-4 text-center text-primary">
-                                                        <span><i class="fe fe-phone fs-20"></i></span>
-                                                    </div>
-                                                    <div>
-                                                        <strong>+125 254 3562 </strong>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-3 mt-3">
-                                                    <div class="me-4 text-center text-primary">
-                                                        <span><i class="fe fe-mail fs-20"></i></span>
-                                                    </div>
-                                                    <div>
-                                                        <strong>georgeme@abc.com </strong>
+                                                    <div class="col-md-8 col-7 ltr">
+                                                        <div class="rating-stars  block my-rating-2 ltr" data-rating="4.5"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        
                                         <div class="card">
                                             <div class="card-header">
-                                                <div class="card-title">Skills</div>
+                                                <div class="card-title">افراد مرتبط</div>
                                             </div>
                                             <div class="card-body">
-                                                <div class="tags">
-                                                    <a href="javascript:void(0)" class="tag">Laravel</a>
-                                                    <a href="javascript:void(0)" class="tag">Angular</a>
-                                                    <a href="javascript:void(0)" class="tag">HTML</a>
-                                                    <a href="javascript:void(0)" class="tag">Vuejs</a>
-                                                    <a href="javascript:void(0)" class="tag">Codiegniter</a>
-                                                    <a href="javascript:void(0)" class="tag">JavaScript</a>
-                                                    <a href="javascript:void(0)" class="tag">Bootstrap</a>
-                                                    <a href="javascript:void(0)" class="tag">PHP</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <div class="card-title">Work &amp; Education</div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="main-profile-contact-list">
-                                                    <div class="me-5">
-                                                        <div class="media mb-4 d-flex">
-                                                            <div class="media-icon bg-primary  mb-3 mb-sm-0 me-3 mt-1">
-                                                                <svg style="width:24px;height:24px;margin-top:-8px" viewBox="0 0 24 24">
-                                                                    <path fill="#fff" d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3M18.82 9L12 12.72L5.18 9L12 5.28L18.82 9M17 16L12 18.72L7 16V12.27L12 15L17 12.27V16Z"></path>
-                                                                </svg>
-                                                            </div>
-                                                            <div class="media-body">
-                                                                <h6 class="font-weight-semibold mb-1">Web Designer at <a href="javascript:void(0)" class="btn-link">Spruko</a></h6>
-                                                                <span>2018 - present</span>
-                                                                <p>Past Work: Spruko, Inc.</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="me-5 mt-5 mt-md-0">
-                                                        <div class="media mb-4 d-flex">
-                                                            <div class="media-icon bg-success text-white mb-3 mb-sm-0 me-3 mt-1">
-                                                                <svg style="width:24px;height:24px;margin-top:-8px" viewBox="0 0 24 24">
-                                                                    <path fill="currentColor" d="M20,6C20.58,6 21.05,6.2 21.42,6.59C21.8,7 22,7.45 22,8V19C22,19.55 21.8,20 21.42,20.41C21.05,20.8 20.58,21 20,21H4C3.42,21 2.95,20.8 2.58,20.41C2.2,20 2,19.55 2,19V8C2,7.45 2.2,7 2.58,6.59C2.95,6.2 3.42,6 4,6H8V4C8,3.42 8.2,2.95 8.58,2.58C8.95,2.2 9.42,2 10,2H14C14.58,2 15.05,2.2 15.42,2.58C15.8,2.95 16,3.42 16,4V6H20M4,8V19H20V8H4M14,6V4H10V6H14M12,9A2.25,2.25 0 0,1 14.25,11.25C14.25,12.5 13.24,13.5 12,13.5A2.25,2.25 0 0,1 9.75,11.25C9.75,10 10.76,9 12,9M16.5,18H7.5V16.88C7.5,15.63 9.5,14.63 12,14.63C14.5,14.63 16.5,15.63 16.5,16.88V18Z"></path>
-                                                                </svg>
-                                                            </div>
-                                                            <div class="media-body">
-                                                                <h6 class="font-weight-semibold mb-1">Studied at <a href="javascript:void(0)" class="btn-link">University</a></h6>
-                                                                <span>2004-2008</span>
-                                                                <p>Graduation: Bachelor of Science in Computer Science</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <form class="profile-edit">
-                                                    <textarea class="form-control" placeholder="What's in your mind right now" rows="7"></textarea>
-                                                    <div class="profile-share border-top-0">
-                                                        <div class="mt-2">
-                                                            <a href="javascript:void(0)" class="me-2" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Audio" aria-label="Audio"><span class="text-muted"><i class="fe fe-mic"></i></span></a>
-                                                            <a href="javascript:void(0)" class="me-2" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Video" aria-label="Video"><span class="text-muted"><i class="fe fe-video"></i></span></a>
-                                                            <a href="javascript:void(0)" class="me-2" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Image" aria-label="Image"><span class="text-muted"><i class="fe fe-image"></i></span></a>
-                                                        </div>
-                                                        <button class="btn btn-sm btn-success ms-auto"><i class="fa fa-share ms-1"></i> Share</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div class="card border p-0 shadow-none">
-                                            <div class="card-body">
-                                                <div class="d-flex">
-                                                    <div class="media mt-0">
-                                                        <div class="media-user me-2">
-                                                            <div class=""><img alt="" class="rounded-circle avatar avatar-md" src="../assets/images/users/16.jpg"></div>
-                                                        </div>
+                                                <div class="visitor-list">
+                                                    <div class="media m-0 mt-0 border-bottom">
+                                                        <img class="avatar brround avatar-md me-3" alt="avatra-img" src="../assets/images/users/18.jpg">
                                                         <div class="media-body">
-                                                            <h6 class="mb-0 mt-1">Peter Hill</h6>
-                                                            <small class="text-muted">just now</small>
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="dropdown show">
-                                                            <a class="new option-dots" href="JavaScript:void(0);" data-bs-toggle="dropdown">
-                                                                <span class=""><i class="fe fe-more-vertical"></i></span>
-                                                            </a>
-                                                            <div class="dropdown-menu dropdown-menu-end">
-                                                                <a class="dropdown-item" href="javascript:void(0)">Edit Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Delete Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Personal Settings</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4">
-                                                    <h4 class="fw-semibold mt-3">There is nothing more beautiful.</h4>
-                                                    <p class="mb-0">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer user-pro-2">
-                                                <div class="media mt-0">
-                                                    <div class="media-user me-2">
-                                                        <div class="avatar-list avatar-list-stacked">
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/12.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/9.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/4.jpg)"></span>
-                                                            <span class="avatar brround text-primary">+28</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <h6 class="mb-0 mt-2 ms-2">28 people like your photo</h6>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="d-flex mt-1">
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-heart"></i></span></a>
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-message-square"></i></span></a>
-                                                            <a class="new text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-share-2"></i></span></a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card border p-0 shadow-none">
-                                            <div class="card-body">
-                                                <div class="d-flex">
-                                                    <div class="media mt-0">
-                                                        <div class="media-user me-2">
-                                                            <div class=""><img alt="" class="rounded-circle avatar avatar-md" src="../assets/images/users/16.jpg"></div>
-                                                        </div>
-                                                        <div class="media-body">
-                                                            <h6 class="mb-0 mt-1">Peter Hill</h6>
-                                                            <small class="text-muted">Sep 26 2019, 10:14am</small>
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="dropdown show">
-                                                            <a class="new option-dots" href="JavaScript:void(0);" data-bs-toggle="dropdown">
-                                                                <span class=""><i class="fe fe-more-vertical"></i></span>
-                                                            </a>
-                                                            <div class="dropdown-menu dropdown-menu-end">
-                                                                <a class="dropdown-item" href="javascript:void(0)">Edit Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Delete Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Personal Settings</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4">
-                                                    <div class="d-flex">
-                                                        <a href="gallery.html" class="w-30 m-2"><img src="../assets/images/media/22.jpg" alt="img" class="br-5"></a>
-                                                        <a href="gallery.html" class="w-30 m-2"><img src="../assets/images//media/24.jpg" alt="img" class="br-5"></a>
-                                                    </div>
-                                                    <h4 class="fw-semibold mt-3">There is nothing more beautiful.</h4>
-                                                    <p class="mb-0">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer user-pro-2">
-                                                <div class="media mt-0">
-                                                    <div class="media-user me-2">
-                                                        <div class="avatar-list avatar-list-stacked">
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/12.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/9.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/4.jpg)"></span>
-                                                            <span class="avatar brround text-primary">+28</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <h6 class="mb-0 mt-2 ms-2">28 people like your photo</h6>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="d-flex mt-1">
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-heart"></i></span></a>
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-message-square"></i></span></a>
-                                                            <a class="new text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-share-2"></i></span></a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card border p-0 shadow-none">
-                                            <div class="card-body">
-                                                <div class="d-flex">
-                                                    <div class="media mt-0">
-                                                        <div class="media-user me-2">
-                                                            <div class=""><img alt="" class="rounded-circle avatar avatar-md" src="../assets/images/users/16.jpg"></div>
-                                                        </div>
-                                                        <div class="media-body">
-                                                            <h6 class="mb-0 mt-1">Peter Hill</h6>
-                                                            <small class="text-muted">Sep 24 2019, 09:14am</small>
-                                                        </div>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="dropdown show">
-                                                            <a class="new option-dots" href="JavaScript:void(0);" data-bs-toggle="dropdown">
-                                                                <span class=""><i class="fe fe-more-vertical"></i></span>
-                                                            </a>
-                                                            <div class="dropdown-menu dropdown-menu-end">
-                                                                <a class="dropdown-item" href="javascript:void(0)">Edit Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Delete Post</a>
-                                                                <a class="dropdown-item" href="javascript:void(0)">Personal Settings</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4">
-                                                    <div class="d-flex">
-                                                        <a href="gallery.html" class="w-30 m-2"><img src="../assets/images/media/26.jpg" alt="img" class="br-5"></a>
-                                                        <a href="gallery.html" class="w-30 m-2"><img src="../assets/images/media/23.jpg" alt="img" class="br-5"></a>
-                                                        <a href="gallery.html" class="w-30 m-2"><img src="../assets/images/media/21.jpg" alt="img" class="br-5"></a>
-                                                    </div>
-                                                    <h4 class="fw-semibold mt-3">There is nothing more beautiful.</h4>
-                                                    <p class="mb-0">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer user-pro-2">
-                                                <div class="media mt-0">
-                                                    <div class="media-user me-2">
-                                                        <div class="avatar-list avatar-list-stacked">
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/12.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/9.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/2.jpg)"></span>
-                                                            <span class="avatar brround" style="background-image: url(../assets/images/users/4.jpg)"></span>
-                                                            <span class="avatar brround text-primary">+28</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <h6 class="mb-0 mt-2 ms-2">28 people like your photo</h6>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="d-flex mt-1">
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-heart"></i></span></a>
-                                                            <a class="new me-2 text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-message-square"></i></span></a>
-                                                            <a class="new text-muted fs-16" href="JavaScript:void(0);"><span class=""><i class="fe fe-share-2"></i></span></a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <div class="card-title">Followers</div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="">
-                                                    <div class="media overflow-visible">
-                                                        <img class="avatar brround avatar-md me-3" src="../assets/images/users/18.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle mt-2">
-                                                            <a href="javascript:void(0)" class=" fw-semibold text-dark">John Paige</a>
-                                                            <p class="text-muted mb-0">johan@gmail.com</p>
-                                                        </div>
-                                                        <div class="media-body valign-middle text-end overflow-visible mt-2">
-                                                            <button class="btn btn-sm btn-primary" type="button">Follow</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media overflow-visible mt-sm-5">
-                                                        <span class="avatar cover-image avatar-md brround bg-pink me-3">LQ</span>
-                                                        <div class="media-body valign-middle mt-2">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Lillian Quinn</a>
-                                                            <p class="text-muted mb-0">lilliangore</p>
-                                                        </div>
-                                                        <div class="media-body valign-middle text-end overflow-visible mt-1">
-                                                            <button class="btn btn-sm btn-secondary" type="button">Follow</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media overflow-visible mt-sm-5">
-                                                        <img class="avatar brround avatar-md me-3" src="../assets/images/users/2.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle mt-2">
-                                                            <a href="javascript:void(0)" class="text-dark fw-semibold">Harry Fisher</a>
-                                                            <p class="text-muted mb-0">harryuqt</p>
-                                                        </div>
-                                                        <div class="media-body valign-middle text-end overflow-visible mt-1">
-                                                            <button class="btn btn-sm btn-danger" type="button">Follow</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media overflow-visible mt-sm-5">
-                                                        <span class="avatar cover-image avatar-md brround me-3 bg-primary">IH</span>
-                                                        <div class="media-body valign-middle mt-2">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Irene Harris</a>
-                                                            <p class="text-muted mb-0">harris@gmail.com</p>
-                                                        </div>
-                                                        <div class="media-body valign-middle text-end overflow-visible mt-1">
-                                                            <button class="btn btn-sm btn-success" type="button">Follow</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <div class="card-title">Our Latest News</div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="">
-                                                    <div class="media media-xs overflow-visible">
-                                                        <img class="avatar bradius avatar-xl me-3" src="../assets/images/users/12.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">John Paige</a>
-                                                            <p class="text-muted mb-0">There are many variations of passages of Lorem Ipsum available ...</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <img class="avatar bradius avatar-xl me-3" src="../assets/images/users/2.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Peter Hill</a>
-                                                            <p class="text-muted mb-0">There are many variations of passages of Lorem Ipsum available ...</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <img class="avatar bradius avatar-xl me-3" src="../assets/images/users/9.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Irene Harris</a>
-                                                            <p class="text-muted mb-0">There are many variations of passages of Lorem Ipsum available ...</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <img class="avatar bradius avatar-xl me-3" src="../assets/images/users/4.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Harry Fisher</a>
-                                                            <p class="text-muted mb-0">There are many variations of passages of Lorem Ipsum available ...</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <div class="card-title">Friends</div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="user-pro-1">
-                                                    <div class="media media-xs overflow-visible">
-                                                        <img class="avatar brround avatar-md me-3" src="../assets/images/users/18.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle">
-                                                            <a href="javascript:void(0)" class=" fw-semibold text-dark">John Paige</a>
-                                                            <p class="text-muted mb-0">Web Designer</p>
-                                                        </div>
-                                                        <div class="">
-                                                            <div class="social social-profile-buttons float-end">
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-facebook"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-twitter"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-linkedin"></i></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <span class="avatar cover-image avatar-md brround bg-pink me-3">LQ</span>
-                                                        <div class="media-body valign-middle mt-0">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Lillian Quinn</a>
-                                                            <p class="text-muted mb-0">Web Designer</p>
-                                                        </div>
-                                                        <div class="">
-                                                            <div class="social social-profile-buttons float-end">
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-facebook"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-twitter"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-linkedin"></i></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <img class="avatar brround avatar-md me-3" src="../assets/images/users/2.jpg" alt="avatar-img">
-                                                        <div class="media-body valign-middle mt-0">
-                                                            <a href="javascript:void(0)" class="text-dark fw-semibold">Harry Fisher</a>
-                                                            <p class="text-muted mb-0">Web Designer</p>
-                                                        </div>
-                                                        <div class="">
-                                                            <div class="social social-profile-buttons float-end">
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-facebook"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-twitter"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-linkedin"></i></a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="media media-xs overflow-visible mt-5">
-                                                        <span class="avatar cover-image avatar-md brround me-3 bg-primary">IH</span>
-                                                        <div class="media-body valign-middle mt-0">
-                                                            <a href="javascript:void(0)" class="fw-semibold text-dark">Irene Harris</a>
-                                                            <p class="text-muted mb-0">Web Designer</p>
-                                                        </div>
-                                                        <div class="">
-                                                            <div class="social social-profile-buttons float-end">
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-facebook"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-twitter"></i></a>
-                                                                <a class="social-icon bg-white" href="javascript:void(0)"><i class="fa fa-linkedin"></i></a>
-                                                            </div>
+                                                            <a href="javascript:void(0)" class="text-default fw-semibold">-</a>
+                                                            <p class="text-muted ">-</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1412,15 +1183,10 @@ def render_psychologist_detail(psychologist):
                                     </div>
                                 </div>
                             </div>
-                            <!-- COL-END -->
                         </div>
-
-
                 </div>
             </div>
-
         </div>
-    
     """)
 
     return mark_safe(html)

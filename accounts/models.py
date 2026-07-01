@@ -89,8 +89,6 @@ class Specialization(models.Model):
     def __str__(self):
         return f"{self.name} ({self.field})"
 
-
-
 #  مدل مربوط به کاربر
 
 class Profile(AbstractUser):
@@ -138,8 +136,6 @@ class Profile(AbstractUser):
             bool(self.city),
         ])
     
-
-
 # مدل های مربوط به منشی ها
 class Secretary(models.Model):
     profile = models.OneToOneField(
@@ -174,7 +170,6 @@ class Secretary(models.Model):
         verbose_name_plural = "منشی‌ها"
 
 
-
 # مدل های مربوط به متخصص
 
 class PsychologistType(models.Model):
@@ -205,6 +200,8 @@ class PsychologistType(models.Model):
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
+    membership_code = models.CharField( max_length=20, unique=True, verbose_name="کد عضویت",blank=True, null=True,)
+    license_code = models.CharField( max_length=20, unique=True, verbose_name="پروانه اشتغال",blank=True, null=True,)
     PsychologistType = models.ForeignKey(PsychologistType, on_delete=models.CASCADE, related_name='PsychologistType',null=True,blank=True)
     profile_picture = models.ImageField(
         upload_to='images/psychologists/profiles',
@@ -346,6 +343,29 @@ class PsychologistDegree(models.Model):
         verbose_name = "مدرک دانشگاهی"
         verbose_name_plural = "مدارک دانشگاهی"
 
+# SECTION_TYPES = [
+#         ('Biography', 'بیوگرافی'),
+#         ('Books', 'کتاب‌ها'),
+#         ('Publications', 'مقالات'),
+#         ('Awards & Honors', 'جوایز و افتخارات'),
+#         ('Associations & Memberships', 'انجمن ها و عضویت ها'),
+#         ('Work Experience', 'تجربیات کاری'),
+#         ('Therapeutic Approaches', 'رویکردهای درمانی'),
+#         ('Disorders Treated', 'اختلا'),
+#         ('Certifications', 'دوره ها  و گواهینامه '),
+#         ('Educational Activities', 'فعالیت‌های آموزشی و تدریس'),
+#         ('Research Activities', 'زفعالیت‌های پژوهشی'),
+#           ('Supervision', 'سوپرویژن و نظارت بالینی'),
+        
+#     ]
+
+class SectionType(models.Model):
+    title = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+
 class PsychologistSection(models.Model):
     psychologist = models.ForeignKey(
         Psychologist,
@@ -353,28 +373,12 @@ class PsychologistSection(models.Model):
         related_name='sections'
     )
 
-    SECTION_TYPES = [
-        ('bio', 'Biography'),
-        ('books', 'Books & Publications'),
-        ('awards', 'Awards & Honors'),
-        ('associations', 'Associations & Memberships'),
-        ('experience', 'Work Experience'),
-        ('approaches', 'Therapeutic Approaches'),
-        ('disorders', 'Disorders Treated'),
-        ('education', 'Education'),
-        ('certifications', 'Certifications'),
-        ('research', 'Research Activities'),
-        ('custom', 'Custom Section'),
-    ]
-
-    section_type = models.CharField(
-        max_length=30,
-        choices=SECTION_TYPES
-    )
-
-    title = models.CharField(
-        max_length=255,
-        blank=True
+    section_type = models.ForeignKey(
+        University,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='PsychologistSection'
     )
 
     content = CKEditor5Field(
@@ -385,7 +389,10 @@ class PsychologistSection(models.Model):
     order = models.PositiveIntegerField(
         default=0
     )
-
+    
+    background_color = models.CharField(max_length=7, default="#ffffff", verbose_name="رنگ زمینه")
+    color = models.CharField(max_length=7, default="#000000", verbose_name="رنگ متن")
+    
     is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)

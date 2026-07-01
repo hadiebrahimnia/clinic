@@ -231,6 +231,28 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
         )
     ) 
 
+    membership_code = forms.CharField(
+        label=_('کد عضویت'),
+        required=False,
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'کد عضویت',
+            'data-input-type': 'number',
+            'required': False,
+        }),
+    )
+
+    license_code = forms.CharField(
+        label=_('کد اشتغال'),
+        required=False,
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'کد اشتغال',
+            'data-input-type': 'number',
+            'required': False,
+        }),
+    )
+
     class Meta:
         model = Psychologist
         
@@ -239,9 +261,10 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             'last_name',
             'PsychologistType',
             'profile_picture',
+            'membership_code',
+            'license_code',
         ]
 
-    
     def __init__(self, *args, **kwargs):
         self.request = None        
         if args and hasattr(args[0], 'user'):     
@@ -258,7 +281,7 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             self.fields['first_name'].initial = instance.profile.first_name
             self.fields['last_name'].initial = instance.profile.last_name
 
-        self.order_fields(['first_name', 'last_name', 'PsychologistType', 'profile_picture'])
+        self.order_fields(['first_name', 'last_name', 'PsychologistType', 'profile_picture','membership_code','license_code'])
 
     def clean(self):
         cleaned_data = super().clean()

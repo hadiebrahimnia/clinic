@@ -1,0 +1,24 @@
+
+.jq-star {
+    width: 25px!important;
+    height: 25px!important;
+    
+}
+
+@media (min-width: 1280px) {
+    
+    
+ 
+}
+
+
+@media (max-width: 575px) {
+    .NameType {
+        margin:auto;
+        text-align: center;
+    }
+    .breadcrumb-item {
+        display: none!important;
+    }
+ 
+}
