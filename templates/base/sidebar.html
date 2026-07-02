@@ -1,5 +1,6 @@
 <!--APP-SIDEBAR-->
 <div class="sticky">
+    
     <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
         <div class="app-sidebar">
             <div class="side-header">
@@ -17,11 +18,11 @@
                 <ul class="side-menu">
                     {% for category in sidebar_menu %}
                         <li class="sub-category">
-                            <h3 class="fw-900">{{ category.title }}</h3>
+                            <h3 class="">{{ category.title }}</h3>
                         </li>
                         {% for item in category.items %}
                             <li class="slide">
-                                <a class="side-menu__item has-link display-10 {% if item.is_active %} active {% endif %}" data-bs-toggle="slide" href="{{ item.url }}">
+                                <a class="side-menu__item has-link {% if item.is_active %} active {% endif %}" data-bs-toggle="slide" href="{{ item.url }}">
                                     <i class="side-menu__icon {{ item.icon }}"></i>
                                     <span class="side-menu__label">{{ item.label }}</span>
                                 </a>

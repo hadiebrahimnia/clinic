@@ -316,17 +316,16 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
     def save(self, commit=True):
         psychologist = super().save(commit=False)
 
-        if not self.request or not hasattr(self.request, 'user') or not self.request.user.is_authenticated:
-            raise forms.ValidationError("کاربر معتبر یافت نشد.")
         profile = self.request.user
-        profile.first_name = self.cleaned_data.get('first_name', profile.first_name)
-        profile.last_name = self.cleaned_data.get('last_name', profile.last_name)
+        profile.first_name = self.cleaned_data['first_name']
+        profile.last_name = self.cleaned_data['last_name']
+
+        profile.save()   # همیشه ذخیره شود
+
+        psychologist.profile = profile
+
         if commit:
-            profile.save()                  
-            psychologist.profile = profile 
-            psychologist.save() 
-        else:
-            psychologist.profile = profile
+            psychologist.save()
 
         return psychologist
 

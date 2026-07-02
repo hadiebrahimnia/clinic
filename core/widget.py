@@ -339,43 +339,65 @@ class ForeignKeySearchWidget(forms.Select):
 
 
 class ManyToManySearchWidget(forms.SelectMultiple):
-    """
-    ویجت اختصاصی برای فیلدهای ManyToMany با قابلیت جستجو و انتخاب چندگانه
-    بدون نیاز به پلاگین خارجی (Vanilla JS)
-    """
 
-    def __init__(self, attrs=None, placeholder='موارد را انتخاب کنید...'):
-        default_attrs = {
-            'class': 'm2m-select d-none',
-            'data-placeholder': placeholder,
-        }
-        if attrs:
-            default_attrs.update(attrs)
-        super().__init__(attrs=default_attrs)
+    def __init__(self, attrs=None, placeholder="زمینه کاری را انتخاب کنید"):
+        attrs = attrs or {}
+
+        attrs.update({
+            "class": "m2m-select d-none",
+            "data-placeholder": placeholder,
+        })
+
+        super().__init__(attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        select_html = super().render(name, value, attrs, renderer)
-        input_id = attrs.get('id', f'id_{name}')
 
-        html = f"""
-        <div class="m2m-widget" id="wrapper-{input_id}">
-            <div class="m2m-display" onclick="toggleM2MDropdown('{input_id}')">
-                <div class="m2m-selected-items"></div>
-                <span class="m2m-placeholder"><div class="text-m2m-placeholder">{self.attrs.get('data-placeholder')}</div></span>
-                <i class="m2m-arrow"></i>
-            </div>
-            <div class="m2m-dropdown" id="dropdown-{input_id}">
-                <input type="text" class="m2m-search" placeholder="جستجو...">
-                <ul class="m2m-options"></ul>
-            </div>
-            {select_html}
-        </div>
-        """
-        return mark_safe(html)
+        select = super().render(name, value, attrs, renderer)
+
+        input_id = attrs.get("id", f"id_{name}")
+
+        return mark_safe(f"""
+<div class="m2m-widget" id="wrapper-{input_id}">
+
+    <div class="m2m-display">
+
+        <div class="m2m-selected-items"></div>
+
+        <span class="m2m-placeholder">
+            {self.attrs["data-placeholder"]}
+        </span>
+
+        <span class="m2m-arrow"></span>
+
+    </div>
+
+    <div class="m2m-dropdown">
+
+        <input
+            class="m2m-search"
+            type="text"
+            placeholder="جستجو..."
+        >
+
+        <ul class="m2m-options"></ul>
+
+    </div>
+
+    {select}
+
+</div>
+""")
 
     class Media:
-        css = {'all': (static('css/m2m_widget.css'),)}
-        js = (static('js/m2m_widget.js'),)
+        css = {
+            "all": (
+                static("css/m2m_widget.css"),
+            )
+        }
+
+        js = (
+            static("js/m2m_widget.js"),
+        )
 
 
 

@@ -6,11 +6,15 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseNotAllowed
 from django.core.exceptions import PermissionDenied
 from .errors import _error_response  # درست ایمپورت شد
+from django.shortcuts import render, get_object_or_404
 import json
 import importlib
 import logging
 from accounts.models import *
+from core.utils import *
+from django.contrib.auth.mixins import LoginRequiredMixin
 logger = logging.getLogger(__name__)
+
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -33,7 +37,6 @@ class HomeView(TemplateView):
              'degrees__specialization', 
              'degrees__university', 
             'specialties', 
-            'social_media'
         )
 
         psychologists_list = []
@@ -48,14 +51,6 @@ class HomeView(TemplateView):
                     'specialization': degree.specialization.name if degree.specialization else None,
                     'university': degree.university.name if degree.university else None,
                     'graduation_year': degree.graduation_year,
-                })
-
-            # جمع‌آوری شبکه‌های اجتماعی
-            social_media = []
-            for sm in psych.social_media.all():
-                social_media.append({
-                    'platform': sm.get_platform_display(),
-                    'url': sm.url,
                 })
 
 
@@ -81,9 +76,13 @@ class HomeView(TemplateView):
         context['psychologists'] = psychologists_list
         return context
 
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin, View):
+    login_url = '/accounts/login/'     # آدرس صفحه لاگین
+    redirect_field_name = 'next'
+    
     def get(self, request):
-
+        profile=request.user
+        roles = list(profile.roles.values_list('name', flat=True))
         content = """
             <div class="main-content with-sidebar">
                 <div class="side-app with_header">
@@ -241,8 +240,30 @@ class DashboardView(View):
                 ]
             }
         ]
-        
 
+        if "user" in roles :
+            sidebar_menu.append({
+                'title': 'کاریری',
+                'items': [
+                    {'label': 'پروفایل', 'url': '/accounts/update', 'icon': 'fe fe-user', 'is_active': False},
+                ]
+            })
+            
+        
+        if "psychologist" in roles :
+            psychologist=Psychologist.objects.get(profile=profile)
+            sidebar_menu.append({
+                'title': 'اطلاعات متخصص',
+                'items': [
+                    {'label': 'پروفایل(متخصص)', 'url': '/psychologist/update', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'زمینه کاری', 'url': f'/psychologistspecialties/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'مدرک تحصیلی', 'url': f'/psychologistdegree/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'مراجع جدید', 'url': f'/psychologistnewpatients/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'درباره من', 'url': f'/psychologistsection/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'شبکه اجتماعی', 'url': f'/psychologistsocialmedia/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
+                ]
+            })
+            
         if request.user.is_superuser:
             sidebar_menu.append({
                 'title': 'فرعی',
@@ -265,6 +286,7 @@ class FormView(View):
     
 class DynamicEntityView(View):
     ROUTES = {
+
         'psychologist': 'accounts.views.PsychologistActionView',
         'psychologistspecialties': 'accounts.views.PsychologistSpecialtiesView',
         'psychologistnewpatients': 'accounts.views.PsychologistNewPatientsView',

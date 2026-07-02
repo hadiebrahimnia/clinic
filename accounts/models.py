@@ -4,14 +4,10 @@ from django.core.validators import URLValidator
 from django_ckeditor_5.fields import CKEditor5Field
 
 
-
-# مدل های عمومی( قابل استفاده در تمام موارد)
-
 class Role(models.Model):
     name = models.CharField(max_length=100)
-
     def __str__(self):
-        return self.title
+        return self.name
 
     class Meta:
         verbose_name = "نقش"
@@ -19,6 +15,7 @@ class Role(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    icon = models.CharField(max_length=2, blank=True,null=True,)
 
     def __str__(self):
         return self.name
@@ -46,6 +43,13 @@ class City(models.Model):
 class Specialty(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
+    icon = models.ImageField(
+        upload_to='Specialty/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
 
     def __str__(self):
         return self.name
@@ -58,6 +62,13 @@ class Specialty(models.Model):
 class University(models.Model):
     name = models.CharField(max_length=200, unique=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='universities')
+    icon = models.ImageField(
+        upload_to='University/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
 
     def __str__(self):
         return self.name
@@ -364,6 +375,13 @@ class SectionType(models.Model):
         max_length=255,
         blank=True
     )
+    icon = models.ImageField(
+        upload_to='psychologist_types/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
 
 
 class PsychologistSection(models.Model):
@@ -407,25 +425,41 @@ class PsychologistSection(models.Model):
         return f"{self.psychologist} - {self.get_section_type_display()}"
     
 
+# PLATFORM_CHOICES = (
+#         ('TW', 'Twitter/X'),
+#         ('LI', 'LinkedIn'),
+#         ('IG', 'Instagram'),
+#         ('FB', 'Facebook'),
+#         ('OT', 'Other'),
+#     )
+
+class Platform(models.Model):
+    title = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    icon = models.ImageField(
+        upload_to='platform/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
+
 class PsychologistSocialMedia(models.Model):
     psychologist = models.ForeignKey(
-        'Psychologist', 
+        'Platform', 
         on_delete=models.CASCADE, 
         related_name='social_media'
     )
-
-    PLATFORM_CHOICES = (
-        ('TW', 'Twitter/X'),
-        ('LI', 'LinkedIn'),
-        ('IG', 'Instagram'),
-        ('FB', 'Facebook'),
-        ('OT', 'Other'),
+    platform = models.ForeignKey(
+        University,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='social_media'
     )
-
-    platform = models.CharField(max_length=2, choices=PLATFORM_CHOICES)
     url = models.URLField(validators=[URLValidator()])
-
-
     is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)

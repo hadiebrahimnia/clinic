@@ -22030,12 +22030,12 @@ list-style6 ul {
 
 .arrow-ribbone-right {
   color: #fff;
-  padding: 2px 8px;
+  padding: 2px 25px;
   position: absolute;
-  top: 10px;
+  top: 25px;
   inset-inline-end: 0;
   z-index: 6;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .arrow-ribbone-right.bg-purple:before {
@@ -62731,7 +62731,7 @@ ul {
 }
 
 .app-sidebar__toggle:before {
-  content: "\e907";
+  content: "";
   transition: all 0.25s;
   font-size: 21px;
   font-family: "feather";

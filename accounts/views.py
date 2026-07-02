@@ -169,8 +169,12 @@ class AccountView(View):
         if action == 'register':
             form = CustomUserCreationForm(request.POST, request.FILES)
             if form.is_valid():
-                user = form.save()
-                login(request, user)
+
+                user = form.save(commit=False) 
+                user.save()
+                default_role, _ = Role.objects.get_or_create(name="user")
+                user.roles.add(default_role)
+
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد! به پروفایل خود خوش آمدید.')
                 if not user.is_profile_complete:
                     messages.warning(request, 'لطفاً اطلاعات پروفایل خود را کامل کنید (شماره تلفن، تاریخ تولد، جنسیت و شهر).')
@@ -445,11 +449,13 @@ class PsychologistActionView(View):
             form = PsychologistCreationUpdateForm(request.POST, request.FILES, request=request)
 
             if form.is_valid():
-                psychologist = form.save()
+                psychologist = form.save(commit=False)
+                request.user.save()
                 psychologist.profile = request.user
                 psychologist.save()
                 form.save_m2m()
-
+                default_role, _ = Role.objects.get_or_create(name="psychologist")
+                request.user.roles.add(default_role)
                 messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
                 return redirect('entity-action-detail', subject='psychologist', action='detail', pk=psychologist.pk)
                 # return redirect('entity-action-detail', subject='psychologist', action='specialties', pk=psychologist.pk)
@@ -549,7 +555,7 @@ class PsychologistActionView(View):
             card = f'''
 
             <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
-                <div class="ribbone2">روانشناس</div>
+                <div class="arrow-ribbone-right bg-teal">روانشناس</div>
                 
                 <div class="row g-0 align-items-center">
                     <div class="col-md-2 position-relative overflow-hidden">
@@ -661,6 +667,9 @@ class PsychologistSpecialtiesView(View):
         if not specialties_obj:
             specialties_obj = PsychologistSpecialties(psychologist=psychologist)
 
+        print(specialties_obj)
+        print(list(specialties_obj.specialties.all()) if specialties_obj.pk else [])
+
         form = PsychologistSpecialtiesForm(instance=specialties_obj)
 
         base_context = {
@@ -701,7 +710,7 @@ class PsychologistSpecialtiesView(View):
         if form.is_valid():
             form.save()
             messages.success(request, "زمینه‌های کاری ثبت شد.")
-            return redirect('entity-action-detail', subject='psychologist', action='new-patients', pk=psychologist.pk)
+            return redirect('dashboard')
         else:
             base_context = {
                 'col_class': 'col-md-5 col-12 m-auto',
@@ -774,7 +783,7 @@ class PsychologistNewPatientsView(View):
         if form.is_valid():
             form.save()
             messages.success(request, "اطلاعات مراجع جدید ثبت شد.")
-            return redirect('entity-action-detail', subject='psychologist', action='degrees', pk=psychologist.pk)
+            return redirect('dashboard')
         else:
             # similar error context as above...
             pass
@@ -827,7 +836,7 @@ class PsychologistDegreeView(View):
         if formset.is_valid():
             formset.save()
             messages.success(request, "مدارک تحصیلی ثبت شد.")
-            return redirect('entity-action-detail', subject='psychologist', action='detail', pk=psychologist.pk)
+            return redirect('dashboard')
         else:
             # error handling similar to get
             pass
@@ -844,8 +853,8 @@ def render_psychologist_detail(psychologist, request=None):
     license_code = getattr(psychologist, 'license_code', None)
 
     # دریافت وضعیت کاربر
-    user_info = get_user_status(psychologist, request)
-    is_owner = user_info.get('is_owner', False)
+    user_status = get_user_status(psychologist, request)
+    is_owner = user_status.get('is_owner', False)
 
     # --- HTML ---
     html = format_html(f"""
@@ -1081,15 +1090,6 @@ def render_psychologist_detail(psychologist, request=None):
                                             </div>
                                             <div class="card-body">
                                                 {content}
-                                            </div>
-                                        </div>
-""")
-    else:
-        html += format_html("""
-                                        <div class="card text-white bg-primary">
-                                            <div class="card-body">
-                                                <h4 class="card-title">اطلاعات اضافی</h4>
-                                                <p class="card-text">بخش‌های اضافی ثبت نشده است.</p>
                                             </div>
                                         </div>
 """)
