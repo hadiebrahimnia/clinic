@@ -226,8 +226,8 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=800,
-            max_height=800,
+            max_width=1800,
+            max_height=1800,
         )
     ) 
 
@@ -349,23 +349,6 @@ class PsychologistSpecialtiesForm(forms.ModelForm):
         # اختیاری: مرتب‌سازی یا فیلتر queryset
         self.fields['specialties'].queryset = Specialty.objects.all().order_by('name')
         
-
-class PsychologistNewPatientsForm(forms.ModelForm):
-    
-    is_accepting_new_patients = forms.BooleanField(
-        required=False,
-        initial=True,
-        label="آیا مراجع جدید می‌پذیرید؟",
-        widget=BooleanToggleWidget(
-            label_true="بله، مراجع جدید می‌پذیرم",
-            label_false="خیر، فعلاً مراجع جدید نمی‌پذیرم"
-        )
-    )
-
-    class Meta:
-        model = PsychologistNewPatients
-        fields = ['is_accepting_new_patients']
-
 
 class PsychologistDegreeForm(forms.ModelForm):
     level = forms.ChoiceField(

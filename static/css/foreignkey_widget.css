@@ -37,6 +37,7 @@
 .fk-display .fk-selected {
     font-weight: 500;
     color: #333;
+    margin: auto;
 }
 
 .fk-arrow {

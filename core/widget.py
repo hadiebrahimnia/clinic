@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from accounts.models import *
+from django.forms.widgets import HiddenInput
+import json
 
 class PersianDateInput(forms.DateInput):
     """
@@ -254,33 +256,50 @@ class ImageInput(forms.ClearableFileInput):
         super().__init__(attrs=default_attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        input_html = super().render(name, value, attrs, renderer)
+        # attrs را آماده می‌کنیم
+        attrs = attrs or {}
         input_id = attrs.get('id', f'id_{name}')
+
+        # فقط input خام (بدون Currently و Change)
+        input_html = super().render(name, value, attrs, renderer)
+        
+        # حذف قسمت "Currently" و "Change" که Django اضافه می‌کند
+        # این کار را با regex یا string manipulation انجام می‌دهیم
+        import re
+        # حذف متن "در حال حاضر" تا قبل از input
+        input_html = re.sub(r'در حال حاضر:.*?<input', '<input', input_html, flags=re.DOTALL)
+        input_html = re.sub(r'Change:.*?<input', '<input', input_html, flags=re.DOTALL)
+
         has_image = bool(value and hasattr(value, 'url'))
 
         current_image_html = ''
         if has_image:
             current_image_html = f'''
             <img src="{value.url}" alt="تصویر فعلی" id="preview-{input_id}"
-                 class="img-thumbnail mb-2 d-block" style="max-width: 180px; height: auto;">
+                class="img-thumbnail mb-2 d-block m-auto" style="max-width: 180px; height: auto;">
             '''
 
-        select_btn_class = '' if not has_image else 'd-none'
-        remove_btn_class = 'd-none' if not has_image else ''
+        select_btn_class = 'd-none' if has_image else ''
+        remove_btn_class = '' if has_image else 'd-none'
 
         html = f'''
-        <div class="form-control text-center" >
-            <div class="image-upload {select_btn_class}"  id="select-btn-{input_id}" onclick="document.getElementById('{input_id}').click()">
+        <div class="form-control text-center">
+            <div class="image-upload {select_btn_class}" id="select-btn-{input_id}" 
+                onclick="document.getElementById('{input_id}').click()">
                 <span>انتخاب تصویر</span>
                 <i class="fa fa-upload"></i>
             </div>
-            {current_image_html if has_image else f'<img id="preview-{input_id}" src="#" class="img-thumbnail mb-2 d-none" style="max-width: 180px; height: auto;">'}
-            <div class="d-flex justify-content-center gap-2">
-                <button type="button" id="remove-btn-{input_id}" class="btn btn-outline-danger btn-sm {remove_btn_class}"
+            
+            {current_image_html}
+            
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <button type="button" id="remove-btn-{input_id}" 
+                        class="btn btn-outline-danger btn-sm {remove_btn_class}"
                         onclick="clearImageSelection('{input_id}')">
-                    <i class="fas fa-times-circle"></i> حذف
+                    <i class="fa fa-trash-o"></i> حذف
                 </button>
             </div>
+            
             {input_html}
         </div>
         '''
@@ -400,47 +419,106 @@ class ManyToManySearchWidget(forms.SelectMultiple):
         )
 
 
-
-class BooleanToggleWidget(forms.CheckboxInput):
+class BooleanToggleWidget(HiddenInput):
     """
-    ویجت سفارشی برای BooleanField
-    نمایش به صورت دو دکمه چسبیده (مثل فعال / غیرفعال)
+    ویجت دو دکمه‌ای برای BooleanField
     """
 
-    input_type = 'hidden'
+    def __init__(
+        self,
+        attrs=None,
+        label_true="فعال",
+        label_false="غیرفعال",
+        color_true="#22c55e",
+        color_false="#ef4444",
+        color_true_inactive="#ffffff4d",
+        color_false_inactive="#ffffff4d",
+    ):
 
-    def __init__(self, attrs=None, label_true="فعال", label_false="غیرفعال"):
         self.label_true = label_true
         self.label_false = label_false
-        default_attrs = {'class': 'boolean-button-widget'}
+        self.color_true = color_true
+        self.color_false = color_false
+        self.color_true_inactive = color_true_inactive
+        self.color_false_inactive = color_false_inactive
+
+        default_attrs = {
+            "class": "boolean-button-widget"
+        }
+
         if attrs:
             default_attrs.update(attrs)
-        super().__init__(attrs)
+
+        super().__init__(default_attrs)
+
+    def value_from_datadict(self, data, files, name):
+        """
+        مقدار hidden input را از POST برمی‌گرداند.
+        """
+        value = data.get(name)
+
+        if value in ("1", "true", "True", "on", True, 1):
+            return True
+
+        return False
 
     def render(self, name, value, attrs=None, renderer=None):
-        value = bool(value) if value is not None else False
-        input_id = attrs.get('id', f'id_{name}')
-        active_true = 'active' if value else ''
-        active_false = '' if value else 'active'
 
-        html = f"""
-        <div class="boolean-button-group" id="wrapper-{input_id}">
-            <input type="hidden" name="{name}" id="{input_id}" value="{int(value)}">
-            <button type="button" class="boolean-btn left {active_true}"
-                    data-value="1" onclick="toggleBooleanButtons('{input_id}', true)">
-                {self.label_true}
-            </button>
-            <button type="button" class="boolean-btn right {active_false}"
-                    data-value="0" onclick="toggleBooleanButtons('{input_id}', false)">
-                {self.label_false}
-            </button>
-        </div>
-        """
-        return mark_safe(html)
+        value = value in (True, 1, "1", "true", "True")
+
+        attrs = attrs or {}
+        input_id = attrs.get("id", f"id_{name}")
+
+        colors = {
+            "true": self.color_true,
+            "false": self.color_false,
+            "true_inactive": self.color_true_inactive,
+            "false_inactive": self.color_false_inactive,
+        }
+
+        return mark_safe(
+            f"""
+            <div class="boolean-button-group"
+                 id="wrapper-{input_id}"
+                 data-colors='{json.dumps(colors)}'>
+
+                <input
+                    type="hidden"
+                    name="{name}"
+                    id="{input_id}"
+                    value="{1 if value else 0}"
+                >
+
+                <button
+                    type="button"
+                    class="boolean-btn left {'active' if value else 'inactive'}"
+                    data-value="1"
+                    onclick="toggleBooleanButtons('{input_id}', true)">
+                    {self.label_true}
+                </button>
+
+                <button
+                    type="button"
+                    class="boolean-btn right {'active' if not value else 'inactive'}"
+                    data-value="0"
+                    onclick="toggleBooleanButtons('{input_id}', false)">
+                    {self.label_false}
+                </button>
+
+            </div>
+            """
+        )
 
     class Media:
-        css = {'all': (static('css/boolean_toggle.css'),)}
-        js = (static('js/boolean_toggle.js'),)
+        css = {
+            "all": (
+                static("css/boolean_toggle.css"),
+            )
+        }
+
+        js = (
+            static("js/boolean_toggle.js"),
+        )
 
 
 class ChainedLocationWidget(forms.Widget):

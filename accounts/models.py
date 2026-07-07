@@ -243,17 +243,6 @@ class PsychologistSpecialties(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class PsychologistNewPatients(models.Model):
-    psychologist = models.ForeignKey(
-        'Psychologist',
-        on_delete=models.CASCADE,
-        related_name='new_patients'
-    )
-    is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
 class PsychologistDegree(models.Model):
     psychologist = models.ForeignKey(
         'Psychologist',

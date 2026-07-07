@@ -255,7 +255,7 @@ class DashboardView(LoginRequiredMixin, View):
             sidebar_menu.append({
                 'title': 'اطلاعات متخصص',
                 'items': [
-                    {'label': 'پروفایل(متخصص)', 'url': '/psychologist/update', 'icon': 'fe fe-user', 'is_active': False},
+                    {'label': 'پروفایل(متخصص)', 'url': f'/psychologist/update/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
                     {'label': 'زمینه کاری', 'url': f'/psychologistspecialties/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
                     {'label': 'مدرک تحصیلی', 'url': f'/psychologistdegree/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},
                     {'label': 'مراجع جدید', 'url': f'/psychologistnewpatients/updateorcreate/{psychologist.id}', 'icon': 'fe fe-user', 'is_active': False},

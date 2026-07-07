@@ -68,3 +68,63 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+
+
+function initializeWidget(id) {
+    const select = document.getElementById(id);
+    if (!select) return;
+
+    const wrapper = document.getElementById(`wrapper-${id}`);
+    if (!wrapper) return;
+
+    const display = wrapper.querySelector(".fk-display .fk-selected");
+    const placeholder = wrapper.querySelector(".fk-display .fk-placeholder");
+
+    const selectedOption = select.options[select.selectedIndex];
+
+    if (selectedOption && selectedOption.value) {
+        placeholder.style.display = "none";
+        display.textContent = selectedOption.textContent;
+        
+        // علامت‌گذاری گزینه در لیست (برای وقتی dropdown باز شود)
+        const dropdown = document.getElementById(`dropdown-${id}`);
+        if (dropdown) {
+            const li = dropdown.querySelector(`li[data-value="${selectedOption.value}"]`);
+            if (li) li.classList.add("selected");
+        }
+    }
+}
+
+// -------------------------- DOMContentLoaded --------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".fk-widget").forEach(widget => {
+        const select = widget.querySelector("select");
+        if (!select) return;
+        
+        const id = select.id;
+
+        // مقدار اولیه را نمایش بده
+        initializeWidget(id);
+
+        const dropdown = document.getElementById(`dropdown-${id}`);
+        const search = dropdown.querySelector(".fk-search");
+
+        // فیلتر زنده
+        search.addEventListener("input", e => {
+            const value = e.target.value.toLowerCase();
+            const options = dropdown.querySelectorAll("li");
+            options.forEach(opt => {
+                const text = opt.textContent.toLowerCase();
+                opt.style.display = text.includes(value) ? "block" : "none";
+            });
+        });
+
+        // بستن با کلیک بیرون
+        document.addEventListener("click", ev => {
+            if (!widget.contains(ev.target)) {
+                widget.classList.remove("open");
+            }
+        });
+    });
+});
