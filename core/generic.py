@@ -72,34 +72,32 @@ def apply_pagination(queryset, request, per_page=15):
 
 
 # ====================== اجزای HTML (مستقل) ======================
-def render_search_form(query='', placeholder="جستجو کنید..."):
+def render_search_form(query=''):
     return f"""
         <div class="card mb-4">
+            <div class="card-header d-flex">
+                <div class="card-title">جستجو</div>
+                    <a href="javascript:void(0)" class=" btn btn-outline-danger border-0 mr-auto p-1">
+                        <i class="fa fa-trash-o"></i>
+                        <span>پاک کردن</span> 
+                    </a>
+            </div>
             <div class="card-body">
                 <form method="get" class="d-flex align-items-center gap-3">
                     <div class="flex-grow-1">
                         <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fe fe-search"></i>
-                            </span>
                             <input type="text" 
                                    name="q" 
                                    value="{query}"
-                                   placeholder="{placeholder}"
+                                   placeholder="جستجو کنید"
                                    class="form-control form-control-lg"
                                    style="font-size:16px;">
+                            <span class="input-group-text">
+                                <i class="fe fe-search"></i>
+                            </span>
+                            
                         </div>
                     </div>
-                    
-                    <button type="submit" 
-                            class="btn btn-primary btn-lg px-4">
-                        <i class="fe fe-search"></i> جستجو
-                    </button>
-                    
-                    <a href="?" 
-                       class="btn btn-secondary btn-lg px-4">
-                        پاک کردن
-                    </a>
                 </form>
             </div>
         </div>
@@ -139,7 +137,7 @@ def render_filter_form(filter_fields, request):
         
         if field_type == 'boolean' or field_type == 'select':
             choices = config.get('choices', [('', 'همه'), ('True', 'بله'), ('False', 'خیر')])
-            html += f'<select name="{field_name}" title="{label}" class="form-control form-select">'
+            html += f'<select name="{field_name}" title="{label}" class="form-control form-select" style="height: 3rem;">'
             for val, txt in choices:
                 selected = 'selected' if str(val) == current_value else ''
                 html += f'<option value="{val}">{txt}</option>'

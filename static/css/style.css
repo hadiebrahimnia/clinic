@@ -746,7 +746,7 @@ pre code {
   thead {
     display: table-header-group;
   }
-
+ 
   tr,
   img {
     page-break-inside: avoid;
@@ -831,6 +831,10 @@ body *::-webkit-scrollbar-thumb {
 
 body *:hover::-webkit-scrollbar-thumb {
   background: #f6f6fb;
+}
+
+thead{
+  background: #5a6970;
 }
 
 @media print {
@@ -6452,7 +6456,6 @@ ul.dropdown-menu li.dropdown ul.dropdown-menu .dropdown-plus-title {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  height: 3rem!important;
   color: #4d5875;
   background-color: #fff;
   background-clip: padding-box;
@@ -9387,6 +9390,7 @@ progress {
 /*------ Tables -----*/
 .table,
 .text-wrap table {
+  text-align: center;
   width: 100%;
   max-width: 100%;
   margin-bottom: 1rem;
@@ -9416,6 +9420,7 @@ progress {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   border-top: 0;
+  color: white;
 }
 
 .text-wrap table thead th {
@@ -12856,7 +12861,7 @@ a.tag-addon:hover {
   display: inline-block;
   width: 100%;
   height: 2.375rem;
-  padding: 0.5rem 1.75rem 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 1.75rem;
   line-height: 1.5;
   color: #76839a;
   vertical-align: middle;
@@ -30238,7 +30243,7 @@ body.rtl {
 }
 
 .rtl .circle-icon {
-  margin-right: 13px;
+  margin-right: 25px;
   margin-left: inherit;
   float: left;
 }
@@ -68641,8 +68646,8 @@ ul {
   height: 70px;
   width: 70px;
   position: absolute;
-  margin-top: 13px;
-  margin-left: 13px;
+  margin-top: 25px;
+  margin-left: 25px;
   float: right;
 }
 

@@ -9,9 +9,6 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        verbose_name = "نقش"
-        verbose_name_plural = "نقش‌ها"
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -134,8 +131,13 @@ class Profile(AbstractUser):
         verbose_name='user permissions',
     )
 
+
     def __str__(self):
         return self.username
+    
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "User"
     
     @property
     def is_profile_complete(self):
@@ -168,7 +170,7 @@ class Secretary(models.Model):
     )
 
     hire_date = models.DateField(blank=True,null=True)
-    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -176,9 +178,6 @@ class Secretary(models.Model):
     def __str__(self):
         return self.profile.get_full_name() or self.profile.username
 
-    class Meta:
-        verbose_name = "منشی"
-        verbose_name_plural = "منشی‌ها"
 
 
 # مدل های مربوط به متخصص
@@ -205,9 +204,6 @@ class PsychologistType(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        verbose_name = "نوع متخصص"
-        verbose_name_plural = "انواع متخصصان"
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
@@ -219,7 +215,7 @@ class Psychologist(models.Model):
         blank=True, null=True,
         verbose_name="عکس پروفایل",
     )
-    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -339,9 +335,6 @@ class PsychologistDegree(models.Model):
             f"({self.specialization or 'N/A'})"
         )
 
-    class Meta:
-        verbose_name = "مدرک دانشگاهی"
-        verbose_name_plural = "مدارک دانشگاهی"
 
 # SECTION_TYPES = [
 #         ('Biography', 'بیوگرافی'),

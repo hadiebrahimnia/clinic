@@ -262,8 +262,16 @@ class BaseDashboardView(LoginRequiredMixin, View):
 class DashboardUserView(BaseDashboardView):
 
     def get(self, request, **kwargs):
-        psychologist = Psychologist.objects.get(profile=request.user)
-        workschedules = WorkSchedule.objects.filter(psychologist=psychologist)
+        try:
+            psychologist = Psychologist.objects.get(profile=request.user)
+        except Psychologist.DoesNotExist:
+            psychologist = None
+
+        try:
+            workschedules = WorkSchedule.objects.filter(psychologist=psychologist)
+        except WorkSchedule.DoesNotExist:
+            workschedules = None    
+
 
         template_string = """
             <div class="main-content with-sidebar">
@@ -481,9 +489,9 @@ class DashboardManagerView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2"> متخصصان</h2>
-                                                <h5 class="fw-normal mb-0">لیست متخصصان</h5>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -499,9 +507,9 @@ class DashboardManagerView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2">منشی</h2>
-                                                <h5 class="fw-normal mb-0">لیست منشی‌ها</h5>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -560,9 +568,9 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2">پروفایل</h2>
-                                                <h5 class="fw-normal mb-0">ویرایش اطلاعات</h5>
+                                                <h5 class="fw-normal mb-0">ویرایش</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -580,7 +588,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2">زمینه کاری</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -599,7 +607,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2">مدارک تحصیلی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -618,8 +626,8 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
-                                                <h2 class="mb-2 fw-normal mt-2">اطلاعات بیوگرافی</h2>
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">بیوگرافی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
                                         </div>
@@ -637,7 +645,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body p-4">
+                                            <div class="card-body">
                                                 <h2 class="mb-2 fw-normal mt-2">شبکه اجتماعی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>

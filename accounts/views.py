@@ -18,6 +18,14 @@ from django.core.paginator import Paginator
 from django.utils.text import Truncator
 from django.views.decorators.http import require_GET
 
+from core.generic import (
+    apply_search,
+    apply_filters,
+    apply_pagination,
+    render_search_form,
+    render_filter_form,
+    render_pagination
+)
 
 @require_GET
 def get_provinces(request):
@@ -287,7 +295,7 @@ class AccountView(View):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'پروفایل با موفقیت به‌روزرسانی شد.')
-                return redirect('dashboard')
+                return redirect('dashboard', subject='user')
             else:
                 base_context = {
                     'col_class': 'col-md-5 col-12 m-auto',
@@ -315,33 +323,104 @@ class AccountView(View):
 # ====================== Psychologist Main ======================
 class PsychologistActionView(View):
     def get(self, request, subject, action, pk=None):
+
         if action == 'list':
-            search_query = request.GET.get('search', '').strip()
-            specialty_filter = request.GET.get('specialty', '').strip()
-            page_number = request.GET.get('page', 1)
+            psychologists=Psychologist.objects.all()
+            queryset = Psychologist.objects.all()
+            search_fields = ['user__first_name', 'user__last_name', 'user__username', 'specialty']
+            filter_fields = {
+                'is_active': {
+                    'label': 'وضعیت',
+                    'type': 'boolean',
+                    'choices': [( '', 'وضعیت'), ('True', 'فعال'), ('False', 'غیرفعال')]
+                },
+                # 'specialty': {
+                #     'label': 'تخصص',
+                #     'type': 'select',
+                #     'choices': []          
+                # },
+                
+            }
+            queryset, query = apply_search(queryset, request, search_fields)
+            queryset = apply_filters(queryset, request, filter_fields)
+
+            psychologists, current_page, total_pages, total = apply_pagination(queryset, request, per_page=15)
             
-            psychologists = Psychologist.objects.all()
-            if search_query:
-                psychologists = psychologists.filter(name__icontains=search_query)
-            if specialty_filter:
-                psychologists = psychologists.filter(specialty__icontains=specialty_filter)
 
-            paginator = Paginator(psychologists, 12)
-            page_obj = paginator.get_page(page_number)
+            # ==================== ساخت تمپلیت ====================
+            template_string = """
+                <div class="main-content ">
+                    <div class="side-app with_header">
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
+                                    <li class="breadcrumb-back">
+                                        <a href="/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
 
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'html': self._render_cards_html(page_obj),
-                    'pagination': render_pagination(page_obj, search_query, specialty_filter),
-                })
+                            <div class="row">
+
+                                <div class="col-xl-3 col-lg-4">
+                                    {{search_form}}
+                                    {{filter_form}}
+                                </div>
+
+
+                                <div class="col-xl-9 col-lg-8">
+                                    {% for psychologist in psychologists %}
+                                        <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
+                                            <div class="arrow-ribbone-right bg-teal">{{psychologist.PsychologistType}}</div>
+                                            
+                                            <div class="row g-0 align-items-center">
+                                                <div class="col-md-2 position-relative overflow-hidden">
+                                                    {% if psychologist.profile_picture %}
+                                                        <img src="/media/{{psychologist.profile_picture}}" class="card-img-left rounded-start h-100" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover; width: 100%;">
+                                                    {% else %}
+                                                        <div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start" style="min-height: 180px;"><i class="fas fa-user-md fa-4x text-muted"></i></div>
+                                                    {% endif %}
+
+                                                </div>
+                                                <div class="col-md-10 align-self-start bd-highlight">
+                                                    <div class="card-body px-0">
+                                                        <h3 class="mb-2 text-dark fw-bold">{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</h3>
+                                                        <p class="card-text text-muted mb-2">
+                                                            <strong>تخصص:</strong> {{psychologist}}
+                                                            <span class="specialty-badge">{{psychologist}}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+            """
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologists':psychologists,
+                'search_form': mark_safe(render_search_form(query)),
+                'filter_form': mark_safe(render_filter_form(filter_fields, request)),
+                'pagination': mark_safe(render_pagination(current_page, total_pages, f"&q={query}" if query else "")),
+                'total': total,
+            }))
 
             context = {
-                'page_title': 'لیست روانشناسان',
-                'extra_css': ['/static/css/psychologist_list.css'],
-                'extra_js': ['/static/js/psychologist_list.js'],
-                'content': self._render_full_list_page(page_obj, search_query, specialty_filter),
+                'content': mark_safe(content),
+                'extra_css': [],
+                'extra_js': [],
             }
-            return render(request, 'index2.html', context)        
+            
+            return render(request, 'index2.html', context)
 
         elif action == 'register':
             if not request.user.is_authenticated:
@@ -521,136 +600,7 @@ class PsychologistActionView(View):
         raise Http404("Action not supported")
     
 
-    def _render_cards_html(self, page_obj):
-        cards = []
-        for p in page_obj:
-            # --- عکس ---
-            if p.profile_picture:
-                photo = f'<img src="{p.profile_picture.url}" class="card-img-left rounded-start h-100" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover; width: 100%;">'
-            else:
-                photo = '<div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start" style="min-height: 180px;"><i class="fas fa-user-md fa-4x text-muted"></i></div>'
-
-            full_name = f"{p.profile.first_name or ''} {p.profile.last_name or ''}".strip()
-            if not full_name:
-                full_name = p.profile.username or "نامشخص"
-
-            # === اصلاح شده ===
-            specs = []
-            for ps in p.specialties.all():           # ps = PsychologistSpecialties
-                if hasattr(ps, 'specialty') and ps.specialty:   # رابطه به مدل Specialty
-                    specs.append(ps.specialty.name)
-                elif hasattr(ps, 'name'):               # اگر مستقیم name داشته باشد
-                    specs.append(ps.name)
-
-            specialties_text = ', '.join(specs) if specs else 'تخصصی ثبت نشده'
-            # =====================
-
-            # --- لینک ---
-            detail_url = reverse('entity-action-detail', kwargs={'subject': 'psychologist', 'action': 'detail', 'pk': p.pk})
-
-            # --- کارت ---
-            card = f'''
-
-            <a href="{detail_url}" class="card mb-3 doctor-card shadow-sm animate-card border-0 text-decoration-none">
-                <div class="arrow-ribbone-right bg-teal">روانشناس</div>
-                
-                <div class="row g-0 align-items-center">
-                    <div class="col-md-2 position-relative overflow-hidden">
-                        {photo}
-                    </div>
-                    <div class="col-md-10 align-self-start bd-highlight">
-                        <div class="card-body px-0">
-                            <h3 class="mb-2 text-dark fw-bold">{full_name}</h3>
-                            <p class="card-text text-muted mb-2">
-                                <strong>تخصص:</strong> {specialties_text}
-                                <span class="specialty-badge">{specialties_text}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            
-            </a>
-
-        
-            '''
-            cards.append(card)
-
-        if not cards:
-            cards.append('<div class="text-center py-5 text-muted">هیچ روانشناسی یافت نشد.</div>')
-
-        return ''.join(cards)
     
-    def _render_full_list_page(self, page_obj, search_query='', specialties_filter=''):
-        specialties = Specialty.objects.values_list('name', flat=True).distinct().order_by('name')
-        # --- فرم فیلتر (ستون چپ) ---
-        options_html = ''
-        for s in specialties:
-            selected = ' selected' if s == specialties_filter else ''
-            options_html += f'<option value="{s}"{selected}>{s}</option>'
-
-        filter_sidebar = f'''
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-3">فیلترها</h5>
-                <form id="filter-form" method="get">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="search" placeholder="جستجو در نام..." 
-                            value="{search_query}" id="search-input">
-                    </div>
-                    <div class="mb-3">
-                        <select class="form-select" name="specialties" id="specialties-filter">
-                            <option value="">همه تخصص‌ها</option>
-                            {options_html}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary ">اعمال فیلتر</button>
-                </form>
-            </div>
-        </div>
-        '''
-
-        # --- صفحه‌بندی ---
-        pagination_html = render_pagination(page_obj, search_query, specialties_filter)
-
-        # --- لیست کارت‌ها ---
-        cards_html = self._render_cards_html(page_obj)
-
-        # --- چیدمان نهایی ---
-        full_page = f'''
-        <div class="main-content">
-            <div class="side-app with_header">
-                <div class="main-container container-fluid">
-                <div class="page-header">
-                    <ol class="breadcrumb">
-                    <li class="breadcrumb-item text-dark" aria-current="page">
-                        <i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک
-                    </li>
-                    <li class="breadcrumb-back">
-                        <a href="/" class="btn btn-outline-default fw-900"
-                        >بازگشت
-                        <i class="mdi mdi-arrow-left-thick"></i>
-                        </a>
-                    </li>
-                    </ol>
-                </div>
-                    <div class="row">
-                        <div class="col-lg-3 mb-4">
-                            {filter_sidebar}
-                        </div>
-                        <div class="col-lg-9">
-                            <div id="psychologists-container">
-                                {cards_html}
-                            </div>
-                            <div id="pagination-container" class="d-flex justify-content-center mt-4">
-                                {pagination_html}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        '''
-        return mark_safe(full_page)
 
 
 # ====================== Psychologist Specialties ======================
@@ -707,7 +657,7 @@ class PsychologistSpecialtiesView(View):
         if form.is_valid():
             form.save()
             messages.success(request, "زمینه‌های کاری ثبت شد.")
-            return redirect('dashboard')
+            return redirect('dashboard', subject='user')
         else:
             base_context = {
                 'col_class': 'col-md-5 col-12 m-auto',
@@ -778,7 +728,7 @@ class PsychologistDegreeView(View):
         if formset.is_valid():
             formset.save()
             messages.success(request, "مدارک تحصیلی ثبت شد.")
-            return redirect('dashboard')
+            return redirect('dashboard', subject='user')
         else:
             # error handling similar to get
             pass

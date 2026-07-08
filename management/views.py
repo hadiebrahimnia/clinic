@@ -15,6 +15,8 @@ from django.utils.safestring import mark_safe
 from accounts.models import *
 from appointment.models import *
 
+from core.templatetags.jdate import *
+
 from core.generic import (
     apply_search,
     apply_filters,
@@ -203,42 +205,39 @@ class ManagementPsychologistActionView(BaseManagementView):
                                                 <table class="table table-bordered border text-nowrap mb-0" id="removecolumns-edit">
                                                     <thead>
                                                         <tr>
-                                                            <th>First name</th>
-                                                            <th>Last name</th>
-                                                            <th>Position</th>
-                                                            <th>Start date</th>
-                                                            <th>Salary</th>
-                                                            <th>E-mail</th>
-                                                            <th name="bstable-actions"></th>
+                                                            <th>نام</th>
+                                                            <th>نوع</th>
+                                                            <th>کد عضویت</th>
+                                                            <th>کد اشتغال</th>
+                                                            <th>تاریخ ثبت</th>
+                                                            <th>وضعیت</th>
+                                                            <th>حذف</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                        {% for psychologist in psychologists %}
                                                         <tr>
-                                                            <td>Bella</td>
-                                                            <td>Chloe</td>
-                                                            <td>System Developer</td>
-                                                            <td>2018/03/12</td>
-                                                            <td>$654,765</td>
-                                                            <td>b.Chloe@datatables.net</td>
-                                                            <td name="bstable-actions">
+                                                            <td>{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</td>
+                                                            <td>{{psychologist.PsychologistType}}</td>
+                                                            <td>{{psychologist.membership_code}}</td>
+                                                            <td>{{psychologist.license_code}}</td>
+                                                            <td>{{psychologist.created_at|to_jalali}}</td>
+                                                            <td>
                                                                 <div class="btn-list">
-                                                                    <button id="bEdit" type="button" class="btn btn-sm btn-primary">
-                                                                        <span class="fe fe-edit"> </span>
+                                                                    <button id="bEdit" type="button" class="btn btn-sm btn-success">
+                                                                        فعال
                                                                     </button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-list">
                                                                     <button id="bDel" type="button" class="btn  btn-sm btn-danger">
                                                                         <span class="fe fe-trash-2"> </span>
-                                                                    </button>
-                                                                    <button id="bAcep" type="button" class="btn  btn-sm btn-primary"
-                                                                        style="display:none;">
-                                                                        <span class="fe fe-check-circle"> </span>
-                                                                    </button>
-                                                                    <button id="bCanc" type="button" class="btn  btn-sm btn-danger"
-                                                                        style="display:none;">
-                                                                        <span class="fe fe-x-circle"> </span>
                                                                     </button>
                                                                 </div>
                                                             </td>
                                                         </tr>
+                                                        {% endfor %}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -256,7 +255,7 @@ class ManagementPsychologistActionView(BaseManagementView):
             t = Template(template_string)
             content = t.render(Context({
                 'psychologists':psychologists,
-                'search_form': mark_safe(render_search_form(query, placeholder="نام، نام خانوادگی، تخصص ...")),
+                'search_form': mark_safe(render_search_form(query)),
                 'filter_form': mark_safe(render_filter_form(filter_fields, request)),
                 'pagination': mark_safe(render_pagination(current_page, total_pages, f"&q={query}" if query else "")),
                 'total': total,
