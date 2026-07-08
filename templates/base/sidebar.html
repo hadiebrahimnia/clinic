@@ -15,15 +15,15 @@
                         <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z" />
                     </svg>
                 </div>
-                <ul class="side-menu">
+                <ul class="side-menu mb-5">
                     {% for category in sidebar_menu %}
-                        <li class="sub-category">
+                        <li class="sub-category mb-3">
                             <h3 class="">{{ category.title }}</h3>
                         </li>
                         {% for item in category.items %}
                             <li class="slide">
-                                <a class="side-menu__item has-link {% if item.is_active %} active {% endif %}" data-bs-toggle="slide" href="{{ item.url }}">
-                                    <i class="side-menu__icon {{ item.icon }}"></i>
+                                <a class="btn border-0 text-start side-menu__item has-link {% if item.is_active %} active btn-info text-white disabled {% else %} btn-default bg-white {% endif %}" data-bs-toggle="slide" href="{{ item.url }}">
+                                    <i class="side-menu__icon {{ item.icon }} {% if item.is_active %} text-white {% else %} text-dark {% endif %}"></i>
                                     <span class="side-menu__label">{{ item.label }}</span>
                                 </a>
                             </li>
@@ -38,7 +38,8 @@
             </div>
         </div>
     </div>
-
+    
+</div>
 
 <script src="/static/plugins/sidebar/sidebar.js"></script>
 <script src="/static/plugins/sidemenu/sidemenu.js"></script>
@@ -96,6 +97,53 @@
   overflow: hidden;
 }
 
+.app-sidebar {
+    height: 100vh !important;
+    overflow: hidden !important;  
+}
+
+.main-sidemenu {
+    height: calc(100vh - 85px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: 20px;
+}
+
+/* استایل پایه اسکرول‌بار */
+.main-sidemenu::-webkit-scrollbar {
+    width: 4px !important;
+    transition: width 0.4s ease;
+}
+
+/* Track */
+.main-sidemenu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Thumb (اسکرول‌بار) */
+.main-sidemenu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;   /* نیمه شفاف در حالت عادی */
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);   /* انیمیشن نرم */
+    min-height: 30px;
+}
+
+/* Hover State + انیمیشن ورود */
+.main-sidemenu:hover::-webkit-scrollbar-thumb {
+    background: #8497bf !important;
+    width: 3px;                    /* کمی ضخیم‌تر میشه */
+}
+
+/* انیمیشن خروج (وقتی موس رفت) */
+.main-sidemenu::-webkit-scrollbar-thumb {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Optional: وقتی اسکرول‌بار hover میشه خودش هم کمی انیمیشن داشته باشه */
+.main-sidemenu:hover::-webkit-scrollbar {
+    width: 3px !important;
+}
+
 
 </style>
 <script>
@@ -124,5 +172,4 @@
 
     });
 
-    
 </script>

@@ -437,12 +437,12 @@ class Platform(models.Model):
 
 class PsychologistSocialMedia(models.Model):
     psychologist = models.ForeignKey(
-        'Platform', 
+        Psychologist, 
         on_delete=models.CASCADE, 
         related_name='social_media'
     )
     platform = models.ForeignKey(
-        University,
+        Platform,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

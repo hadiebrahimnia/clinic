@@ -5,6 +5,8 @@ from django.core.exceptions import PermissionDenied
 from .models import *
 from .form import *
 
+
+
 # ====================== Psychologist New Patients ======================
 class PsychologistNewPatientsView(View):
     def get(self, request, subject, action, pk):

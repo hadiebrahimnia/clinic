@@ -5,13 +5,11 @@
 __pycache__/
 *.sqlite3
 *.db
-
 # فایل‌های محیطی و حساس — خیلی مهم!
 .env
 .local.env
 .env.* 
 *.env
-
 # فایل‌های Django محلی
 db.sqlite3
 # فایل‌های ویرایشگر
@@ -19,11 +17,9 @@ db.sqlite3
 .idea/
 *.sublime-workspace
 *.sublime-project
-
 # فایل‌های سیستم
 .DS_Store
 Thumbs.db
-
 # مجازی محیط (virtual environment)
 venv/
 env/
@@ -33,8 +29,6 @@ ENV/
 # فایل‌های لاگ
 *.log
 
-# فایل‌های مهاجرت موقت یا تست
-migrations/
 
 # اگر از coverage استفاده می‌کنی
 htmlcov/
@@ -45,8 +39,7 @@ htmlcov/
 cache/
 
 # فایل‌های آپلود شده توسط CKEditor (اگر نمی‌خوای آپلود بشن)
-static/uploads/
-media/uploads/
+media/
 
 # فایل‌های موقت
 *.bak

@@ -11,13 +11,13 @@
           <i class="fa fa-arrow-right"></i>
       </a>
         
-      <a class="logo-horizontal" href="index.html">
+      <a class="logo-horizontal" href="/">
         <img
           src="/static/images/brand/logo.png"
           class="header-brand-img desktop-logo"
           alt="logo" />
         <img
-          src="/static/images/brand/logo-3.png"
+          src="/static/images/brand/logo.png"
           class="header-brand-img light-logo1"
           alt="logo" />
       </a>
@@ -171,13 +171,13 @@
                       </div>
                     </div>
                     <div class="dropdown-divider m-0"></div>
-                    {% if request.path == '/dashboard/' or request.path == '/dashboard' %}
-                        <a class="dropdown-item" href="/">
-                          <i class="dropdown-icon fe fe-home"></i>خانه
+                    {% if request.path == '/dashboard/user' or request.path == '/dashboard' %}
+                        <a class="dropdown-item btn" href="/">
+                          <i class="dropdown-icon fe fe-home text-dark"></i>خانه
                         </a>
                     {% else %}
-                        <a class="dropdown-item" href="/dashboard/">
-                          <i class="dropdown-icon fe fe-grid"></i>داشبورد
+                        <a class="dropdown-item btn" href="/dashboard/user">
+                          <i class="dropdown-icon fe fe-grid text-dark"></i>داشبورد
                         </a>
                     {% endif %}
 
@@ -185,11 +185,11 @@
                       <i class="dropdown-icon fe fe-lock"></i> کیف پول
                     </a> {% endcomment %}
 
-                    <a class="dropdown-item text-danger" href="/accounts/logout">
+                    <a class="dropdown-item text-danger btn" href="/accounts/logout">
                       <i class="dropdown-icon fe fe-log-out text-danger"></i>خروج از حساب کاربری
                     </a>
                   {% else %}
-                    <a class="dropdown-item text-dark" href="/accounts/logout">
+                    <a class="dropdown-item text-dark btn" href="/accounts/logout">
                       <i class="dropdown-icon fe fe-log-in text-dark"></i>ثبت‌نام/ ورود
                     </a>
                   {% endif %}

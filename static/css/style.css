@@ -6452,6 +6452,7 @@ ul.dropdown-menu li.dropdown ul.dropdown-menu .dropdown-plus-title {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
+  height: 3rem!important;
   color: #4d5875;
   background-color: #fff;
   background-clip: padding-box;
@@ -73259,27 +73260,27 @@ button.bg-lime:focus {
 }
 
 .rounded {
-  border-radius: 50% !important;
+  border-radius: 5px;
 }
 
 .rounded-top {
-  border-top-left-radius: 3px !important;
-  border-top-right-radius: 3px !important;
+  border-top-left-radius: 5px !important;
+  border-top-right-radius: 5px !important;
 }
 
 .rounded-end {
-  border-top-right-radius: 3px !important;
-  border-bottom-right-radius: 3px !important;
+  border-top-right-radius: 5px !important;
+  border-bottom-right-radius: 5px !important;
 }
 
 .rounded-bottom {
-  border-bottom-right-radius: 3px !important;
-  border-bottom-left-radius: 3px !important;
+  border-bottom-right-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
 }
 
 .rounded-start {
-  border-top-left-radius: 3px !important;
-  border-bottom-left-radius: 3px !important;
+  border-top-left-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
 }
 
 .rounded-circle {
@@ -77141,6 +77142,12 @@ textarea.form-control {
 	margin-top:100px!important;
 }
 /*# sourceMappingURL=style.css.map */
+
+
+.light-logo1{
+  width: 30px!important;
+}
+
 
 /* مقیاس پایه: 1 = 0.25rem */
 @custom-media --sm (min-width: 640px);

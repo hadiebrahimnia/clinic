@@ -1,28 +1,53 @@
-.image-upload{
-    cursor: pointer;
-    
-}
-
-.form-control img {
-    border-radius: 0.75rem;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-    max-width: 180px;
-    height: auto;
-    object-fit: cover;
+.image-upload-widget {
     transition: all 0.3s ease;
+}
+
+.image-upload {
+    cursor: pointer;
+    padding: 1.5rem 1rem;
+    border: 2px dashed #0d6efd;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.image-upload:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+    border-color: #0b5ed7;
+}
+
+/* انیمیشن پیش‌نمایش */
+.preview-image {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     opacity: 0;
-    transform: scale(0.97);
+    transform: scale(0.7) translateY(20px);
 }
 
-.form-control img:not(.d-none) {
+.preview-image.show {
     opacity: 1;
-    transform: scale(1);
-    animation: fadeIn 0.4s ease-in-out;
+    transform: scale(1) translateY(0);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.preview-image.hide {
+    opacity: 0;
+    transform: scale(0.6) translateY(10px);
+}
+
+/* انیمیشن دکمه‌ها */
+.image-upload {
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form-control .btn {
@@ -33,30 +58,18 @@
     transition: all 0.25s ease;
 }
 
-.form-control .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
-}
-
 @media (max-width: 576px) {
-    .image-upload-widget {
-        padding: 0.75rem;
-    }
     .image-upload-widget img {
         max-width: 140px;
     }
-    .image-upload-widget .btn {
-        min-width: 100px;
-        font-size: 0.8rem;
-    }
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
-
-    .form-control:hover {
+    .image-upload {
         border-color: #0d6efd;
     }
-    .form-control img {
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    .preview-image {
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.08);
     }
 }

@@ -256,29 +256,16 @@ class ImageInput(forms.ClearableFileInput):
         super().__init__(attrs=default_attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        # attrs را آماده می‌کنیم
         attrs = attrs or {}
         input_id = attrs.get('id', f'id_{name}')
 
-        # فقط input خام (بدون Currently و Change)
         input_html = super().render(name, value, attrs, renderer)
         
-        # حذف قسمت "Currently" و "Change" که Django اضافه می‌کند
-        # این کار را با regex یا string manipulation انجام می‌دهیم
+        # حذف متن‌های Django
         import re
-        # حذف متن "در حال حاضر" تا قبل از input
         input_html = re.sub(r'در حال حاضر:.*?<input', '<input', input_html, flags=re.DOTALL)
         input_html = re.sub(r'Change:.*?<input', '<input', input_html, flags=re.DOTALL)
-
         has_image = bool(value and hasattr(value, 'url'))
-
-        current_image_html = ''
-        if has_image:
-            current_image_html = f'''
-            <img src="{value.url}" alt="تصویر فعلی" id="preview-{input_id}"
-                class="img-thumbnail mb-2 d-block m-auto" style="max-width: 180px; height: auto;">
-            '''
-
         select_btn_class = 'd-none' if has_image else ''
         remove_btn_class = '' if has_image else 'd-none'
 
@@ -290,14 +277,22 @@ class ImageInput(forms.ClearableFileInput):
                 <i class="fa fa-upload"></i>
             </div>
             
-            {current_image_html}
-            
-            <div class="d-flex justify-content-center gap-2 mt-2">
-                <button type="button" id="remove-btn-{input_id}" 
-                        class="btn btn-outline-danger btn-sm {remove_btn_class}"
-                        onclick="clearImageSelection('{input_id}')">
-                    <i class="fa fa-trash-o"></i> حذف
-                </button>
+            <!-- اضافه کردن id برای کنترل راحت‌تر -->
+            <div id="image-preview-{input_id}" class="row justify-content-center mt-2 {remove_btn_class}">  
+                <div class="col-12">
+                    <img src="{value.url if has_image else '#'}" 
+                        alt="پیش‌نمایش" 
+                        id="preview-{input_id}"
+                        class="img-thumbnail mb-2 m-auto {'d-none' if not has_image else ''}"
+                        style="max-width: 180px; height: auto;">
+                </div>
+                <div class="col-12">
+                    <button type="button" id="remove-btn-{input_id}" 
+                            class="btn btn-outline-danger btn-sm {remove_btn_class}"
+                            onclick="clearImageSelection('{input_id}')">
+                        <i class="fa fa-trash-o"></i> حذف
+                    </button>
+                </div>
             </div>
             
             {input_html}

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from accounts.models import *
+from appointment.models import *
 from django.http import JsonResponse
 import json
 from accounts.forms import *
@@ -75,7 +76,7 @@ class AccountView(View):
         
         elif action == 'register':
             if request.user.is_authenticated:
-                return redirect('/dashboard/')
+                return redirect('dashboard', subject='user')
             form = CustomUserCreationForm()
 
             base_context = {
@@ -105,7 +106,7 @@ class AccountView(View):
         
         elif action == 'login':
             if request.user.is_authenticated:
-                return redirect('/dashboard/')
+                return redirect('dashboard', subject='user')
             form = CustomAuthenticationForm()
 
             base_context = {
@@ -149,7 +150,7 @@ class AccountView(View):
                 'card_header_class': 'card-header',
                 'card_body_class': 'card-body p-5',
                 'title': 'ویرایش پروفایل',
-                'back_url': '/dashboard/',
+                'back_url': '/dashboard/user',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -179,7 +180,7 @@ class AccountView(View):
                 if not user.is_profile_complete:
                     messages.warning(request, 'لطفاً اطلاعات پروفایل خود را کامل کنید (شماره تلفن، تاریخ تولد، جنسیت و شهر).')
                     return redirect('accounts', action='update')
-                return redirect('/dashboard/')
+                return redirect('dashboard', subject='user')
             else:
                 # نمایش دوباره فرم با خطاها
                 base_context = {
@@ -233,7 +234,7 @@ class AccountView(View):
                             'لطفاً اطلاعات پروفایل خود را کامل کنید (شماره تلفن، تاریخ تولد، جنسیت و شهر).'
                         )
                         return redirect('accounts', action='update')
-                    return redirect('/dashboard/')
+                    return redirect('dashboard', subject='user')
                 else:
                     messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
             else:
@@ -294,7 +295,7 @@ class AccountView(View):
                     'card_header_class': 'card-header',
                     'card_body_class': 'card-body p-5',
                     'title': 'ویرایش پروفایل',
-                    'back_url': '/dashboard/',
+                    'back_url': '/dashboard/user',
                     'back_text': 'بازگشت',
                     'back_class': 'btn btn-default-light',
                     'back_icon': 'fa fa-arrow-left',
@@ -311,7 +312,6 @@ class AccountView(View):
             return redirect('accounts', action='login')
     
 
- 
 # ====================== Psychologist Main ======================
 class PsychologistActionView(View):
     def get(self, request, subject, action, pk=None):
@@ -362,7 +362,7 @@ class PsychologistActionView(View):
             }
             base_context.update({
                 'title': 'ثبت‌نام متخصص',
-                'back_url': '/dashboard/',
+                'back_url': '/dashboard/user',
                 'back_text': 'بازگشت ',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -398,7 +398,7 @@ class PsychologistActionView(View):
             }
             base_context.update({
                 'title': 'ویرایش متخصص',
-                'back_url': '/dashboard/',
+                'back_url': '/dashboard/psychologist',
                 'back_text': 'بازگشت ',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -468,7 +468,7 @@ class PsychologistActionView(View):
                 }
                 base_context.update({
                     'title': 'ثبت‌نام متخصص',
-                    'back_url': '/dashboard/',
+                    'back_url': '/dashboard/user',
                     'back_text': 'بازگشت ',
                     'back_class': 'btn btn-default-light',
                     'back_icon': 'fa fa-arrow-left',
@@ -504,8 +504,8 @@ class PsychologistActionView(View):
                     'card_body_class': 'card-body p-5',
                 }
                 base_context.update({
-                    'title': 'ثبت‌نام متخصص',
-                    'back_url': '/dashboard/',
+                    'title': 'ویرایش متخصص',
+                    'back_url': '/dashboard/psychologist',
                     'back_text': 'بازگشت ',
                     'back_class': 'btn btn-default-light',
                     'back_icon': 'fa fa-arrow-left',
@@ -677,7 +677,7 @@ class PsychologistSpecialtiesView(View):
         }
         base_context.update({
             'title': 'زمینه کاری',
-            'back_url': '/dashboard/',
+            'back_url': '/dashboard/psychologist/',
             'back_text': 'بازگشت ',
             'back_class': 'btn btn-default-light',
             'back_icon': 'fa fa-arrow-left',
@@ -717,7 +717,7 @@ class PsychologistSpecialtiesView(View):
             }
             base_context.update({
                 'title': 'زمینه کاری',
-                'back_url': '/dashboard/',
+                'back_url': '/dashboard/psychologist/',
                 'back_text': 'بازگشت ',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -729,7 +729,6 @@ class PsychologistSpecialtiesView(View):
             })
             return render(request, 'form.html', base_context)
         
-
 
 
 # ====================== Psychologist Degrees ======================
@@ -752,7 +751,7 @@ class PsychologistDegreeView(View):
         }
         base_context.update({
             'title': 'مدارک تحصیلی',
-            'back_url': '/dashboard/',
+            'back_url': '/dashboard/psychologist/',
             'back_text': 'بازگشت ',
             'back_class': 'btn btn-default-light',
             'back_icon': 'fa fa-arrow-left',
@@ -818,7 +817,7 @@ def render_psychologist_detail(psychologist, request=None):
         'membership_code': membership_code,
         'license_code': license_code,
         'is_owner': is_owner,
-        'is_accepting_new_patients': newpatients.is_accepting_new_patients,
+        'is_accepting_new_patients': newpatients,
         'specialties': specialties,
         'degrees': degrees,
         'sections': sections,

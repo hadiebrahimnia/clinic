@@ -33,10 +33,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_ckeditor_5',
     'accounts.apps.AccountsConfig',
-    'core',
-    'administrator',
-    'assessments',
     'appointment',
+    'core',
+    'management',
+    'assessments',
+    
 ]
 
 # =============================================================================
