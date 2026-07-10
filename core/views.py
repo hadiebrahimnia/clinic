@@ -1,4 +1,5 @@
 # core/views.py
+from django.apps import apps
 from django.views.generic import TemplateView
 from django.shortcuts import render
 from django.views import View
@@ -9,14 +10,53 @@ from .errors import _error_response  # درست ایمپورت شد
 from django.shortcuts import render, get_object_or_404
 import json
 import importlib
+from django.http import JsonResponse
 from accounts.models import *
 from appointment.models import *
 from core.utils import *
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.template import Template, Context
 import logging
 logger = logging.getLogger(__name__)
 
+
+class DynamicBooleanView(PermissionRequiredMixin, View):
+    def get_permission_required(self):
+        return []   # یا مجوزهای مناسب
+
+    def post(self, request, app_label=None, model_name=None, field=None, pk=None, **kwargs):
+        if not all([app_label, model_name, field, pk]):
+            return JsonResponse({"success": False, "message": "پارامترها ناقص است."}, status=400)
+
+        try:
+            ModelClass = apps.get_model(app_label, model_name)
+            obj = get_object_or_404(ModelClass, pk=pk)
+        except LookupError:
+            return JsonResponse({"success": False, "message": "مدل یافت نشد."}, status=404)
+
+        if not hasattr(obj, field):
+            return JsonResponse({"success": False, "message": f"فیلد {field} وجود ندارد."}, status=400)
+
+        current_value = getattr(obj, field)
+        if not isinstance(current_value, bool):
+            return JsonResponse({"success": False, "message": "فیلد boolean نیست."}, status=400)
+
+        new_value = not current_value
+        setattr(obj, field, new_value)
+        obj.save(update_fields=[field])
+
+        display_title = request.POST.get("display_title", str(obj))
+
+        action = "حذف" if field == "is_deleted" and new_value else ("فعال" if new_value else "غیرفعال")
+
+        return JsonResponse({
+            "success": True,
+            "message": f"{display_title} با موفقیت {action} شد.",
+            "new_value": new_value,
+            "field": field
+        })
+        
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -35,25 +75,22 @@ class HomeView(TemplateView):
             'profile__city__province__country'
             ) \
         .prefetch_related(
-             'degrees__field', 
-             'degrees__specialization', 
-             'degrees__university', 
+            'degrees__specialization', 
+            'degrees__university', 
             'specialties', 
         )
 
         psychologists_list = []
 
         for psych in psychologists:
-            # جمع‌آوری مدارک تحصیلی
-            degrees = []
-            for degree in psych.degrees.all():
-                degrees.append({
-                    'level': degree.get_level_display(),
-                    'field': degree.field.name,
-                    'specialization': degree.specialization.name if degree.specialization else None,
-                    'university': degree.university.name if degree.university else None,
-                    'graduation_year': degree.graduation_year,
-                })
+            # degrees = []
+            # for degree in psych.degrees.all():
+            #     degrees.append({
+            #         'level': degree.get_level_display(),
+            #         'specialization': degree.specialization.name if degree.specialization else None,
+            #         'university': degree.university.name if degree.university else None,
+            #         'graduation_year': degree.graduation_year,
+            #     })
 
 
             psych_dict = {
@@ -137,9 +174,11 @@ class DynamicEntityView(View):
     ROUTES = {
         'psychologist': 'accounts.views.PsychologistActionView',
         'psychologistspecialties': 'accounts.views.PsychologistSpecialtiesView',
-        # 'psychologistnewpatients': 'accounts.views.PsychologistNewPatientsView',
+        'psychologistdocument': 'accounts.views.PsychologistDocumentView',
         'psychologistdegree': 'accounts.views.PsychologistDegreeView',
         'psychologistsection': 'accounts.views.PsychologistSectionView',
+
+        'secretary':'accounts.views.SecretaryActionView',
     }
 
     def dispatch(self, request, subject, action, pk=None):
@@ -498,7 +537,7 @@ class DashboardManagerView(BaseDashboardView):
                                 </a>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="javascript:void(0)" class="btn btn-success-light col-12 p-0">
+                                <a href="/management/secretary/list" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
@@ -598,10 +637,29 @@ class DashboardPsychologistView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/psychologistdegree/update/{{ psychologist.id }}" class="btn btn-warning-light col-12 p-0">
+                                <a href="/psychologistdocument/list" class="btn btn-warning-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">مدارک</h2>
+                                                <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/psychologistdegree/list" class="btn btn-cyan-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-cyan text-center align-self-center box-primary-shadow bradius">
                                                 <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
                                                 <i class="lnr lnr-user fs-30 text-white mt-4"></i>
                                             </div>
@@ -664,7 +722,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                         <h5 class="card-title">روزهای کاری</h5>
                                     </div>
                                     <div class="card-alert alert alert-danger mb-0">
-                                        روزهای کاری منحصرا توسط منشی ثبت می‌گردد
+                                        روزهای کاری منحصرا توسط کلینیک ثبت می‌گردد
                                     </div>
                                     <div class="card-body">
                                         {% for schedule in workschedules %}
@@ -713,8 +771,10 @@ class DashboardPsychologistView(BaseDashboardView):
 
 
 class DashboardSecretaryView(BaseDashboardView):
-    def get(self, request, subject=None, **kwargs):
-        content = """
+    
+    def get(self, request, **kwargs):
+        secretary = Secretary.objects.get(profile=request.user)
+        template_string = """
             <div class="main-content with-sidebar">
                 <div class="side-app">
                     <div class="main-container container-fluid">
@@ -725,20 +785,48 @@ class DashboardSecretaryView(BaseDashboardView):
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="ti ti-microphone ml-1"></i>پنل منشی</li>
                             </ol>
                         </div>
-                        <!-- محتوای داشبورد منشی -->
+                        
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/secretary/update/{{ secretary.id }}" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">پروفایل</h2>
+                                                <h5 class="fw-normal mb-0">ویرایش</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
         """
 
+        # رندر کردن تمپلیت
+        t = Template(template_string)
+        content = t.render(Context({
+            'secretary': secretary,
+        }))
+
         context = {
-            'content': content,
-            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/secretary'),
+            'content': mark_safe(content),
+            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/psychologist'),
             'extra_css': [],
             'extra_js': [],
         }
-        return render(request, 'index1.html', context)
 
+        return render(request, 'index1.html', context)
+    
 
 class DashboardAdminView(BaseDashboardView):
     def get(self, request, subject=None, **kwargs):

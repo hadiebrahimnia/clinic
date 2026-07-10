@@ -277,6 +277,11 @@ hr {
   overflow: visible;
 }
 
+.hr {
+  border-top: 1px solid #838383;
+  opacity: 0.2;
+}
+
 p {
   margin-top: 0;
   margin-bottom: 1rem;
@@ -1186,6 +1191,7 @@ pre {
 .alert-light hr {
   border-top-color: #ececf6;
 }
+
 
 .alert-light .alert-link {
   color: #686868;
@@ -2213,6 +2219,26 @@ fieldset:disabled a.btn {
 .btn-warning-light.focus {
   box-shadow: 0 0 0 2px rgba(229, 175, 4, 0.9);
   opacity: 0.9;
+}
+
+
+.btn-cyan-light {
+  color: #17a2b8 !important;
+  background: #d1f0f7 !important;
+  border-color: #d1f0f7 !important;
+}
+
+.btn-cyan-light:hover {
+  color: #fff !important;
+  background-color: #117a8b !important;
+  border-color: #138496 !important;
+  opacity: 0.95;
+}
+
+.btn-cyan-light:focus,
+.btn-cyan-light.focus {
+  box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.4) !important;
+  opacity: 1;
 }
 
 .btn-danger-light {
@@ -9398,18 +9424,18 @@ progress {
 
 .table th {
   padding: 0.73rem;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .text-wrap table th,
 .text-wrap table td {
   padding: 0.75rem;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .table td {
   padding: 0.73rem;
-  vertical-align: top;
+  vertical-align: middle;
   border-top: 0;
 }
 
@@ -18481,9 +18507,7 @@ table.table-bordered.dataTable thead tr:first-child td {
   font-size: 70px !important;
 }
 
-.fs-8 {
-  font-size: 8px !important;
-}
+
 
 figure {
   margin: 0 0 1rem;
@@ -29804,10 +29828,6 @@ body.rtl {
   right: inherit;
 }
 
-.rtl .custom-switch-description {
-  margin-right: 0.5rem;
-  margin-left: inherit;
-}
 
 .rtl .custom-switch {
   padding-right: 0;
@@ -41471,10 +41491,6 @@ div.DTE div.DTE_Processing_Indicator:after {
 
 .tim-row h3 {
   margin-top: 0;
-}
-
-.switch {
-  margin-right: 20px;
 }
 
 #navbar-full .navbar {
@@ -77459,4 +77475,52 @@ textarea.form-control {
     /* اگر خواستی فقط برای lg هم اضافه کنی، مشابه md بنویس */
     /* فعلاً فقط ml رو نوشتم تا خلوت نباشه، بقیه رو هم می‌تونی کپی کنی */
   }
+}
+
+
+
+
+
+/* خودم اضافه کردم */
+
+
+.degree-tab-btn.active {
+    background-color: #0d6efd !important;     /* آبی بوت‌استرپ یا رنگ دلخواه */
+    color: white !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+}
+
+.degree-tab-btn.active .side-menu__icon {
+    color: white !important;
+}
+
+.degree-tab-btn.active .bg-dark-transparent {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* حالت hover برای تب‌های غیرفعال */
+.degree-tab-btn:hover:not(.active) {
+    background-color: #f8f9fa;
+}
+
+
+.django-ckeditor-widget{
+  width: 100%!important;
+}
+
+.cke{
+    border-radius: 7px!important;
+    border: 1px solid #c7cedb!important;
+}
+
+.cke_top{
+  background: #fff!important;
+}
+
+.cke_bottom{
+  display:none!important;
+  /* border-bottom-left-radius: 7px !important;
+  border-bottom-right-radius: 7px !important;
+  background: #fff!important; */
 }

@@ -8,7 +8,7 @@ from .models import *
 import re
 from core.widget import *
 from core.validators import validate_image
-
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 class CustomUserCreationForm(UserCreationForm):
     
@@ -231,25 +231,14 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
         )
     ) 
 
-    membership_code = forms.CharField(
-        label=_('کد عضویت'),
+    hire_date = forms.DateField(
+        label=_('تاریخ استخدام'),
         required=False,
-        widget=CustomTextWidget(attrs={
-            'class': 'form-control',
-            'placeholder': 'کد عضویت',
-            'data-input-type': 'number',
-            'required': False,
-        }),
-    )
-
-    license_code = forms.CharField(
-        label=_('کد اشتغال'),
-        required=False,
-        widget=CustomTextWidget(attrs={
-            'class': 'form-control',
-            'placeholder': 'کد اشتغال',
-            'data-input-type': 'number',
-            'required': False,
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ استخدام',
+            'data-jdp-max-date': 'today',
+            'required': False
         }),
     )
 
@@ -261,8 +250,7 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             'last_name',
             'PsychologistType',
             'profile_picture',
-            'membership_code',
-            'license_code',
+            'hire_date',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -281,7 +269,7 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             self.fields['first_name'].initial = instance.profile.first_name
             self.fields['last_name'].initial = instance.profile.last_name
 
-        self.order_fields(['first_name', 'last_name', 'PsychologistType', 'profile_picture','membership_code','license_code'])
+        self.order_fields(['first_name', 'last_name', 'PsychologistType', 'profile_picture','hire_date'])
 
     def clean(self):
         cleaned_data = super().clean()
@@ -352,22 +340,14 @@ class PsychologistSpecialtiesForm(forms.ModelForm):
 
 class PsychologistDegreeForm(forms.ModelForm):
     level = forms.ChoiceField(
-        label=_('مقطع تحصیلی'),
+        label='مقطع تحصیلی',
         choices=[('', 'مقطع تحصیلی را انتخاب نمایید')] + list(PsychologistDegree.DEGREE_LEVELS),
-        widget=forms.Select(attrs={
-            'class': 'form-control text-center',
-            'required': True
-        })
+        widget=forms.Select(attrs={'class': 'form-control text-center', 'required': True})
     )
-
-
     study_status = forms.ChoiceField(
-        label=_('وضعیت'),
-        choices=[('', 'وضعیت این مقطع تحصیلی را انتخاب نمایید')] + list(PsychologistDegree.STUDY_STATUS),
-        widget=forms.Select(attrs={
-            'class': 'form-control text-center',
-            'required': True
-        })
+        label='وضعیت',
+        choices=[('', 'وضعیت این مقطع را انتخاب نمایید')] + list(PsychologistDegree.STUDY_STATUS),
+        widget=forms.Select(attrs={'class': 'form-control text-center', 'required': True})
     )
 
     specialization = forms.ModelChoiceField(
@@ -377,48 +357,43 @@ class PsychologistDegreeForm(forms.ModelForm):
         widget=ChainedStudyWidget()
     )
 
-
     university = forms.ModelChoiceField(
         queryset=University.objects.all(),
         required=True,
-        empty_label=" دانشگاه محل تحصیل را انتخاب کنید",
+        empty_label="دانشگاه محل تحصیل را انتخاب کنید",
         label="دانشگاه",
-        widget=ForeignKeySearchWidget(
-            placeholder="دانشگاه محل تحصیل را انتخاب کنید",
-        )
-    )  
+        widget=ForeignKeySearchWidget(placeholder="دانشگاه محل تحصیل را انتخاب کنید")
+    )
 
     start_year = forms.DateField(
-        label=_('تاریخ شروع '),
+        label='تاریخ شروع',
         widget=PersianDateInput(attrs={
             'class': 'form-control text-center date',
             'placeholder': 'تاریخ شروع تحصیل',
             'data-jdp-max-date': 'today',
             'required': True
-        }),
+        })
     )
 
     graduation_year = forms.DateField(
-        label=_('تاریخ پایان '),
+        label='تاریخ پایان',
         widget=PersianDateInput(attrs={
             'class': 'form-control text-center date',
             'placeholder': 'تاریخ پایان تحصیل',
-            'data-jdp-max-date': 'today',
             'required': True
-        }),
+        })
     )
-
-
-    gpa = forms.DecimalField(
-        label=_('معدل'),
-        widget=GPAWidget(),
-        required=False
+    gpa = forms.DecimalField(label='معدل', widget=GPAWidget(), required=False)
+    
+    thesis_title = forms.CharField(
+        label='عنوان پایان‌نامه',
+        required=False,
+        widget=CustomTextWidget(attrs={'class': 'form-control', 'placeholder': 'عنوان پایان نامه'})
     )
-
 
     degree_file = forms.ImageField(
-        required=True,
         label="تصویر مدرک",
+        required=True,
         widget=ImageInput(
             allowed_formats=['jpg', 'jpeg', 'png'],
             max_size_mb=1,
@@ -427,44 +402,242 @@ class PsychologistDegreeForm(forms.ModelForm):
             max_width=800,
             max_height=800,
         )
-    ) 
-
-
-    # thesis_title = forms.CharField(
-    #     label="عنوان پایان‌نامه",
-    #     max_length=100,
-    #     required=False,
-    #     widget=CustomTextWidget(
-    #         input_type="persian",
-    #         attrs={
-    #             "maxlength": "100",
-    #         }
-    #     )
-    # )
-
+    )
 
     class Meta:
         model = PsychologistDegree
         fields = [
-            'level', 
-            'specialization', 
-            'university',
-            'start_year', 
-            'graduation_year', 
-            'study_status',
-            'gpa', 
-            'thesis_title', 
-            'degree_file'
+            'level', 'specialization', 'university', 'start_year',
+            'graduation_year', 'study_status', 'gpa', 'thesis_title', 'degree_file'
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-  
+        self.order_fields([
+            "level", 
+            "specialization",
+            "university", 
+            "start_year", 
+            "graduation_year",
+            "study_status", 
+            "gpa",
+            "thesis_title", 
+            "degree_file",
+        ])
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+    
+
+class PsychologistDocumentForm(forms.ModelForm):
+
+    document_type = forms.ChoiceField(
+        label='نوع سند',
+        choices=[('', 'نوع سند را انتخاب نمایید')] + list(PsychologistDocument.DOCUMENT_TYPES),
+        widget=forms.Select(attrs={'class': 'form-control text-center', 'required': True})
+    )
+    
+    title = forms.CharField(
+        label=_('عنوان سند'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'عنوان سند',
+            'data-input-type': 'all',
+            'required': True,
+        }),
+    )
+
+    code = forms.CharField(
+        label=_('مد/شماره'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'کد / شماره سند وارد نمایید',
+            'data-input-type': 'all',
+            'required': False,
+        }),
+    )
+
+    degree_file = forms.ImageField(
+        label="تصویر مدرک",
+        required=True,
+        widget=ImageInput(
+            allowed_formats=['jpg', 'jpeg', 'png'],
+            max_size_mb=1,
+            min_width=200,
+            min_height=200,
+            max_width=800,
+            max_height=800,
+        )
+    )
+
+    description = forms.CharField(
+        label="توضیحات",
+        required=False,
+        widget=CKEditorUploadingWidget(
+            config_name='PsychologistDocument'
+        )
+    )
+
+    class Meta:
+        model = PsychologistDocument
+        fields = [
+            "document_type",
+            "title",
+            "code",
+            "degree_file",
+            "description",
+           
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-DegreeFormSet = inlineformset_factory(
-    Psychologist, 
-    PsychologistDegree,
-    form=PsychologistDegreeForm,
-    extra=0,           # تعداد فرم خالی اولیه
-    can_delete=True,   # امکان حذف مدرک
-    max_num=10,        # حداکثر تعداد مدرک
-    min_num=1          # حداقل یک مدرک
-)
+        self.order_fields([
+            "level", 
+
+        ])
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+
+
+
+class SecretaryCreationUpdateForm(forms.ModelForm):
+
+    first_name = forms.CharField(
+        label=_('نام'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'نام',
+            'data-input-type': 'persian-letters',
+            'required': True,
+        }),
+    )
+
+    last_name = forms.CharField(
+        label=_('نام خانوادگی'),
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'نام خانوادگی',
+            'data-input-type': 'persian-letters',
+            'required': True,
+        }),
+    )
+    
+
+    profile_picture = forms.ImageField(
+        required=True,
+        label="عکس پروفایل",
+        widget=ImageInput(
+            allowed_formats=['jpg', 'jpeg', 'png'],
+            max_size_mb=1,
+            min_width=200,
+            min_height=200,
+            max_width=1800,
+            max_height=1800,
+        )
+    ) 
+
+    employee_code = forms.CharField(
+        label=_('کد عضویت'),
+        required=False,
+        widget=CustomTextWidget(attrs={
+            'class': 'form-control',
+            'placeholder': 'کد عضویت',
+            'data-input-type': 'number',
+            'required': False,
+        }),
+    )
+
+    hire_date = forms.DateField(
+        label=_('تاریخ استخدام'),
+        required=False,
+        widget=PersianDateInput(attrs={
+            'class': 'form-control text-center date',
+            'placeholder': 'تاریخ استخدام',
+            'data-jdp-max-date': 'today',
+            'required': False
+        }),
+    )
+
+    class Meta:
+        model = Secretary
+        
+        fields = [
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'employee_code',
+            'hire_date',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        self.request = None        
+        if args and hasattr(args[0], 'user'):     
+            self.request = args[0]
+            args = args[1:]
+        else:
+            self.request = kwargs.pop('request', None)
+
+        super().__init__(*args, **kwargs)
+
+        # مقداردهی اولیه در حالت ویرایش
+        instance = kwargs.get('instance')
+        if instance and instance.profile:
+            self.fields['first_name'].initial = instance.profile.first_name
+            self.fields['last_name'].initial = instance.profile.last_name
+
+        self.order_fields(['first_name', 'last_name', 'profile_picture','employee_code','hire_date'])
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, ImageInput):
+                image = cleaned_data.get(field_name)
+                if image:
+                    attrs = field.widget.attrs
+                    allowed_formats = attrs.get('data-allowed-formats', 'jpg,jpeg,png').split(',')
+                    max_size_mb = float(attrs.get('data-max-size', 2))
+                    min_width = int(attrs.get('data-min-width', 0))
+                    min_height = int(attrs.get('data-min-height', 0))
+                    max_width = int(attrs.get('data-max-width', 10000))
+                    max_height = int(attrs.get('data-max-height', 10000))
+
+                    try:
+                        validate_image(
+                            image,
+                            allowed_formats=allowed_formats,
+                            max_size_mb=max_size_mb,
+                            min_width=min_width,
+                            min_height=min_height,
+                            max_width=max_width,
+                            max_height=max_height,
+                        )
+                    except forms.ValidationError as e:
+                        self.add_error(field_name, e)
+
+        return cleaned_data
+    
+    def save(self, commit=True):
+        secretary = super().save(commit=False)
+
+        profile = self.request.user
+        profile.first_name = self.cleaned_data['first_name']
+        profile.last_name = self.cleaned_data['last_name']
+
+        profile.save()   # همیشه ذخیره شود
+
+        secretary.profile = profile
+
+        if commit:
+            secretary.save()
+
+        return secretary

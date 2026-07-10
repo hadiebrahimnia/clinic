@@ -29,6 +29,7 @@ from core.generic import (
 class ManagementView(View):
     ROUTES = {
         'psychologist': 'management.views.ManagementPsychologistActionView',
+        'secretary': 'management.views.ManagementSecretaryActionView',
     }
 
     def dispatch(self, request, subject, action, pk=None):
@@ -153,6 +154,7 @@ class ManagementPsychologistActionView(BaseManagementView):
         
         if action == 'list':
             psychologists=Psychologist.objects.all()
+            newpatients=PsychologistNewPatients.objects.all()
             queryset = Psychologist.objects.all()
             search_fields = ['user__first_name', 'user__last_name', 'user__username', 'specialty']
             filter_fields = {
@@ -176,7 +178,9 @@ class ManagementPsychologistActionView(BaseManagementView):
 
             # ==================== ساخت تمپلیت ====================
             template_string = """
+                {% load jdate %}
                 <div class="main-content with-sidebar">
+                    
                     <div class="side-app">
                         <div class="main-container container-fluid">
                             <div class="page-header">
@@ -195,48 +199,101 @@ class ManagementPsychologistActionView(BaseManagementView):
                                     {{search_form}}
                                     {{filter_form}}
                                 </div>
-
+                                
 
                                 <div class="col-xl-9 col-lg-8">
                                     <div class="card">
                                         
                                         <div class="card-body">
                                             <div class="table-responsive">
-                                                <table class="table table-bordered border text-nowrap mb-0" id="removecolumns-edit">
+                                                <table class="table table-bordered border text-nowrap table-hover mb-0 dataTable" id="removecolumns-edit">
                                                     <thead>
-                                                        <tr>
-                                                            <th>نام</th>
-                                                            <th>نوع</th>
-                                                            <th>کد عضویت</th>
-                                                            <th>کد اشتغال</th>
-                                                            <th>تاریخ ثبت</th>
+                                                        <tr role="row">
+                                                            <th class="sorting">نام</th>
+                                                            <th class="sorting">نوع</th>
+                                                            <th class="sorting">کد عضویت</th>
+                                                            <th class="sorting">کد اشتغال</th>
+                                                            <th class="sorting">تاریخ ثبت</th>
+                                                            <th>مراجع جدید</th>
                                                             <th>وضعیت</th>
                                                             <th>حذف</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {% for psychologist in psychologists %}
-                                                        <tr>
-                                                            <td>{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</td>
-                                                            <td>{{psychologist.PsychologistType}}</td>
-                                                            <td>{{psychologist.membership_code}}</td>
-                                                            <td>{{psychologist.license_code}}</td>
-                                                            <td>{{psychologist.created_at|to_jalali}}</td>
-                                                            <td>
-                                                                <div class="btn-list">
-                                                                    <button id="bEdit" type="button" class="btn btn-sm btn-success">
-                                                                        فعال
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div class="btn-list">
-                                                                    <button id="bDel" type="button" class="btn  btn-sm btn-danger">
-                                                                        <span class="fe fe-trash-2"> </span>
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                            {% if psychologist.is_deleted != True %}
+                                                                <tr data-id="{{ psychologist.id }}">
+                                                                    <td>
+                                                                        <a 
+                                                                            class="btn btn-info" 
+                                                                            href="/psychologist/detail/{{ psychologist.id }}/"
+                                                                            target="_blanck"
+                                                                            data-bs-placement="top" 
+                                                                            data-bs-toggle="tooltip" 
+                                                                            title="" 
+                                                                            data-bs-original-title="برای مشاهده اطلاعات کلیک کنید"
+                                                                            >
+                                                                            {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>{{psychologist.PsychologistType}}</td>
+                                                                    <td>_</td>
+                                                                    <td>_</td>
+                                                                    <td>{{psychologist.created_at|to_jalali_date}}</td>
+                                                                    </a>
+                                                                    <td>
+                                                                        {%for newpatient in newpatients %}
+                                                                            {% if newpatient.psychologist == psychologist %}
+                                                                                <div class="toggle_div">
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch {% if newpatient.is_accepting_new_patients %}active{% endif %}"
+                                                                                        data-app="appointment"
+                                                                                        data-model="PsychologistNewPatients"
+                                                                                        data-id="{{ newpatient.id }}"
+                                                                                        data-field="is_accepting_new_patients"
+                                                                                        data-title="مراجع جدید برای {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
+                                                                                        data-confirm="تغییر وضعیت {{psychologist.profile.first_name}} {{psychologist.profile.last_name}} ">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            {% else %}
+                                                                                <span class="badge bg-default badge-sm ">ثبت نشده</span>
+                                                                            {% endif %}
+                                                                            
+                                                                        {% endfor %}
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="toggle_div">
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch {% if psychologist.is_active %}active{% endif %}"
+                                                                                data-app="accounts"
+                                                                                data-model="Psychologist"
+                                                                                data-id="{{ psychologist.id }}"
+                                                                                data-field="is_active"
+                                                                                data-title="{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
+                                                                                data-confirm="تغییر وضعیت {{psychologist.profile.first_name}} {{psychologist.profile.last_name}} ">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                            
+                                                                    <td>
+                                                                        <button class="btn btn-sm btn-danger delete"
+                                                                                data-app="accounts"
+                                                                                data-model="Psychologist"
+                                                                                data-id="{{ psychologist.id }}"
+                                                                                data-field="is_deleted"
+                                                                                data-title="{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
+                                                                                data-confirm="حذف کامل {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}">
+                                                                            <span class="fe fe-trash-2"></span>
+                                                                        </button>
+
+                                                                    </td>
+
+                                                                </tr>
+                                                            {% endif %}
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
@@ -250,11 +307,13 @@ class ManagementPsychologistActionView(BaseManagementView):
                         </div>
                     </div>
                 </div>
+                
             """
 
             t = Template(template_string)
             content = t.render(Context({
                 'psychologists':psychologists,
+                'newpatients':newpatients,
                 'search_form': mark_safe(render_search_form(query)),
                 'filter_form': mark_safe(render_filter_form(filter_fields, request)),
                 'pagination': mark_safe(render_pagination(current_page, total_pages, f"&q={query}" if query else "")),
@@ -264,8 +323,175 @@ class ManagementPsychologistActionView(BaseManagementView):
             context = {
                 'content': mark_safe(content),
                 'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/user'),
-                'extra_css': [],
-                'extra_js': [],
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                ],
+            }
+            
+            return render(request, 'index1.html', context)
+
+        return super().get(request, subject, action, **kwargs)
+    
+
+
+
+class ManagementSecretaryActionView(BaseManagementView):
+    
+    def get(self, request, subject=None, action=None, **kwargs):
+        
+        if action == 'list':
+            secretarys=Secretary.objects.all()
+            
+            queryset = Secretary.objects.all()
+            search_fields = ['user__first_name', 'user__last_name', 'user__username']
+            filter_fields = {
+                'is_active': {
+                    'label': 'وضعیت',
+                    'type': 'boolean',
+                    'choices': [( '', 'وضعیت'), ('True', 'فعال'), ('False', 'غیرفعال')]
+                },
+                # 'specialty': {
+                #     'label': 'تخصص',
+                #     'type': 'select',
+                #     'choices': []          
+                # },
+                
+            }
+            queryset, query = apply_search(queryset, request, search_fields)
+            queryset = apply_filters(queryset, request, filter_fields)
+
+            secretarys, current_page, total_pages, total = apply_pagination(queryset, request, per_page=15)
+            
+
+            # ==================== ساخت تمپلیت ====================
+            template_string = """
+                {% load jdate %}
+                <div class="main-content with-sidebar">
+                    
+                    <div class="side-app">
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
+                                    <li class="breadcrumb-back">
+                                        <a href="/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-xl-3 col-lg-4">
+                                    {{search_form}}
+                                    {{filter_form}}
+                                </div>
+                                
+
+                                <div class="col-xl-9 col-lg-8">
+                                    <div class="card">
+                                        
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered border text-nowrap table-hover mb-0 dataTable" id="removecolumns-edit">
+                                                    <thead>
+                                                        <tr role="row">
+                                                            <th class="sorting">نام</th>
+                                                            <th class="sorting">کد استخدامی</th>
+                                                            <th class="sorting">تاریخ استخدام</th>
+                                                            <th>وضعیت</th>
+                                                            <th>حذف</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for secretary in secretarys %}
+                                                            {% if secretary.is_deleted != True %}
+                                                                <tr data-id="{{ secretary.id }}">
+                                                                    <td>{{secretary.profile.first_name}} {{secretary.profile.last_name}}</td>
+                                                                    <td>
+                                                                        {% if secretary.employee_code %}
+                                                                            {{secretary.employee_code}}
+                                                                        {% else %}
+                                                                            <span class="badge bg-default fs-12 p-2">ثبت نشده</span>
+                                                                        {% endif %}
+                                                                    
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if secretary.hire_date %}
+                                                                            {{secretary.hire_date|to_jalali_date}}
+                                                                        {% else %}
+                                                                            <span class="badge bg-default fs-12 p-2">ثبت نشده</span>
+                                                                        {% endif %}
+                                                                    
+                                                                    </td>
+                                                                    
+                                                                    <td>
+                                                                        <div class="toggle_div">
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch {% if secretary.is_active %}active{% endif %}"
+                                                                                data-app="accounts"
+                                                                                data-model="Secretary"
+                                                                                data-id="{{ secretary.id }}"
+                                                                                data-field="is_active"
+                                                                                data-title="{{secretary.profile.first_name}} {{secretary.profile.last_name}}"
+                                                                                data-confirm="تغییر وضعیت {{secretary.profile.first_name}} {{secretary.profile.last_name}} ">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                            
+                                                                    <td>
+                                                                        <button class="btn btn-sm btn-danger delete"
+                                                                                data-app="accounts"
+                                                                                data-model="Secretary"
+                                                                                data-id="{{ secretary.id }}"
+                                                                                data-field="is_deleted"
+                                                                                data-title="{{secretary.profile.first_name}} {{secretary.profile.last_name}}"
+                                                                                data-confirm="حذف کامل {{secretary.profile.first_name}} {{secretary.profile.last_name}}">
+                                                                            <span class="fe fe-trash-2"></span>
+                                                                        </button>
+                                                                    </td>
+
+                                                                </tr>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+                
+            """
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'secretarys':secretarys,
+                'search_form': mark_safe(render_search_form(query)),
+                'filter_form': mark_safe(render_filter_form(filter_fields, request)),
+                'pagination': mark_safe(render_pagination(current_page, total_pages, f"&q={query}" if query else "")),
+                'total': total,
+            }))
+
+            context = {
+                'content': mark_safe(content),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/user'),
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                ],
             }
             
             return render(request, 'index1.html', context)

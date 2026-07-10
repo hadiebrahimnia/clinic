@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang="fa" dir="rtl">
 
 <head>
@@ -62,7 +63,8 @@
 
     
     <script src="/static/plugins/bootstrap/js/popper.min.js"></script>
-    <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
+    {% comment %} <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script> {% endcomment %}
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="/static/js/custom.js"></script>
     <script src="/static/js/icon.js"></script>
     {{ form.media}}

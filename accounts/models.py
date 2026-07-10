@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import URLValidator
 from django_ckeditor_5.fields import CKEditor5Field
+from django.utils.text import slugify
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Role(models.Model):
@@ -39,7 +41,7 @@ class City(models.Model):
     
 class Specialty(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True ,null=True,)
     icon = models.ImageField(
         upload_to='Specialty/icons/',
         blank=True,
@@ -76,7 +78,7 @@ class University(models.Model):
 
 class FieldOfStudy(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True,null=True,)
 
     def __str__(self):
         return self.name
@@ -188,11 +190,7 @@ class PsychologistType(models.Model):
         unique=True,
         verbose_name="نام نوع متخصص"
     )
-    description = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="توضیحات"
-    )
+    description = RichTextUploadingField(blank=True,null=True,)
     icon = models.ImageField(
         upload_to='psychologist_types/icons/',
         blank=True,
@@ -207,14 +205,13 @@ class PsychologistType(models.Model):
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
-    membership_code = models.CharField( max_length=20, unique=True, verbose_name="کد عضویت",blank=True, null=True,)
-    license_code = models.CharField( max_length=20, unique=True, verbose_name="پروانه اشتغال",blank=True, null=True,)
     PsychologistType = models.ForeignKey(PsychologistType, on_delete=models.CASCADE, related_name='PsychologistType',null=True,blank=True)
     profile_picture = models.ImageField(
         upload_to='images/psychologists/profiles',
         blank=True, null=True,
         verbose_name="عکس پروفایل",
     )
+    hire_date = models.DateField(blank=True,null=True)
     is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -227,6 +224,45 @@ class Psychologist(models.Model):
         verbose_name = "متخصص"
         verbose_name_plural = "Psychologists"
 
+
+class PsychologistDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('membership_card', 'عضویت'),
+        ('license_card', 'پروانه اشتغال'),
+        ('certificate', 'گواهینامه'),
+        ('other', 'سایر'),
+    ]
+
+    psychologist = models.ForeignKey(
+        'Psychologist', 
+        on_delete=models.CASCADE,
+        related_name='documents'
+    )
+    
+    document_type = models.CharField(
+        max_length=50, 
+        choices=DOCUMENT_TYPES,
+        verbose_name="نوع سند"
+    )
+    
+    image = models.ImageField(
+        upload_to='images/psychologists/documents/',
+        verbose_name="تصویر سند"
+    )
+    
+    title = models.CharField(max_length=200, blank=True, verbose_name="عنوان")
+    code = models.CharField(max_length=200, blank=True, verbose_name="کد")
+    description = RichTextUploadingField(blank=True,null=True,)
+
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return f"{self.get_document_type_display()} - {self.psychologist}"
 
 class PsychologistSpecialties(models.Model):
     psychologist = models.ForeignKey(
@@ -273,6 +309,8 @@ class PsychologistDegree(models.Model):
         related_name='degrees'
     )
 
+    specialization_active = models.BooleanField(default=False,verbose_name="نمایش رشته تحصیلی")
+
     university = models.ForeignKey(
         University,
         on_delete=models.SET_NULL,
@@ -281,17 +319,21 @@ class PsychologistDegree(models.Model):
         related_name='degrees'
     )
 
-    start_year = models.DateTimeField(
+    university_active = models.BooleanField(default=False,verbose_name="نمایش دانشگاه محل تحصیل ")
+
+    start_year = models.DateField(
         blank=True,
         null=True,
         verbose_name="تاریخ شروع تحصیل"
     )
 
-    graduation_year = models.DateTimeField(
+    graduation_year = models.DateField(
         blank=True,
         null=True,
         verbose_name="تاریخ پایان تحصیل"
     )
+
+    year_active = models.BooleanField(default=False,verbose_name="نمایش سال تحصیل ")
 
     study_status = models.CharField(
         max_length=20,
@@ -308,12 +350,16 @@ class PsychologistDegree(models.Model):
         verbose_name="معدل"
     )
 
+    gpa_active = models.BooleanField(default=False,verbose_name="نمایش معدل")
+
     thesis_title = models.CharField(
         max_length=500,
         blank=True,
         null=True,
         verbose_name="عنوان پایان‌نامه"
     )
+
+    thesis_active = models.BooleanField(default=False,verbose_name="نمایش پایان‌نامه")
 
     degree_file = models.FileField(
         upload_to='degrees/',
@@ -327,14 +373,15 @@ class PsychologistDegree(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    order = models.PositiveIntegerField(
+        default=0
+    )
 
     def __str__(self):
         return (
             f"{self.get_level_display()} "
-            f"in {self.field} "
             f"({self.specialization or 'N/A'})"
         )
-
 
 # SECTION_TYPES = [
 #         ('Biography', 'بیوگرافی'),

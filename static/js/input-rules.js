@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function enforceInputRules(input) {
         const type = input.dataset.inputType || 'text';
 
+        const isAll = type === 'all';
         const isPersianLetters = type === 'persian-letters';
         const isPersianNumbers = type === 'persian-numbers';
         const isPersianAll    = type === 'persian';
@@ -69,8 +70,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             for (let char of value) {
                 let allowed = false;
-
-                if (isPersianLetters) {
+                if (isAll) {
+                    allowed =isPersianLetter(char) ||isEnglishLetter(char) ||isDigit(char) ||char === ' ' ||char === '\u200C';
+                }
+                else if  (isPersianLetters) {
                     allowed = isPersianLetter(char) || char === ' ' || char === '\u200C';
                 }
                 else if (isPersianNumbers) {
@@ -114,7 +117,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let allowed = false;
 
-            if (isPersianLetters) {
+            if (isAll) { 
+                allowed = isPersianLetter(key) || isEnglishLetter(key) || /^\d$/.test(key) || isPersianNumber(key) || key === ' '; 
+            }
+            else if (isPersianLetters) {
                 allowed = isPersianLetter(key) || key === ' ';
             }
             else if (isPersianNumbers) {
@@ -153,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ====================== پیام‌ها ======================
     function getAlertMessage(type) {
         const messages = {
+            'all': 'فقط حروف فارسی، انگلیسی و اعداد مجاز هستند!',
             'number': 'فقط اعداد مجاز هستند!',
             'persian-letters': 'فقط حروف فارسی مجاز هستند!',
             'persian-numbers': 'فقط اعداد فارسی مجاز هستند!',

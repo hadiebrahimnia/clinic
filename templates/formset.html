@@ -44,8 +44,8 @@
                       {% if form.instance.pk %}<small class="text-muted">(ویرایش)</small>{% endif %}
                   </h5>
 
-                  {% for field in form.visible_fields %}
-                      {% if field.name != 'DELETE' %}
+                  {% for field in form %}
+                      {% if field.name not in 'DELETE,id,psychologist' %}
                       <div class="row mb-3">
                         <label class="col-md-4 form-label" for="{{ field.id_for_label }}">
                           {{ field.label }}{% if field.field.required %}<span class="text-danger mr-2 mb-2 fs-20">*</span>{% endif %}

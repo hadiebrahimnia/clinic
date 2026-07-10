@@ -486,7 +486,7 @@ class BooleanToggleWidget(HiddenInput):
 
                 <button
                     type="button"
-                    class="boolean-btn left {'active' if value else 'inactive'}"
+                    class="boolean-btn btn left {'active' if value else 'inactive'}"
                     data-value="1"
                     onclick="toggleBooleanButtons('{input_id}', true)">
                     {self.label_true}
@@ -494,7 +494,7 @@ class BooleanToggleWidget(HiddenInput):
 
                 <button
                     type="button"
-                    class="boolean-btn right {'active' if not value else 'inactive'}"
+                    class="boolean-btn btn btn-default right {'active' if not value else 'inactive'}"
                     data-value="0"
                     onclick="toggleBooleanButtons('{input_id}', false)">
                     {self.label_false}
@@ -813,7 +813,7 @@ class GPAWidget(forms.Widget):
                     max="20"
                     step="0.01"
                     value="{value}"
-                    placeholder="مثلاً 18.75">
+                    placeholder="با فرمت **.**">
 
                
                 <button type="button"  class="btn " style="background:#527093;color:#fff;" disabled="" data-bs-toggle="button">از 20 </button>

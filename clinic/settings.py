@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_ckeditor_5',
+    'ckeditor',
+    'ckeditor_uploader',    
     'accounts.apps.AccountsConfig',
     'appointment',
     'core',
@@ -145,3 +147,81 @@ CKEDITOR_5_CONFIGS = {
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+
+
+CKEDITOR_UPLOAD_PATH = 'media/ckeditor/'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 400,
+        'width': '100%',
+
+        'extraAllowedContent': True,
+        'allowedContent': True,
+
+        'language': 'fa',  # بهتر است fa باشد اگر محتوای فارسی است
+
+        # === فونت و اندازه پیش‌فرض ===
+        'font_names': 'Vazirmatn;vazirmatn',
+        'font_defaultLabel': 'Vazirmatn',
+        'fontSize_sizes': '14/14px',
+        'fontSize_defaultLabel': '14',
+
+        # اعمال فونت و اندازه به محتوای ویرایشگر
+        'contentsCss': [
+            """
+            body {
+                font-family: 'vazirmatn', sans-serif !important;
+                font-size: 14px !important;
+                line-height: 1.6 !important;
+            }
+            """
+        ],
+
+        'toolbar_Full': [
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'],
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+            ['Blockquote', 'CreateDiv'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['TextColor', 'BGColor'],
+            ['Maximize', 'ShowBlocks', 'Source']
+        ],
+
+        'extraPlugins': ','.join([
+            'uploadimage', 'image2', 'codesnippet', 'widget', 'lineutils', 'clipboard',
+        ]),
+
+        'filebrowserUploadUrl': '/ckeditor/upload/',
+        'filebrowserBrowseUrl': '/ckeditor/browse/',
+    },
+
+    'PsychologistDocument': {
+        'toolbar': [
+            ['Bold', 'Italic', 'Underline'],
+            ['BulletedList', 'NumberedList'],
+        ],
+        'height': 200,
+        'width': '100%',
+
+
+        'font_names': 'vazirmatn',
+        'font_defaultLabel': 'vazirmatn',
+        'fontSize_sizes': '14/14px',
+        'fontSize_defaultLabel': '14',
+
+        'contentsCss': [
+            """
+            body {
+                font-family: 'vazirmatn'!important;
+                font-size: 14px !important;
+                line-height: 1.7 !important;
+            }
+            """
+        ],
+    },
+}

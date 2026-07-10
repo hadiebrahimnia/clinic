@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     # ckeditor
     path('django-ckeditor-5/', include('django_ckeditor_5.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     # ajax
     path('ajax/provinces/', get_provinces, name='get_provinces'),
     path('ajax/cities/', get_cities, name='get_cities'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('management/<str:subject>/<str:action>/', ManagementView.as_view(), name='management-action'),
     path('management/<str:subject>/<str:action>/<int:pk>/', ManagementView.as_view(), name='management-action-detail'),
 
+    path('boolean/<str:app_label>/<str:model_name>/<str:field>/<int:pk>/',DynamicBooleanView.as_view(),name='dynamic_boolean_toggle'),
 ]
 
 if settings.DEBUG:

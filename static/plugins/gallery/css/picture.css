@@ -1,0 +1,8 @@
+#alertModal .modal-body {
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#alertModal img {
+    border-radius: 8px;
+}

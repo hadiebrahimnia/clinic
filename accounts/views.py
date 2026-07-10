@@ -8,6 +8,7 @@ from appointment.models import *
 from django.http import JsonResponse
 import json
 from accounts.forms import *
+from core.views import *
 from core.utils import *
 from django.http import JsonResponse, Http404
 from django.core.exceptions import PermissionDenied
@@ -681,57 +682,679 @@ class PsychologistSpecialtiesView(View):
         
 
 
-# ====================== Psychologist Degrees ======================
-class PsychologistDegreeView(View):
+# ====================== Psychologist Document ======================
+class PsychologistDocumentView(BaseDashboardView,View):
     def get(self, request, subject, action, pk):
-        psychologist = get_object_or_404(Psychologist, pk=pk)
-        if psychologist.profile != request.user:
-            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+        if not psychologist:
+            messages.error(request, "ابتدا پروفایل متخصص خود را تکمیل کنید.")
+            return redirect('entity-action-detail', subject='psychologist', action='update', pk=psychologist.pk if psychologist else None)
 
-        formset = DegreeFormSet(
-            instance=psychologist, 
-            queryset=psychologist.degrees.all()
-        )
+        psychologistdocuments=PsychologistDocument.objects.filter(psychologist=psychologist)
 
-        base_context = {
-            'col_class': 'col-md-5 col-12 m-auto',
-            'card_class': 'card shadow-lg',
-            'card_header_class': 'card-header',
-            'card_body_class': 'card-body p-5',
-        }
-        base_context.update({
-            'title': 'مدارک تحصیلی',
-            'back_url': '/dashboard/psychologist/',
-            'back_text': 'بازگشت ',
-            'back_class': 'btn btn-default-light',
-            'back_icon': 'fa fa-arrow-left',
-            'formset': formset,
-            'prefix':'مدرک',
-            'add_button_text':"اضافه کردن مدرک جدید",
-            'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
-            'submit_text': 'ثبت و ادامه',
-            'submit_class': 'btn btn-success btn-lg btn-block ',
-            'submit_style': '',
-            'card_header_class': 'card-header',
-            'card_header_style': 'background-color: #1ab0fc;color: #fff;',
-            'footer_content': ''''''
-        })
-        return render(request, 'formset.html', base_context)
+        if action == 'list':
+            template_string = """
+            {% load jdate %}
+                <div class="main-content with-sidebar">
+                    <div class="side-app">
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/psychologist"><i class="mdi mdi-stethoscope ml-1"></i>پنل متخصص</a></li>
+                                    <li class="breadcrumb-item text-dark"><i class="fa fa-graduation-cap ml-1"></i>مدرک</li>
+                                    
+                                    <li class="breadcrumb-back">
+                                        <a href="/dashboard/psychologist" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
 
-    def post(self, request, subject, action, pk):
-        psychologist = get_object_or_404(Psychologist, pk=pk)
-        if psychologist.profile != request.user:
-            raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+                            <div class="row">
+                                <div class="col-xl-3">
+                                    <div class="card">
+                                        <div class="list-group list-group-transparent mb-0 mail-inbox pb-3">
+                                            <div class="mt-4 mx-4 mb-4 text-center">
+                                                <a href="/psychologistdocument/create" class="btn btn-outline-success btn-lg d-grid">
+                                                    مدرک جدید
+                                                </a>
+                                            </div>
+                                            <div class="p-2">
+                                            {% for psychologistdocument in psychologistdocuments %}
+                                                <a class="btn border-0 text-start side-menu__item degree-tab-btn 
+                                                        {% if forloop.first %}active{% endif %}"
+                                                    id="tab-btn-{{ psychologistdocument.id }}"
+                                                    data-bs-toggle="tab"
+                                                    data-bs-target="#degree-{{ psychologistdocument.id }}"
+                                                    role="tab"
+                                                    aria-controls="degree-{{ psychologistdocument.id }}"
+                                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                >
+                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                        <i class="side-menu__icon fa fa-graduation-cap"></i>
+                                                    </span>
+                                                    
+                                                    <span class="side-menu__label mr-2">{{ psychologistdocument }}</span>
+                                                </a>
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-9">
+                                    <div class="tab-content" id="degreeTabContent">
+                                        {% for psychologistdocument in psychologistdocuments %}
+                                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                                id="degree-{{ psychologistdocument.id }}" 
+                                                role="tabpanel">
+                                                
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h3 class="card-title">
+                                                        {{ psychologistdocument }}
+                                                        </span>
+                                                        </h3>
+                                                        <div class="card-options">
+                                                            <a href="/psychologistdocument/update/{{ psychologistdocument.id }}" 
+                                                            class="me-3 text-success" data-bs-toggle="tooltip" title="ویرایش">
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                            </a>
+                                                            <a href="#" onclick="if(confirm('آیا مطمئن هستید؟')) window.location.href='/psychologistdocument/delete/{{ psychologistdocument.id }}/'" 
+                                                            class="text-danger" data-bs-toggle="tooltip" title="حذف">
+                                                                <i class="fe fe-trash-2"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="card-body">
+                                                        <div class="visitor-list">
+                                                            
+                                                            
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-book"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdocument }}</h5>
+                                                                    <p class="text-muted mb-0">رشته تحصیلی</p>
+                                                                </div>
+                                                                <div class="col-md-3 col-5 px-0">
+                                                                    <div class="toggle_div">
+                                                                        <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                        <button type="button" class="toggle toggle-sm status-switch {% if psychologistdegree.is_visible %}active{% endif %}">
+                                                                            <span class="thumb"></span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
 
-        formset = DegreeFormSet(request.POST, request.FILES, instance=psychologist)
+                                                            
 
-        if formset.is_valid():
-            formset.save()
-            messages.success(request, "مدارک تحصیلی ثبت شد.")
-            return redirect('dashboard', subject='user')
-        else:
-            # error handling similar to get
-            pass
+                                                            
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                               
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            """
+
+
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologistdocuments':psychologistdocuments,
+            }))
+
+            context = {
+                'content': mark_safe(content),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/psychologist'),
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                    '/static/plugins/gallery/css/picture.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                    '/static/plugins/gallery/js/picture.js',
+
+                ],
+            }
+            
+            return render(request, 'index1.html', context)
+        
+        elif action == 'create':
+            form = PsychologistDocumentForm()
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت مدرک',
+                'back_url': '/psychologistdocument/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action', kwargs={'subject': 'psychologistdocument', 'action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            document = get_object_or_404(PsychologistDocument, pk=pk, psychologist=psychologist)
+            form = PsychologistDocumentForm(instance=document)
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ویرایش مدرک',
+                'back_url': '/psychologistdocument/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistdocument', 'action': 'update' , 'pk': document.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+
+        raise Http404("Action not supported")
+    
+    def post(self, request, subject, action, pk=None):
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+
+        if action == 'create':
+            form = PsychologistDocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                document = form.save(commit=False)
+                document.psychologist = psychologist
+                document.save()
+                messages.success(request, "مدرک با موفقیت ثبت شد.")
+                return redirect('entity-action', subject='psychologistdocument', action='list')
+
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ثبت مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action':reverse('entity-action', kwargs={'subject': 'psychologistdocument','action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            document = get_object_or_404(PsychologistDocument, pk=pk, psychologist=psychologist)
+            form = PsychologistDocumentForm(request.POST, request.FILES, instance=document)
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, "مدرک با موفقیت ویرایش شد.")
+                return redirect('entity-action', subject='psychologistdocument', action='list')
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ویرایش مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistdocument','action': 'create', 'pk': document.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        raise Http404("Action not supported")
+            
+
+
+
+
+
+# ====================== Psychologist Degrees ======================
+class PsychologistDegreeView(BaseDashboardView,View):
+    def get(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+        if not psychologist:
+            messages.error(request, "ابتدا پروفایل متخصص خود را تکمیل کنید.")
+            return redirect('entity-action-detail', subject='psychologist', action='update', pk=psychologist.pk if psychologist else None)
+
+        psychologistdegrees=PsychologistDegree.objects.filter(psychologist=psychologist)
+
+        if action == 'list':
+            template_string = """
+            {% load jdate %}
+                <div class="main-content with-sidebar">
+                    <div class="side-app">
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/psychologist"><i class="mdi mdi-stethoscope ml-1"></i>پنل متخصص</a></li>
+                                    <li class="breadcrumb-item text-dark"><i class="fa fa-graduation-cap ml-1"></i>مدرک تحصیلی</li>
+                                    
+                                    <li class="breadcrumb-back">
+                                        <a href="/dashboard/psychologist" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xl-3">
+                                    <div class="card">
+                                        <div class="list-group list-group-transparent mb-0 mail-inbox pb-3">
+                                            <div class="mt-4 mx-4 mb-4 text-center">
+                                                <a href="/psychologistdegree/create" class="btn btn-outline-success btn-lg d-grid">
+                                                    مدرک جدید
+                                                </a>
+                                            </div>
+                                            <div class="p-2">
+                                            {% for psychologistdegree in psychologistdegrees %}
+                                                <a class="btn border-0 text-start side-menu__item degree-tab-btn 
+                                                        {% if forloop.first %}active{% endif %}"
+                                                    id="tab-btn-{{ psychologistdegree.id }}"
+                                                    data-bs-toggle="tab"
+                                                    data-bs-target="#degree-{{ psychologistdegree.id }}"
+                                                    role="tab"
+                                                    aria-controls="degree-{{ psychologistdegree.id }}"
+                                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                >
+                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                        <i class="side-menu__icon fa fa-graduation-cap"></i>
+                                                    </span>
+                                                    
+                                                    <span class="side-menu__label mr-2">{{ psychologistdegree.get_level_display }}</span>
+                                                </a>
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-9">
+                                    <div class="tab-content" id="degreeTabContent">
+                                        {% for psychologistdegree in psychologistdegrees %}
+                                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                                id="degree-{{ psychologistdegree.id }}" 
+                                                role="tabpanel">
+                                                
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h3 class="card-title">
+                                                        {{ psychologistdegree.get_level_display }}
+                                                        <span 
+                                                            class="badge
+                                                            {% if psychologistdegree.study_status == "Studying" %}
+                                                                bg-warning
+                                                            {% elif psychologistdegree.study_status == "Graduated" %}
+                                                                bg-success
+                                                            {% else %}
+                                                                bg-danger 
+                                                            {% endif %}
+                                                            badge-sm mr-1
+                                                            "
+                                                        >
+                                                        {{psychologistdegree.get_study_status_display}}
+                                                        </span>
+                                                        </h3>
+                                                        <div class="card-options">
+                                                            <a href="/psychologistdegree/update/{{ psychologistdegree.id }}" 
+                                                            class="me-3 text-success" data-bs-toggle="tooltip" title="ویرایش">
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                            </a>
+                                                            <a href="#" onclick="if(confirm('آیا مطمئن هستید؟')) window.location.href='/psychologistdegree/delete/{{ psychologistdegree.id }}/'" 
+                                                            class="text-danger" data-bs-toggle="tooltip" title="حذف">
+                                                                <i class="fe fe-trash-2"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="card-body">
+                                                        <div class="visitor-list">
+                                                            
+                                                            <!-- رشته تحصیلی -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-book"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.specialization }}</h5>
+                                                                    <p class="text-muted mb-0">رشته تحصیلی</p>
+                                                                </div>
+                                                                <div class="col-md-3 col-5 px-0">
+                                                                    <div class="toggle_div">
+                                                                        <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                        <button type="button" class="toggle toggle-sm status-switch {% if psychologistdegree.is_visible %}active{% endif %}">
+                                                                            <span class="thumb"></span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- دانشگاه -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    {% if psychologistdegree.university.icon %}
+                                                                        <img class="avatar brround avatar-md" src="/media/{{ psychologistdegree.university.icon }}" alt="">
+                                                                    {% else %}
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-university"></i>
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.university }}</h5>
+                                                                    <p class="text-muted mb-0">دانشگاه محل تحصیل</p>
+                                                                </div>
+                                                                <div class="col-md-3 col-5 px-0">
+                                                                    <div class="toggle_div">
+                                                                        <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                        <button type="button" class="toggle toggle-sm status-switch {% if psychologistdegree.is_visible %}active{% endif %}">
+                                                                            <span class="thumb"></span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- معدل -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-chart-bar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.gpa|default:"—" }}</h5>
+                                                                    <p class="text-muted mb-0">معدل</p>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- عنوان پایان‌نامه -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-file-text-o"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-11 col-10 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.thesis_title|default:"—" }}</h5>
+                                                                    <p class="text-muted mb-0">عنوان پایان‌نامه</p>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+                                                            
+                                                            
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.start_year|to_jalali_date }}</h5>
+                                                                    <p class="text-muted mb-0">تاریخ شروع تحصیل</p>
+                                                                </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistdegree.graduation_year|to_jalali_date }}</h5>
+                                                                    <p class="text-muted mb-0">تاریخ پایان تحصیل</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <hr class="hr">
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-file-text-o"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-11 col-10 px-0">
+                                                                    <a href="javascript:void(0)" 
+                                                                    onclick="showImageModal('/media/{{ psychologistdegree.degree_file }}', '{{ psychologistdegree.get_level_display }}')">
+                                                                        <img class="img-responsive br-5 img-zoom w-10"
+                                                                            src="/media/{{ psychologistdegree.degree_file }}"
+                                                                            alt="{{ psychologistdegree.get_level_display }}"
+                                                                            style="cursor: pointer;">
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                               
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            """
+
+
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologistdegrees':psychologistdegrees,
+            }))
+
+            context = {
+                'content': mark_safe(content),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/psychologist'),
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                    '/static/plugins/gallery/css/picture.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                    '/static/plugins/gallery/js/picture.js',
+
+                ],
+            }
+            
+            return render(request, 'index1.html', context)
+        
+        elif action == 'create':
+            form = PsychologistDegreeForm()
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action', kwargs={'subject': 'psychologistdegree', 'action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            degree = get_object_or_404(PsychologistDegree, pk=pk, psychologist=psychologist)
+            form = PsychologistDegreeForm(instance=degree)
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ویرایش مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistdegree', 'action': 'update' , 'pk': degree.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+
+        raise Http404("Action not supported")
+    
+    def post(self, request, subject, action, pk=None):
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+
+        if action == 'create':
+            form = PsychologistDegreeForm(request.POST, request.FILES)
+            if form.is_valid():
+                degree = form.save(commit=False)
+                degree.psychologist = psychologist
+                degree.save()
+                messages.success(request, "مدرک تحصیلی با موفقیت ثبت شد.")
+                return redirect('entity-action', subject='psychologistdegree', action='list')
+
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ثبت مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action':reverse('entity-action-detail', kwargs={'subject': 'psychologistdegree','action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            degree = get_object_or_404(PsychologistDegree, pk=pk, psychologist=psychologist)
+            form = PsychologistDegreeForm(request.POST, request.FILES, instance=degree)
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, "مدرک تحصیلی با موفقیت ویرایش شد.")
+                return redirect('entity-action', subject='psychologistdegree', action='list')
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ویرایش مدرک تحصیلی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistdegree','action': 'create', 'pk': degree.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        raise Http404("Action not supported")
+            
+
+        
     
 # ========== متدهای کمکی (داخل کلاس) ==========
 def render_psychologist_detail(psychologist, request=None):
@@ -750,8 +1373,8 @@ def render_psychologist_detail(psychologist, request=None):
     except PsychologistSpecialties.DoesNotExist:
         specialties = None  
          
-    membership_code = getattr(psychologist, 'membership_code', None)
-    license_code = getattr(psychologist, 'license_code', None)
+    # membership_code = getattr(psychologist, 'membership_code', None)
+    # license_code = getattr(psychologist, 'license_code', None)
 
     user_status = get_user_status(psychologist, request)
     is_owner = user_status.get('is_owner', False)
@@ -764,8 +1387,8 @@ def render_psychologist_detail(psychologist, request=None):
         'full_name': full_name,
         'profile_picture': profile_picture,
         'PsychologistType': PsychologistType,
-        'membership_code': membership_code,
-        'license_code': license_code,
+        # 'membership_code': membership_code,
+        # 'license_code': license_code,
         'is_owner': is_owner,
         'is_accepting_new_patients': newpatients,
         'specialties': specialties,
@@ -1090,3 +1713,166 @@ def render_psychologist_detail(psychologist, request=None):
     """
     t = Template(template_string)
     return mark_safe(t.render(context))
+
+
+
+class SecretaryActionView(View):
+    def get(self, request, subject, action, pk=None):
+
+        if action == 'register':
+            if not request.user.is_authenticated:
+                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
+                return redirect('accounts', action='login')
+            
+            secretary = Secretary.objects.filter(profile=request.user).first()
+            if secretary:
+                return redirect('dashboard', subject='secretary')
+            
+            form = SecretaryCreationUpdateForm(request=request)
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت‌نام منشی',
+                'back_url': '/dashboard/user',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action', kwargs={'subject': 'secretary', 'action': 'register'}),
+                'submit_text': 'ثبت‌نام',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+        
+        elif action == 'update' and pk:
+            if not request.user.is_authenticated:
+                messages.error(request, 'برای دسترسی به پروفایل باید وارد شوید.')
+                return redirect('accounts', action='login')
+
+            secretary = get_object_or_404(Secretary, pk=pk)
+
+            if secretary.profile != request.user:
+                raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+            form = SecretaryCreationUpdateForm(instance=secretary, request=request)
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ویرایش منشی',
+                'back_url': '/dashboard/secretary',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+
+            return render(request, 'form.html', base_context)
+
+
+        else:
+            raise Http404("Action not supported")
+        
+    def post(self, request, subject, action, pk=None): 
+        if action == 'register':
+            if not request.user.is_authenticated:
+                return redirect('accounts', action='login')
+            
+            secretary = Secretary.objects.filter(profile=request.user).first()
+            if secretary:
+                return redirect('dashboard', subject='secretary')
+
+            form = SecretaryCreationUpdateForm(request.POST, request.FILES, request=request)
+
+            if form.is_valid():
+                secretary = form.save(commit=False)
+                request.user.save()
+                secretary.profile = request.user
+                secretary.save()
+                default_role, _ = Role.objects.get_or_create(name="secretary")
+                request.user.roles.add(default_role)
+                messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
+                return redirect('dashboard', subject='secretary')
+            else:
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                }
+                base_context.update({
+                    'title': 'ثبت‌نام منشی',
+                    'back_url': '/dashboard/user',
+                    'back_text': 'بازگشت ',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form': form,
+                    'form_action': reverse('entity-action', kwargs={'subject': 'secretary', 'action': 'register'}),
+                    'submit_text': 'ثبت‌نام',
+                    'submit_class': 'btn btn-success btn-lg btn-block ',
+                    'card_header_class': 'card-header',
+                    'card_header_style': 'background-color: #c2eafc;color: #fff;',
+                })
+                return render(request, 'form.html', base_context)
+            
+        elif action == 'update' and pk:
+            if not request.user.is_authenticated:
+                return redirect('accounts', action='login')
+
+            secretary = get_object_or_404(Secretary, pk=pk)
+
+            if secretary.profile != request.user:
+                raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
+
+            form = SecretaryCreationUpdateForm(request.POST, request.FILES, instance=secretary, request=request)
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, "اطلاعات منشی با موفقیت ویرایش شد.")
+                return redirect('dashboard', subject='secretary')
+            else:
+                base_context = {
+                    'col_class': 'col-md-5 col-12 m-auto',
+                    'card_class': 'card shadow-lg',
+                    'card_header_class': 'card-header',
+                    'card_body_class': 'card-body p-5',
+                }
+                base_context.update({
+                    'title': 'ویرایش منشی',
+                    'back_url': '/dashboard/secretary',
+                    'back_text': 'بازگشت ',
+                    'back_class': 'btn btn-default-light',
+                    'back_icon': 'fa fa-arrow-left',
+                    'form': form,
+                    'form_action': reverse('entity-action-detail', kwargs={'subject': subject, 'action': action, 'pk': pk}),
+                    'submit_text': 'ذخیره',
+                    'submit_class': 'btn btn-success btn-lg btn-block ',
+                    'card_header_class': 'card-header',
+                    'card_header_style': 'background-color: #c2eafc;color: #fff;',
+                })
+                return render(request, 'form.html', base_context)
+            
+        raise Http404("Action not supported")
+    
+    

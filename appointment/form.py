@@ -12,7 +12,7 @@ class PsychologistNewPatientsForm(forms.ModelForm):
         widget=BooleanToggleWidget(
             label_true="بله، می‌پذیرم",
             label_false="خیر، فعلاً نمی‌پذیرم",
-            color_true="#13bfa6", 
+            color_true="#09ad95", 
             color_false="#e82646",
         )
     )
