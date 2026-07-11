@@ -1352,6 +1352,396 @@ class PsychologistDegreeView(BaseDashboardView,View):
             return render(request, 'form.html', base_context)
 
         raise Http404("Action not supported")
+    
+
+
+
+# ====================== Psychologist Section ======================
+class PsychologistSectionView(BaseDashboardView,View):
+    def get(self, request, subject, action, pk):
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+        if not psychologist:
+            messages.error(request, "ابتدا پروفایل متخصص خود را تکمیل کنید.")
+            return redirect('entity-action-detail', subject='psychologist', action='update', pk=psychologist.pk if psychologist else None)
+
+        psychologistsections=PsychologistSection.objects.filter(psychologist=psychologist)
+
+        if action == 'list':
+            template_string = """
+            {% load jdate %}
+                <div class="main-content with-sidebar">
+                    <div class="side-app">
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/psychologist"><i class="mdi mdi-stethoscope ml-1"></i>پنل متخصص</a></li>
+                                    <li class="breadcrumb-item text-dark"><i class="fa fa-graduation-cap ml-1"></i>بیوگرافی</li>
+                                    
+                                    <li class="breadcrumb-back">
+                                        <a href="/dashboard/psychologist" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xl-3">
+                                    <div class="card">
+                                        <div class="list-group list-group-transparent mb-0 mail-inbox pb-3">
+                                            <div class="mt-4 mx-4 mb-4 text-center">
+                                                <a href="/psychologistsection/create" class="btn btn-outline-success btn-lg d-grid">
+                                                    بیوگرافی جدید
+                                                </a>
+                                            </div>
+                                            <div class="p-2">
+                                            {% for psychologistsection in psychologistsections %}
+                                                <a class="btn border-0 text-start side-menu__item degree-tab-btn 
+                                                        {% if forloop.first %}active{% endif %}"
+                                                    id="tab-btn-{{ psychologistsection.id }}"
+                                                    data-bs-toggle="tab"
+                                                    data-bs-target="#degree-{{ psychologistsection.id }}"
+                                                    role="tab"
+                                                    aria-controls="degree-{{ psychologistsection.id }}"
+                                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                >
+                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                        <i class="side-menu__icon fa fa-graduation-cap"></i>
+                                                    </span>
+                                                    
+                                                    <span class="side-menu__label mr-2">{{ psychologistsection.get_level_display }}</span>
+                                                </a>
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-9">
+                                    <div class="tab-content" id="degreeTabContent">
+                                        {% for psychologistsection in psychologistsections %}
+                                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                                id="degree-{{ psychologistsection.id }}" 
+                                                role="tabpanel">
+                                                
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h3 class="card-title">
+                                                        {{ psychologistsection.get_level_display }}
+                                                        <span 
+                                                            class="badge
+                                                            {% if psychologistsection.study_status == "Studying" %}
+                                                                bg-warning
+                                                            {% elif psychologistsection.study_status == "Graduated" %}
+                                                                bg-success
+                                                            {% else %}
+                                                                bg-danger 
+                                                            {% endif %}
+                                                            badge-sm mr-1
+                                                            "
+                                                        >
+                                                        {{psychologistsection.get_study_status_display}}
+                                                        </span>
+                                                        </h3>
+                                                        <div class="card-options">
+                                                            <a href="/psychologistsection/update/{{ psychologistsection.id }}" 
+                                                            class="me-3 text-success" data-bs-toggle="tooltip" title="ویرایش">
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                            </a>
+                                                            <a href="#" onclick="if(confirm('آیا مطمئن هستید؟')) window.location.href='/psychologistsection/delete/{{ psychologistsection.id }}/'" 
+                                                            class="text-danger" data-bs-toggle="tooltip" title="حذف">
+                                                                <i class="fe fe-trash-2"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="card-body">
+                                                        <div class="visitor-list">
+                                                            
+                                                            <!-- رشته تحصیلی -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-book"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.specialization }}</h5>
+                                                                    <p class="text-muted mb-0">رشته تحصیلی</p>
+                                                                </div>
+                                                                <div class="col-md-3 col-5 px-0">
+                                                                    <div class="toggle_div">
+                                                                        <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                        <button type="button" class="toggle toggle-sm status-switch {% if psychologistsection.is_visible %}active{% endif %}">
+                                                                            <span class="thumb"></span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- دانشگاه -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    {% if psychologistsection.university.icon %}
+                                                                        <img class="avatar brround avatar-md" src="/media/{{ psychologistsection.university.icon }}" alt="">
+                                                                    {% else %}
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-university"></i>
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.university }}</h5>
+                                                                    <p class="text-muted mb-0">دانشگاه محل تحصیل</p>
+                                                                </div>
+                                                                <div class="col-md-3 col-5 px-0">
+                                                                    <div class="toggle_div">
+                                                                        <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                        <button type="button" class="toggle toggle-sm status-switch {% if psychologistsection.is_visible %}active{% endif %}">
+                                                                            <span class="thumb"></span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- معدل -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-chart-bar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.gpa|default:"—" }}</h5>
+                                                                    <p class="text-muted mb-0">معدل</p>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+
+                                                            <!-- عنوان پایان‌نامه -->
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-file-text-o"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-11 col-10 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.thesis_title|default:"—" }}</h5>
+                                                                    <p class="text-muted mb-0">عنوان پایان‌نامه</p>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+                                                            
+                                                            
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.start_year|to_jalali_date }}</h5>
+                                                                    <p class="text-muted mb-0">تاریخ شروع تحصیل</p>
+                                                                </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr class="hr">
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-8 col-5 px-0">
+                                                                    <h5 class="mb-1">{{ psychologistsection.graduation_year|to_jalali_date }}</h5>
+                                                                    <p class="text-muted mb-0">تاریخ پایان تحصیل</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <hr class="hr">
+                                                            <div class="row my-5 align-items-center">
+                                                                <div class="col-md-1 col-2 text-center">
+                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                        <i class="fa fa-file-text-o"></i>
+                                                                    </span>                                                        
+                                                                </div>
+                                                                <div class="col-md-11 col-10 px-0">
+                                                                    <a href="javascript:void(0)" 
+                                                                    onclick="showImageModal('/media/{{ psychologistsection.degree_file }}', '{{ psychologistsection.get_level_display }}')">
+                                                                        <img class="img-responsive br-5 img-zoom w-10"
+                                                                            src="/media/{{ psychologistsection.degree_file }}"
+                                                                            alt="{{ psychologistsection.get_level_display }}"
+                                                                            style="cursor: pointer;">
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                               
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            """
+
+
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologistsections':psychologistsections,
+            }))
+
+            context = {
+                'content': mark_safe(content),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/psychologist'),
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                    '/static/plugins/gallery/css/picture.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                    '/static/plugins/gallery/js/picture.js',
+
+                ],
+            }
+            
+            return render(request, 'index1.html', context)
+        
+        elif action == 'create':
+            form = PsychologistSectionForm()
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ثبت بیوگرافی',
+                'back_url': '/psychologistdegree/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action', kwargs={'subject': 'psychologistsection', 'action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            section = get_object_or_404(PsychologistSection, pk=pk, psychologist=psychologist)
+            form = PsychologistSectionForm(instance=section)
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+            base_context.update({
+                'title': 'ویرایش بیوگرافی',
+                'back_url': '/psychologistsection/list',
+                'back_text': 'بازگشت ',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form':form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistsection', 'action': 'update' , 'pk': section.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block ',
+                'submit_style': '',
+                'card_header_class': 'card-header',
+                'card_header_style': 'background-color: #1ab0fc;color: #fff;',
+                'footer_content': ''''''
+            })
+            
+            return render(request, 'form.html', base_context)
+
+
+        raise Http404("Action not supported")
+    
+    def post(self, request, subject, action, pk=None):
+        psychologist = get_object_or_404(Psychologist, profile=request.user)
+
+        if action == 'create':
+            form = PsychologistSectionForm(request.POST, request.FILES)
+            if form.is_valid():
+                degree = form.save(commit=False)
+                degree.psychologist = psychologist
+                degree.save()
+                messages.success(request, "مدرک تحصیلی با موفقیت ثبت شد.")
+                return redirect('entity-action', subject='psychologistsection', action='list')
+
+
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ثبت بیوگرافی',
+                'back_url': '/psychologistsection/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action':reverse('entity-action-detail', kwargs={'subject': 'psychologistsection','action': 'create'}),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        elif action == 'update':
+            section = get_object_or_404(PsychologistSection, pk=pk, psychologist=psychologist)
+            form = PsychologistSectionForm(request.POST, request.FILES, instance=section)
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, "مدرک تحصیلی با موفقیت ویرایش شد.")
+                return redirect('entity-action', subject='psychologistsection', action='list')
+            base_context = {
+                'col_class': 'col-md-5 col-12 m-auto',
+                'card_class': 'card shadow-lg',
+                'card_header_class': 'card-header',
+                'card_body_class': 'card-body p-5',
+            }
+
+            base_context.update({
+                'title': 'ویرایش بیوگرافی',
+                'back_url': '/psychologistsection/list',
+                'back_text': 'بازگشت',
+                'back_class': 'btn btn-default-light',
+                'back_icon': 'fa fa-arrow-left',
+                'form': form,
+                'form_action': reverse('entity-action-detail', kwargs={'subject': 'psychologistsection','action': 'create', 'pk': section.pk }),
+                'submit_text': 'ذخیره',
+                'submit_class': 'btn btn-success btn-lg btn-block',
+                'card_header_style': 'background-color: #1ab0fc; color: #fff;',
+                'footer_content': ''
+            })
+
+            return render(request, 'form.html', base_context)
+
+        raise Http404("Action not supported")
             
 
         

@@ -172,12 +172,13 @@ class DynamicDashboardView(View):
         
 class DynamicEntityView(View):
     ROUTES = {
+        # psychologist
         'psychologist': 'accounts.views.PsychologistActionView',
         'psychologistspecialties': 'accounts.views.PsychologistSpecialtiesView',
         'psychologistdocument': 'accounts.views.PsychologistDocumentView',
         'psychologistdegree': 'accounts.views.PsychologistDegreeView',
         'psychologistsection': 'accounts.views.PsychologistSectionView',
-
+        # secretary
         'secretary':'accounts.views.SecretaryActionView',
     }
 
@@ -675,7 +676,7 @@ class DashboardPsychologistView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/psychologistsection/update/{{ psychologist.id }}" class="btn btn-secondary-light col-12 p-0">
+                                <a href="/psychologistsection/list" class="btn btn-secondary-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-secondary text-center align-self-center box-primary-shadow bradius">

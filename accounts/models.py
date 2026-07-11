@@ -395,7 +395,23 @@ class PsychologistDegree(models.Model):
 #         ('Certifications', 'دوره ها  و گواهینامه '),
 #         ('Educational Activities', 'فعالیت‌های آموزشی و تدریس'),
 #         ('Research Activities', 'زفعالیت‌های پژوهشی'),
-#           ('Supervision', 'سوپرویژن و نظارت بالینی'),
+#          ('Supervision', 'سوپرویژن و نظارت بالینی'),
+    # معرفی
+    # تحصیلات
+    # سوابق شغلی
+    # حوزه‌های تخصص
+    # خدمات
+    # رویکردهای درمانی
+    # مقالات و پژوهش‌ها
+    # کتاب‌ها
+    # دوره‌های آموزشی
+    # کارگاه‌ها
+    # افتخارات
+    # گواهینامه‌ها
+    # عضویت‌های حرفه‌ای
+    # سوپرویژن و نظارت بالینی
+    # پرسش‌های متداول
+    # راه‌های ارتباطی
         
 #     ]
 
@@ -421,20 +437,19 @@ class PsychologistSection(models.Model):
     )
 
     section_type = models.ForeignKey(
-        University,
+        SectionType,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='PsychologistSection'
+        related_name='sections'
     )
 
-    content = CKEditor5Field(
-        blank=True,
-        null=True
-    )
+    description = RichTextUploadingField(blank=True,null=True,)
 
     order = models.PositiveIntegerField(
-        default=0
+        default=0,
+        blank=True,
+        null=True,
     )
     
     background_color = models.CharField(max_length=7, default="#ffffff", verbose_name="رنگ زمینه")
@@ -445,13 +460,9 @@ class PsychologistSection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        ordering = ['order']
-        verbose_name = "بخش متخصص"
-        verbose_name_plural = "بخش‌های متخصص"
 
     def __str__(self):
-        return f"{self.psychologist} - {self.get_section_type_display()}"
+        return f"{self.psychologist} - {self.section_type}"
     
 
 # PLATFORM_CHOICES = (

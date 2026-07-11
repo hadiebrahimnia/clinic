@@ -383,7 +383,16 @@ class PsychologistDegreeForm(forms.ModelForm):
             'required': True
         })
     )
-    gpa = forms.DecimalField(label='معدل', widget=GPAWidget(), required=False)
+    gpa = forms.DecimalField(
+        label='معدل',
+        required=False,
+        widget=DecimalWidget(
+            min_value=0,
+            max_value=20,
+            placeholder='بافرمت **.**',
+            help_text='عدد به همراه نقطه'
+        )
+    )
     
     thesis_title = forms.CharField(
         label='عنوان پایان‌نامه',
@@ -490,7 +499,6 @@ class PsychologistDocumentForm(forms.ModelForm):
             "code",
             "degree_file",
             "description",
-           
         ]
 
     def __init__(self, *args, **kwargs):
@@ -508,6 +516,81 @@ class PsychologistDocumentForm(forms.ModelForm):
         return instance
 
 
+
+class PsychologistSectionForm(forms.ModelForm):
+
+    section_type = forms.ModelChoiceField(
+        queryset=SectionType.objects.all(),
+        required=True,
+        empty_label="عنوان را انتخاب کنید",
+        label="عنوان",
+        widget=ForeignKeySearchWidget(
+            placeholder="عنوان را انتخاب کنید",
+        )
+    )  
+
+
+    description = forms.CharField(
+        label="توضیحات",
+        required=False,
+        widget=CKEditorUploadingWidget(
+            config_name='PsychologistDocument'
+        )
+    )
+
+    order = forms.DecimalField(
+        label='رتبه',
+        required=False,
+        widget=DecimalWidget(
+            min_value=1,
+            max_value=1000,
+            step=1,
+            placeholder='ترتیب نمایش در صفحه معرفی',
+        )
+    )
+
+    background_color = forms.CharField(
+        label="رنگ زمینه",
+        widget=ColorWidget(
+            help_text='رنگ زمینه',
+        )
+        
+    )
+
+    color = forms.CharField(
+        label="رنگ متن",
+        widget=ColorWidget(
+            help_text='رنگ متن',
+        )
+    )
+
+    class Meta:
+        model = PsychologistSection
+        fields = [
+            "section_type",
+            "description",
+            "description",
+            "order",
+            "background_color",
+            "color",
+           
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.order_fields([
+            "level", 
+
+        ])
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+    
+    
 
 class SecretaryCreationUpdateForm(forms.ModelForm):
 

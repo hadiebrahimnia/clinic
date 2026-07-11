@@ -783,57 +783,62 @@ class ChainedStudyWidget(forms.Widget):
     
 
 
-class GPAWidget(forms.Widget):
+class DecimalWidget(forms.Widget):
 
     class Media:
-        js = ('js/gpa.js',)
+        js = ('js/decimal.js',)
+
+    def __init__(
+        self,
+        min_value=0,
+        max_value=20,
+        step=0.01,
+        placeholder="",
+        help_text="",
+        attrs=None,
+    ):
+        super().__init__(attrs)
+        self.min_value = min_value
+        self.max_value = max_value
+        self.step = step
+        self.placeholder = placeholder
+        self.help_text = help_text
 
     def get_context(self, name, value, attrs):
-
         return {
             "name": name,
             "value": value if value is not None else "",
+            "min": self.min_value,
+            "max": self.max_value,
+            "step": self.step,
+            "placeholder": self.placeholder,
+            "help_text": self.help_text,
         }
 
     def render(self, name, value, attrs=None, renderer=None):
-
         context = self.get_context(name, value, attrs)
 
-        html = """
+        return mark_safe(f"""
         <div class="gpa-widget">
 
-            <div class="input-group">
+            <input
+                id="id_{context['name']}"
+                name="{context['name']}"
+                type="number"
+                class="form-control"
+                min="{context['min']}"
+                max="{context['max']}"
+                step="{context['step']}"
+                value="{context['value']}"
+                placeholder="{context['placeholder']}">
 
-                <input
-                    id="id_{name}"
-                    name="{name}"
-                    type="number"
-                    class="form-control"
-                    min="0"
-                    max="20"
-                    step="0.01"
-                    value="{value}"
-                    placeholder="با فرمت **.**">
-
-               
-                <button type="button"  class="btn " style="background:#527093;color:#fff;" disabled="" data-bs-toggle="button">از 20 </button>
-
-            </div>
-
-            <div id="id_{name}_status"
+            <div id="id_{context['name']}_status"
                  class="small mt-2 text-muted">
-               معدل را به صورت عدد به همراه نقطه وارد کنید
+                {context['help_text']}
             </div>
 
         </div>
-        """
-
-        return mark_safe(
-            html.format(
-                name=context["name"],
-                value=context["value"],
-            )
-        )
+        """)
 
     def value_from_datadict(self, data, files, name):
         return data.get(name)
@@ -853,3 +858,45 @@ class CustomTextWidget(forms.TextInput):
         if attrs:
             default_attrs.update(attrs)
         super().__init__(attrs=default_attrs)
+
+
+
+
+class ColorWidget(forms.Widget):
+
+    class Media:
+        css = {
+            "all": ("css/color-widget.css",)
+        }
+        js = ("js/color-widget.js",)
+    
+    def __init__(self, help_text="", attrs=None):
+        super().__init__(attrs)
+        self.help_text = help_text
+
+    def render(self, name, value, help_text=None, attrs=None, renderer=None):
+        value = value or "#000000"
+        help_text = help_text or self.help_text
+
+        return mark_safe(f"""
+        <div class="color-widget">
+            <input
+                type="color"
+                id="id_{name}_picker"
+                value="{value}"
+            >
+
+            <input
+                type="text"
+                class="form-control d-none"
+                id="id_{name}"
+                name="{name}"
+                value="{value}"
+                placeholder="#RRGGBB"
+            >
+
+            <span class="color-preview" title="{help_text}">
+                <span class="preview-text">{help_text}</span>
+            </span>
+        </div>
+        """)

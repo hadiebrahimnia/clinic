@@ -1,0 +1,49 @@
+.color-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.color-widget input[type=color] {
+    width: 57px;
+    height: 57px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.color-preview {
+    width: 120px;
+    height: 57px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+    margin-right: auto;
+}
+
+.color-preview .preview-text {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* برای ظاهر بهتر */
+.color-widget input[type=text] {
+    width: 130px;
+    direction: ltr;
+    text-align: center;
+    font-family: monospace;
+    font-size: 14px;
+}
