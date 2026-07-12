@@ -370,62 +370,64 @@ class PsychologistActionView(View):
                                 </div>
                                 <div class="col-xl-9 col-lg-8">
                                     {% for psychologist in psychologists %}
-                                        <div class="col-12">
-                                            <a
-                                                href="/psychologist/detail/{{psychologist.id}}"
-                                                class="card card-custom"
-                                                style="
-                                                height: 160px!important;
-                                                --front-gradient: linear-gradient(
-                                                    135deg,
-                                                    #ffffff 0%,
-                                                    #ffffff 100%
-                                                );
-                                                --back-gradient: linear-gradient(
-                                                    135deg,
-                                                    #000000 0%,
-                                                    #000000 100%
-                                                );
-                                                ">
-                                                <div class="card-front img-card">
-                                                    <div class="floating-particles"></div>
-                                                    <div class="card-body p-0">
-                                                        <div class="arrow-ribbone-right bg-teal" style="top:15px!important;">{{psychologist.PsychologistType}}</div>
-                                                        <div class="row w-100">
-                                                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 px-0">
-                                                                <img src="/media/{{psychologist.profile_picture}}" class="card-img-left w-85" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover;">
-                                                            </div>
-                                                            <div class="col-xl-10 col-lg-9 col-md-8 col-sm-7 col-6 d-flex justify-content-center align-items-center flex-column">
-                                                                <div class="">
-                                                                    <p class="display-8 mb-0" style="color: black;">
-                                                                        {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}
-                                                                    </p>
+                                        {% if not psychologist.is_deleted and psychologist.is_active %}
+                                            <div class="col-12">
+                                                <a
+                                                    href="/psychologist/detail/{{psychologist.id}}"
+                                                    class="card card-custom"
+                                                    style="
+                                                    height: 160px!important;
+                                                    --front-gradient: linear-gradient(
+                                                        135deg,
+                                                        #ffffff 0%,
+                                                        #ffffff 100%
+                                                    );
+                                                    --back-gradient: linear-gradient(
+                                                        135deg,
+                                                        #000000 0%,
+                                                        #000000 100%
+                                                    );
+                                                    ">
+                                                    <div class="card-front img-card">
+                                                        <div class="floating-particles"></div>
+                                                        <div class="card-body p-0">
+                                                            <div class="arrow-ribbone-right bg-teal" style="top:15px!important;">{{psychologist.PsychologistType}}</div>
+                                                            <div class="row w-100">
+                                                                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 px-0">
+                                                                    <img src="/media/{{psychologist.profile_picture}}" class="card-img-left w-85" alt="{p.profile.first_name or p.profile.username}" style="object-fit: cover;">
                                                                 </div>
-                                                                <div class="mt-3">
-                                                                    <span class="badge bg-info badge-sm me-1 mb-1 mt-1">مشاهده و رزرو</span>
+                                                                <div class="col-xl-10 col-lg-9 col-md-8 col-sm-7 col-6 d-flex justify-content-center align-items-center flex-column">
+                                                                    <div class="">
+                                                                        <p class="display-8 mb-0" style="color: black;">
+                                                                            {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <span class="badge bg-info badge-sm">مشاهده و رزور نوبت</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            
                                                         </div>
-                                                        
                                                     </div>
-                                                </div>
 
-                                                <div class="card-back">
-                                                    <div class="card-body">
-                                                        <div class="arrow-ribbone-right bg-teal" style="top:15px!important;">{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</div>
-                                                        <p class="back-text">
-                                                            {% for ps in psychologist.specialties.all %}
-                                                                {% for specialty in ps.specialties.all %}
-                                                                    <span class="badge rounded-pill bg-white text-dark me-1 mb-1 mt-1">
-                                                                        {{ specialty.name }}
-                                                                    </span>
-                                                                {% endfor %}
-                                                            {% endfor %}        
-                                                        </p>
+                                                    <div class="card-back">
+                                                        <div class="card-body">
+                                                            <div class="arrow-ribbone-right bg-teal" style="top:15px!important;">{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</div>
+                                                            <p class="back-text">
+                                                                {% for ps in psychologist.specialties.all %}
+                                                                    {% for specialty in ps.specialties.all %}
+                                                                        <span class="badge rounded-pill bg-white text-dark me-1 mb-1 mt-1">
+                                                                            {{ specialty.name }}
+                                                                        </span>
+                                                                    {% endfor %}
+                                                                {% endfor %}        
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </a>
-                                        </div>
+                                                </a>
+                                            </div>
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
