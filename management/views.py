@@ -150,7 +150,7 @@ class BaseManagementView(LoginRequiredMixin, View):
 
 class ManagementPsychologistActionView(BaseManagementView):
     
-    def get(self, request, subject=None, action=None, **kwargs):
+    def get(self, request, subject=None, action=None, pk=None ,**kwargs):
         
         if action == 'list':
             psychologists=Psychologist.objects.all()
@@ -186,9 +186,11 @@ class ManagementPsychologistActionView(BaseManagementView):
                             <div class="page-header">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
-                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/user"><i class="fe fe-grid ml-1"></i>داشبورد</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="fe fe-grid ml-1"></i>پنل مدیریت</a></li>
+                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="fe fe-list ml-1"></i>لیست متخصصان</li>
                                     <li class="breadcrumb-back">
-                                        <a href="/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                        <a href="/dashboard/manager" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
                                     </li>
                                 </ol>
                             </div>
@@ -211,10 +213,6 @@ class ManagementPsychologistActionView(BaseManagementView):
                                                         <tr role="row">
                                                             <th class="sorting">نام</th>
                                                             <th class="sorting">نوع</th>
-                                                            <th class="sorting">کد عضویت</th>
-                                                            <th class="sorting">کد اشتغال</th>
-                                                            <th class="sorting">تاریخ ثبت</th>
-                                                            <th>مراجع جدید</th>
                                                             <th>وضعیت</th>
                                                             <th>حذف</th>
                                                         </tr>
@@ -226,8 +224,7 @@ class ManagementPsychologistActionView(BaseManagementView):
                                                                     <td>
                                                                         <a 
                                                                             class="btn btn-info" 
-                                                                            href="/psychologist/detail/{{ psychologist.id }}/"
-                                                                            target="_blanck"
+                                                                            href="/management/psychologist/detail/{{ psychologist.id }}/"
                                                                             data-bs-placement="top" 
                                                                             data-bs-toggle="tooltip" 
                                                                             title="" 
@@ -237,48 +234,24 @@ class ManagementPsychologistActionView(BaseManagementView):
                                                                         </a>
                                                                     </td>
                                                                     <td>{{psychologist.PsychologistType}}</td>
-                                                                    <td>_</td>
-                                                                    <td>_</td>
-                                                                    <td>{{psychologist.created_at|to_jalali_date}}</td>
                                                                     </a>
-                                                                    <td>
-                                                                        {%for newpatient in newpatients %}
-                                                                            {% if newpatient.psychologist == psychologist %}
-                                                                                <div class="toggle_div">
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        class="toggle toggle-sm status-switch {% if newpatient.is_accepting_new_patients %}active{% endif %}"
-                                                                                        data-app="appointment"
-                                                                                        data-model="PsychologistNewPatients"
-                                                                                        data-id="{{ newpatient.id }}"
-                                                                                        data-field="is_accepting_new_patients"
-                                                                                        data-title="مراجع جدید برای {{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
-                                                                                        data-confirm="تغییر وضعیت {{psychologist.profile.first_name}} {{psychologist.profile.last_name}} ">
-                                                                                        <span class="thumb"></span>
-                                                                                    </button>
-                                                                                </div>
-                                                                            {% else %}
-                                                                                <span class="badge bg-default badge-sm ">ثبت نشده</span>
-                                                                            {% endif %}
-                                                                            
-                                                                        {% endfor %}
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="toggle_div">
-                                                                            <button
-                                                                                type="button"
-                                                                                class="toggle toggle-sm status-switch {% if psychologist.is_active %}active{% endif %}"
-                                                                                data-app="accounts"
-                                                                                data-model="Psychologist"
-                                                                                data-id="{{ psychologist.id }}"
-                                                                                data-field="is_active"
-                                                                                data-title="{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
-                                                                                data-confirm="تغییر وضعیت {{psychologist.profile.first_name}} {{psychologist.profile.last_name}} ">
-                                                                                <span class="thumb"></span>
-                                                                            </button>
-                                                                        </div>
-                                                                    </td>
-                                                            
+                                                                    
+                                                                        <td>
+                                                                            <div class="toggle_div">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="toggle toggle-sm status-switch {% if psychologist.is_active %}active{% endif %}"
+                                                                                    data-app="accounts"
+                                                                                    data-model="Psychologist"
+                                                                                    data-id="{{ psychologist.id }}"
+                                                                                    data-field="is_active"
+                                                                                    data-title="{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}"
+                                                                                    data-confirm="تغییر وضعیت {{psychologist.profile.first_name}} {{psychologist.profile.last_name}} ">
+                                                                                    <span class="thumb"></span>
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                
                                                                     <td>
                                                                         <button class="btn btn-sm btn-danger delete"
                                                                                 data-app="accounts"
@@ -322,7 +295,7 @@ class ManagementPsychologistActionView(BaseManagementView):
 
             context = {
                 'content': mark_safe(content),
-                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/user'),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/manager'),
                 'extra_css': [
                     '/static/plugins/switcher/css/switcher.css',
                 ],
@@ -332,6 +305,54 @@ class ManagementPsychologistActionView(BaseManagementView):
             }
             
             return render(request, 'index1.html', context)
+
+        if action == 'detail':
+            psychologist=Psychologist.objects.get(profile_id=pk)
+            
+            template_string = """
+                {% load jdate %}
+                <div class="main-content with-sidebar">
+                    
+                    <div class="side-app">
+
+                        <div class="main-container container-fluid">
+                            <div class="page-header">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/user"><i class="fe fe-grid ml-1"></i>داشبورد</a></li>
+                                    <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="fe fe-grid ml-1"></i>پنل مدیریت</a></li>
+                                    <li class="breadcrumb-item"><a href="/management/psychologist/list/"><i class="fe fe-grid ml-1"></i>لیست متخصصان</a></li>
+                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-face ml-1"></i>{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</li>
+                                    <li class="breadcrumb-back">
+                                        <a href="/management/psychologist/list/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            """
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologist':psychologist,
+            }))
+
+            context = {
+                'content': mark_safe(content),
+                'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/manager'),
+                'extra_css': [
+                    '/static/plugins/switcher/css/switcher.css',
+                ],
+                'extra_js': [
+                    '/static/plugins/switcher/js/switcher.js',
+                ],
+            }
+            
+            return render(request, 'index1.html', context)
+
+
 
         return super().get(request, subject, action, **kwargs)
     

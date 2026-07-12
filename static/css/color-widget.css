@@ -33,7 +33,7 @@
 }
 
 .color-preview .preview-text {
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 3px #0000004d;
     font-size: 13px;
     pointer-events: none;
     z-index: 2;

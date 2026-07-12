@@ -1,19 +1,19 @@
-
 $(document).ready(function () {
-    let currentAction = null; // { type: 'toggle' | 'delete', data: {...} }
+    let currentAction = null;
 
-    // ==================== GENERIC MODAL HANDLER ====================
+    // ==================== نمایش مدال تأیید ====================
     function showConfirmModal(options) {
         const {
-            type,     
+            type = 'toggle',
             appLabel,
             modelName,
             objectId,
-            fieldName = "is_active",
+            fieldName,
             displayTitle = "این آیتم",
             customConfirmText = "",
             isCurrentlyActive = false,
-            $checkbox = null   // ← جدید: المان دقیق
+            $element = null,
+            reloadOnSuccess = false
         } = options;
 
         currentAction = {
@@ -23,20 +23,19 @@ $(document).ready(function () {
             objectId,
             fieldName,
             displayTitle,
-            checkbox: $checkbox   // استفاده از المان دقیق به جای re-select
+            $element,
+            reloadOnSuccess
         };
 
         const isActivating = type === 'toggle' ? !isCurrentlyActive : true;
         const actionText = type === 'delete' ? "حذف" : (isActivating ? "فعال" : "غیرفعال");
         const actionColor = type === 'delete' || !isActivating ? "danger" : "success";
 
-        // تنظیم عنوان مدال
         $("#modalTitle")
             .removeClass("text-success text-danger")
             .addClass(`text-${actionColor}`)
             .html(`آیا از ${actionText} کردن ${displayTitle} اطمینان دارید؟`);
 
-        // تنظیم پیام
         $("#modalMessage").text(
             customConfirmText || 
             (type === 'delete' 
@@ -44,13 +43,11 @@ $(document).ready(function () {
                 : `این ${displayTitle} ${actionText} خواهد شد.`)
         );
 
-        // تنظیم دکمه
         $("#modalActionBtn")
             .text(`بله، ${actionText} شود`)
             .removeClass("btn-success btn-danger")
             .addClass(`btn-${actionColor}`);
 
-        // تنظیم آیکون
         $("#modalIcon").attr("class", 
             type === 'delete' || !isActivating
                 ? "icon icon-close fs-70 text-danger lh-1 my-4 d-inline-block"
@@ -60,41 +57,32 @@ $(document).ready(function () {
         new bootstrap.Modal(document.getElementById("alertModal")).show();
     }
 
-    function closeModal() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById("alertModal"));
-        if (modal) modal.hide();
-        currentAction = null;
-    }
-
-    // ==================== AJAX PERFORMER ====================
+    // ==================== انجام عملیات AJAX ====================
     function performAction() {
         if (!currentAction) return;
 
-        const { type, appLabel, modelName, objectId, fieldName, displayTitle, checkbox } = currentAction;
+        const { type, appLabel, modelName, objectId, fieldName, displayTitle, $element,reloadOnSuccess } = currentAction;
 
         $.ajax({
             headers: { "X-CSRFToken": getCookie("csrftoken") },
             url: `/boolean/${appLabel}/${modelName}/${fieldName}/${objectId}/`,
             type: "POST",
             data: {
-                display_title: displayTitle,
                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
             },
 
             success: function (response) {
                 if (response.success) {
-                    if (type === 'toggle' && checkbox) {
-                        const newValue = response.new_value;
-                        
-                        checkbox.prop("checked", newValue); // حتی اگر button باشد
-                        
-                        if (newValue) {
-                            checkbox.addClass('active');
-                            checkbox.closest('tr').addClass('active'); // فقط tr فعلی
-                        } else {
-                            checkbox.removeClass('active');
-                            checkbox.closest('tr').removeClass('active');
+                    const newValue = response.new_value;
+
+                    if (type === 'toggle' && $element) {
+                        if ($element.hasClass('status-switch') || $element.hasClass('toggle')) {
+                            $element.toggleClass('active', newValue);
+                        } else if ($element.is('input[type="checkbox"]')) {
+                            $element.prop("checked", newValue);
                         }
+
+                        $element.closest('tr').toggleClass('active', newValue);
                     }
                     else if (type === 'delete') {
                         const $row = $(`tr[data-id="${objectId}"]`);
@@ -103,10 +91,15 @@ $(document).ready(function () {
 
                     Growl.success({
                         title: "موفقیت",
-                        message: response.message || `${displayTitle} با موفقیت ${type === 'delete' ? 'حذف' : 'به‌روزرسانی'} شد.`,
+                        message: response.message || `${displayTitle} با موفقیت تغییر یافت.`,
                         duration: 3000,
                         style: "success1"
                     });
+                    if (reloadOnSuccess) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 500); // یا 1000 برای اینکه پیام Growl کمی دیده شود
+                    }
                 } else {
                     Growl.error({
                         title: "خطا",
@@ -125,25 +118,27 @@ $(document).ready(function () {
                     style: "error1"
                 });
 
-                // برگرداندن وضعیت در صورت خطا (فقط toggle)
-                if (type === 'toggle' && checkbox) {
-                    checkbox.toggleClass('active'); // یا منطق دقیق‌تر
+                // برگرداندن وضعیت در صورت خطا
+                if ($element && (type === 'toggle')) {
+                    $element.toggleClass('active');
                 }
             },
 
             complete: function () {
-                closeModal();
+                const modal = bootstrap.Modal.getInstance(document.getElementById("alertModal"));
+                if (modal) modal.hide();
+                currentAction = null;
             }
         });
     }
 
     // ==================== EVENT HANDLERS ====================
 
-    // کلیک روی سوئیچ وضعیت
-    $(document).on("click", ".status-switch", function (e) {
+    // کلیک روی همه سوئیچ‌ها (display_config + boolean fields)
+    $(document).on("click", ".status-switch, .boolean-toggle", function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        
+
         const $this = $(this);
         const isCurrentlyActive = $this.hasClass('active');
 
@@ -152,15 +147,16 @@ $(document).ready(function () {
             appLabel: $this.data("app"),
             modelName: $this.data("model"),
             objectId: $this.data("id"),
-            fieldName: $this.data("field") || "is_active",
+            fieldName: $this.data("field"),
             displayTitle: $this.data("title") || "آیتم",
             customConfirmText: $this.data("confirm") || "",
             isCurrentlyActive,
-            $checkbox: $this   // ← المان دقیق را پاس بده
+            $element: $this,
+            reloadOnSuccess: $this.hasClass("reload-on-success")
         });
     });
 
-    // کلیک روی دکمه حذف
+    // کلیک روی دکمه حذف (در صورت نیاز)
     $(document).on("click", ".delete", function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -173,16 +169,16 @@ $(document).ready(function () {
             modelName: $this.data("model"),
             objectId: $this.data("id"),
             fieldName: $this.data("field") || "is_deleted",
-            displayTitle: $this.data("title") || "متخصص",
-            customConfirmText: $this.data("confirm") || ""
+            displayTitle: $this.data("title") || "آیتم",
+            customConfirmText: $this.data("confirm") || "",
+            reloadOnSuccess: $this.hasClass("reload-on-success")
         });
     });
 
-    // کلیک روی دکمه تأیید مدال
     $(document).on("click", "#modalActionBtn", performAction);
 });
 
-
+// تابع CSRF
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {

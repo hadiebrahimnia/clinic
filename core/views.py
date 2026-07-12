@@ -23,18 +23,34 @@ logger = logging.getLogger(__name__)
 
 class DynamicBooleanView(PermissionRequiredMixin, View):
     def get_permission_required(self):
-        return []   # یا مجوزهای مناسب
-
+        return []
     def post(self, request, app_label=None, model_name=None, field=None, pk=None, **kwargs):
         if not all([app_label, model_name, field, pk]):
             return JsonResponse({"success": False, "message": "پارامترها ناقص است."}, status=400)
-
         try:
             ModelClass = apps.get_model(app_label, model_name)
             obj = get_object_or_404(ModelClass, pk=pk)
         except LookupError:
             return JsonResponse({"success": False, "message": "مدل یافت نشد."}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=400)
 
+        # === پشتیبانی از display_config ===
+        if hasattr(obj, 'toggle_visibility') and field in obj.CONTROLLABLE_FIELDS:
+            try:
+                new_value = obj.toggle_visibility(field)
+                action = "فعال" if new_value else "غیرفعال"
+
+                return JsonResponse({
+                    "success": True,
+                    "message": f"نمایش {field} برای {obj} {action} شد.",
+                    "new_value": new_value,
+                    "field": field
+                })
+            except Exception as e:
+                return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+        # === fallback برای فیلدهای معمولی boolean ===
         if not hasattr(obj, field):
             return JsonResponse({"success": False, "message": f"فیلد {field} وجود ندارد."}, status=400)
 
@@ -46,13 +62,9 @@ class DynamicBooleanView(PermissionRequiredMixin, View):
         setattr(obj, field, new_value)
         obj.save(update_fields=[field])
 
-        display_title = request.POST.get("display_title", str(obj))
-
-        action = "حذف" if field == "is_deleted" and new_value else ("فعال" if new_value else "غیرفعال")
-
         return JsonResponse({
             "success": True,
-            "message": f"{display_title} با موفقیت {action} شد.",
+            "message": f"{field} با موفقیت تغییر کرد.",
             "new_value": new_value,
             "field": field
         })
@@ -178,6 +190,7 @@ class DynamicEntityView(View):
         'psychologistdocument': 'accounts.views.PsychologistDocumentView',
         'psychologistdegree': 'accounts.views.PsychologistDegreeView',
         'psychologistsection': 'accounts.views.PsychologistSectionView',
+        'psychologistsocialmedia': 'accounts.views.PsychologistSocialMediaView',
         # secretary
         'secretary':'accounts.views.SecretaryActionView',
     }
@@ -516,6 +529,9 @@ class DashboardManagerView(BaseDashboardView):
                                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="fe fe-grid ml-1"></i>داشبورد</a></li>
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="ri ri-user-settings-fill ml-1"></i>پنل مدیریت</li>
+                                <li class="breadcrumb-back">
+                                        <a href="/dashboard/user" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                </li>
                             </ol>
                         </div>
                         <div class="row">
@@ -695,7 +711,7 @@ class DashboardPsychologistView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/psychologistsocialmedia/update/{{ psychologist.id }}" class="btn btn-danger-light col-12 p-0">
+                                <a href="/psychologistsocialmedia/list" class="btn btn-danger-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-danger text-center align-self-center box-primary-shadow bradius">

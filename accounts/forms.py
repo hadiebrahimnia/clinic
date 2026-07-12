@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
-from django.forms.models import inlineformset_factory
 from django.contrib.auth import password_validation
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -408,8 +407,8 @@ class PsychologistDegreeForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=800,
-            max_height=800,
+            max_width=1800,
+            max_height=1800,
         )
     )
 
@@ -452,16 +451,18 @@ class PsychologistDocumentForm(forms.ModelForm):
     
     title = forms.CharField(
         label=_('عنوان سند'),
+        required=False,
         widget=CustomTextWidget(attrs={
             'class': 'form-control',
             'placeholder': 'عنوان سند',
             'data-input-type': 'all',
-            'required': True,
+            'required': False,
         }),
     )
 
     code = forms.CharField(
-        label=_('مد/شماره'),
+        label=_('کد/شماره'),
+        required=False,
         widget=CustomTextWidget(attrs={
             'class': 'form-control',
             'placeholder': 'کد / شماره سند وارد نمایید',
@@ -470,7 +471,7 @@ class PsychologistDocumentForm(forms.ModelForm):
         }),
     )
 
-    degree_file = forms.ImageField(
+    document_image = forms.ImageField(
         label="تصویر مدرک",
         required=True,
         widget=ImageInput(
@@ -478,8 +479,8 @@ class PsychologistDocumentForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=800,
-            max_height=800,
+            max_width=1800,
+            max_height=1800,
         )
     )
 
@@ -497,7 +498,7 @@ class PsychologistDocumentForm(forms.ModelForm):
             "document_type",
             "title",
             "code",
-            "degree_file",
+            "document_image",
             "description",
         ]
 
@@ -551,17 +552,14 @@ class PsychologistSectionForm(forms.ModelForm):
 
     background_color = forms.CharField(
         label="رنگ زمینه",
-        widget=ColorWidget(
-            help_text='رنگ زمینه',
-        )
-        
+        widget=ColorWidget(help_text='رنگ زمینه'),
+        initial="#ffffff",          # ← اینجا مقدار پیش‌فرض
     )
 
     color = forms.CharField(
         label="رنگ متن",
-        widget=ColorWidget(
-            help_text='رنگ متن',
-        )
+        widget=ColorWidget(help_text='رنگ متن'),
+        initial="#282f53",          # ← اینجا مقدار پیش‌فرض
     )
 
     class Meta:
@@ -590,6 +588,49 @@ class PsychologistSectionForm(forms.ModelForm):
             instance.save()
         return instance
     
+
+
+class PsychologistSocialMediaForm(forms.ModelForm):
+    
+    platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=True,
+        empty_label="اپلیکشن را انتخاب کنید",
+        label="اپلیکشن",
+        widget=ForeignKeySearchWidget(
+            placeholder="اپلیکشن را انتخاب کنید",
+        )
+    )  
+    
+    url = forms.CharField(
+        label='آدرس کاربری', 
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'آدرس کاربری'
+        })
+    )
+
+    class Meta:
+        model = PsychologistSocialMedia
+        fields = [
+            "platform",
+            "url",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.order_fields([
+            "platform", 
+            "url",
+        ])
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
     
 
 class SecretaryCreationUpdateForm(forms.ModelForm):

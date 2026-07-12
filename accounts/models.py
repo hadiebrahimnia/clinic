@@ -1,16 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.validators import URLValidator
 from django_ckeditor_5.fields import CKEditor5Field
 from django.utils.text import slugify
 from ckeditor_uploader.fields import RichTextUploadingField
-
 
 class Role(models.Model):
     name = models.CharField(max_length=100)
     def __str__(self):
         return self.name
-
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -57,7 +54,6 @@ class Specialty(models.Model):
         verbose_name = "تخصص ها"
         verbose_name_plural = "Specialties"
 
-
 class University(models.Model):
     name = models.CharField(max_length=200, unique=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='universities')
@@ -99,8 +95,6 @@ class Specialization(models.Model):
     def __str__(self):
         return f"{self.name} ({self.field})"
 
-#  مدل مربوط به کاربر
-
 class Profile(AbstractUser):
     phone_number = models.CharField(max_length=11, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
@@ -133,7 +127,6 @@ class Profile(AbstractUser):
         verbose_name='user permissions',
     )
 
-
     def __str__(self):
         return self.username
     
@@ -151,7 +144,6 @@ class Profile(AbstractUser):
             bool(self.city),
         ])
     
-# مدل های مربوط به منشی ها
 class Secretary(models.Model):
     profile = models.OneToOneField(
         Profile,
@@ -180,10 +172,6 @@ class Secretary(models.Model):
     def __str__(self):
         return self.profile.get_full_name() or self.profile.username
 
-
-
-# مدل های مربوط به متخصص
-
 class PsychologistType(models.Model):
     name = models.CharField(
         max_length=100,
@@ -201,7 +189,6 @@ class PsychologistType(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
@@ -224,7 +211,6 @@ class Psychologist(models.Model):
         verbose_name = "متخصص"
         verbose_name_plural = "Psychologists"
 
-
 class PsychologistDocument(models.Model):
     DOCUMENT_TYPES = [
         ('membership_card', 'عضویت'),
@@ -245,7 +231,7 @@ class PsychologistDocument(models.Model):
         verbose_name="نوع سند"
     )
     
-    image = models.ImageField(
+    document_image = models.ImageField(
         upload_to='images/psychologists/documents/',
         verbose_name="تصویر سند"
     )
@@ -260,9 +246,44 @@ class PsychologistDocument(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # ====================== کنترل نمایش آیتم ها   ======================
+    display_config = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+    CONTROLLABLE_FIELDS = [
+        'document_type',
+        'document_image',
+        'title',
+        'code',
+        'description',
+    ]
+    def is_visible(self, field_name: str) -> bool:
+        return self.display_config.get(field_name, False)
+    def toggle_visibility(self, field_name: str):
+        current = self.display_config.get(field_name, False)
+        self.display_config[field_name] = not current
+        self.save(update_fields=['display_config'])
+        return self.display_config[field_name]
+    # ====================== مقداردهی اولیه ======================
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        if is_new and not self.display_config:
+            self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        for field in self.CONTROLLABLE_FIELDS:
+            if field not in self.display_config:
+                self.display_config[field] = False
+        super().save(*args, **kwargs)
+    # متد کمکی (اختیاری)
+    def reset_display_config(self):
+        """اگر بعداً خواستی همه را ریست کنی"""
+        self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        self.save(update_fields=['display_config'])
+    # ====================== کنترل نمایش آیتم ها   ======================
 
     def __str__(self):
         return f"{self.get_document_type_display()} - {self.psychologist}"
+
 
 class PsychologistSpecialties(models.Model):
     psychologist = models.ForeignKey(
@@ -309,8 +330,6 @@ class PsychologistDegree(models.Model):
         related_name='degrees'
     )
 
-    specialization_active = models.BooleanField(default=False,verbose_name="نمایش رشته تحصیلی")
-
     university = models.ForeignKey(
         University,
         on_delete=models.SET_NULL,
@@ -318,8 +337,6 @@ class PsychologistDegree(models.Model):
         blank=True,
         related_name='degrees'
     )
-
-    university_active = models.BooleanField(default=False,verbose_name="نمایش دانشگاه محل تحصیل ")
 
     start_year = models.DateField(
         blank=True,
@@ -332,8 +349,6 @@ class PsychologistDegree(models.Model):
         null=True,
         verbose_name="تاریخ پایان تحصیل"
     )
-
-    year_active = models.BooleanField(default=False,verbose_name="نمایش سال تحصیل ")
 
     study_status = models.CharField(
         max_length=20,
@@ -350,16 +365,12 @@ class PsychologistDegree(models.Model):
         verbose_name="معدل"
     )
 
-    gpa_active = models.BooleanField(default=False,verbose_name="نمایش معدل")
-
     thesis_title = models.CharField(
         max_length=500,
         blank=True,
         null=True,
         verbose_name="عنوان پایان‌نامه"
     )
-
-    thesis_active = models.BooleanField(default=False,verbose_name="نمایش پایان‌نامه")
 
     degree_file = models.FileField(
         upload_to='degrees/',
@@ -368,7 +379,7 @@ class PsychologistDegree(models.Model):
         verbose_name="فایل مدرک"
     )
 
-    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -376,6 +387,42 @@ class PsychologistDegree(models.Model):
     order = models.PositiveIntegerField(
         default=0
     )
+    # ====================== کنترل نمایش آیتم ها   ======================
+    display_config = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+    CONTROLLABLE_FIELDS = [
+        'specialization',
+        'university',
+        'start_year',
+        'graduation_year',
+        'gpa',
+        'thesis_title',
+        'degree_file',
+    ]
+    def is_visible(self, field_name: str) -> bool:
+        return self.display_config.get(field_name, False)
+    def toggle_visibility(self, field_name: str):
+        current = self.display_config.get(field_name, False)
+        self.display_config[field_name] = not current
+        self.save(update_fields=['display_config'])
+        return self.display_config[field_name]
+    # ====================== مقداردهی اولیه ======================
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        if is_new and not self.display_config:
+            self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        for field in self.CONTROLLABLE_FIELDS:
+            if field not in self.display_config:
+                self.display_config[field] = False
+        super().save(*args, **kwargs)
+    # متد کمکی (اختیاری)
+    def reset_display_config(self):
+        """اگر بعداً خواستی همه را ریست کنی"""
+        self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        self.save(update_fields=['display_config'])
+    # ====================== کنترل نمایش آیتم ها   ======================
 
     def __str__(self):
         return (
@@ -428,6 +475,13 @@ class SectionType(models.Model):
         help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
     )
 
+    class Meta:
+        verbose_name = "Section Type"
+        verbose_name_plural = "Section Type Accounts"
+
+    def __str__(self):
+        return f"{self.title}"
+
 
 class PsychologistSection(models.Model):
     psychologist = models.ForeignKey(
@@ -455,11 +509,43 @@ class PsychologistSection(models.Model):
     background_color = models.CharField(max_length=7, default="#ffffff", verbose_name="رنگ زمینه")
     color = models.CharField(max_length=7, default="#000000", verbose_name="رنگ متن")
     
-    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    # ====================== کنترل نمایش آیتم ها   ======================
+    display_config = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+    CONTROLLABLE_FIELDS = [
+        'section_type',
+        'description',
+    ]
+    def is_visible(self, field_name: str) -> bool:
+        return self.display_config.get(field_name, False)
+    def toggle_visibility(self, field_name: str):
+        current = self.display_config.get(field_name, False)
+        self.display_config[field_name] = not current
+        self.save(update_fields=['display_config'])
+        return self.display_config[field_name]
+    # ====================== مقداردهی اولیه ======================
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        if is_new and not self.display_config:
+            self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        for field in self.CONTROLLABLE_FIELDS:
+            if field not in self.display_config:
+                self.display_config[field] = False
+        super().save(*args, **kwargs)
+    # متد کمکی (اختیاری)
+    def reset_display_config(self):
+        """اگر بعداً خواستی همه را ریست کنی"""
+        self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        self.save(update_fields=['display_config'])
+    # ====================== کنترل نمایش آیتم ها   ======================
 
     def __str__(self):
         return f"{self.psychologist} - {self.section_type}"
@@ -478,6 +564,12 @@ class Platform(models.Model):
         max_length=255,
         blank=True
     )
+    url = models.CharField(
+        max_length=100,
+        verbose_name="پیشوند آدرس",
+        null=True,
+        blank=True,
+    )
     icon = models.ImageField(
         upload_to='platform/icons/',
         blank=True,
@@ -485,6 +577,13 @@ class Platform(models.Model):
         verbose_name="آیکون",
         help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
     )
+
+    class Meta:
+        verbose_name = "Platform"
+        verbose_name_plural = "Platform"
+
+    def __str__(self):
+        return f"{self.title}"
 
 class PsychologistSocialMedia(models.Model):
     psychologist = models.ForeignKey(
@@ -499,16 +598,55 @@ class PsychologistSocialMedia(models.Model):
         blank=True,
         related_name='social_media'
     )
-    url = models.URLField(validators=[URLValidator()])
-    is_active = models.BooleanField(default=True,verbose_name="وضعیت فعالیت")
+
+    url = models.CharField(
+        max_length=100,
+        verbose_name="آدرس",
+        null=True,
+        blank=True,
+    )
+    
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # ====================== کنترل نمایش آیتم ها   ======================
+    display_config = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+    CONTROLLABLE_FIELDS = [
+        'platform',
+        'url',
+    ]
+    def is_visible(self, field_name: str) -> bool:
+        return self.display_config.get(field_name, False)
+    def toggle_visibility(self, field_name: str):
+        current = self.display_config.get(field_name, False)
+        self.display_config[field_name] = not current
+        self.save(update_fields=['display_config'])
+        return self.display_config[field_name]
+    # ====================== مقداردهی اولیه ======================
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        if is_new and not self.display_config:
+            self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        for field in self.CONTROLLABLE_FIELDS:
+            if field not in self.display_config:
+                self.display_config[field] = False
+        super().save(*args, **kwargs)
+    # متد کمکی (اختیاری)
+    def reset_display_config(self):
+        """اگر بعداً خواستی همه را ریست کنی"""
+        self.display_config = {field: False for field in self.CONTROLLABLE_FIELDS}
+        self.save(update_fields=['display_config'])
+    # ====================== کنترل نمایش آیتم ها   ======================
     
 
     def __str__(self):
-        return f"{self.get_platform_display()}: {self.url}"
+        return f"{self.psychologist}: {self.platform}"
 
     class Meta:
         verbose_name = "Social Media"
-        verbose_name_plural = "Social Media Accounts"
+        verbose_name_plural = "Social Media"

@@ -7,9 +7,9 @@
   <div class="{{ col_class }}" >
     <div class="card {{ card_class|default:'shadow-lg' }} mt-8">
       
-      <div class="{{ card_header_class|default:'card-header' }}"  style="{{ card_header_style|default:'' }}">
+      {% comment %} <div >
         <div class="page-header">
-            <ol class="breadcrumb">
+            <ol class="">
               <li class="breadcrumb-item ">
                 <h3 class="card-title mb-0 display-8">{{ title }}</h3>
               </li>
@@ -21,7 +21,18 @@
               </li>
             </ol>
         </div>
-      </div>
+      </div> {% endcomment %}
+
+      <div class="{{ card_header_class|default:'card-header' }}"  style="{{ card_header_style|default:'' }}">
+        <h3 class="card-title display-8">
+            {{ title }}
+        </h3>
+        <div class="card-options">
+            <a href="{{ back_url }}" class="email-icon text-secondary bg-progress-white" data-bs-toggle="tooltip" aria-label="{{ back_text }}" data-bs-original-title="{{ back_text }}">
+                <i class="{{ back_icon }}"></i>
+            </a>
+        </div>
+    </div>
 
       <div class="{{ card_body_class|default:'card-body p-4' }}">
         {% if messages %}

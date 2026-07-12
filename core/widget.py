@@ -859,24 +859,20 @@ class CustomTextWidget(forms.TextInput):
             default_attrs.update(attrs)
         super().__init__(attrs=default_attrs)
 
-
-
-
 class ColorWidget(forms.Widget):
-
     class Media:
-        css = {
-            "all": ("css/color-widget.css",)
-        }
+        css = {"all": ("css/color-widget.css",)}
         js = ("js/color-widget.js",)
-    
+
     def __init__(self, help_text="", attrs=None):
         super().__init__(attrs)
         self.help_text = help_text
 
-    def render(self, name, value, help_text=None, attrs=None, renderer=None):
-        value = value or "#000000"
-        help_text = help_text or self.help_text
+    def render(self, name, value, attrs=None, renderer=None):
+        if not value:
+            value = "#000000"
+        
+        help_text = self.help_text
 
         return mark_safe(f"""
         <div class="color-widget">
@@ -885,7 +881,6 @@ class ColorWidget(forms.Widget):
                 id="id_{name}_picker"
                 value="{value}"
             >
-
             <input
                 type="text"
                 class="form-control d-none"
@@ -894,7 +889,6 @@ class ColorWidget(forms.Widget):
                 value="{value}"
                 placeholder="#RRGGBB"
             >
-
             <span class="color-preview" title="{help_text}">
                 <span class="preview-text">{help_text}</span>
             </span>

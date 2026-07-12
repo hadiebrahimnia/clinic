@@ -32,7 +32,7 @@ class PsychologistNewPatients(models.Model):
         on_delete=models.CASCADE,
         related_name='new_patients'
     )
-    is_accepting_new_patients = models.BooleanField(default=True,verbose_name="مراجع جدید")
+    is_accepting_new_patients = models.BooleanField(default=False,verbose_name="مراجع جدید")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
