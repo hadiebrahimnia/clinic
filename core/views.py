@@ -193,6 +193,7 @@ class DynamicEntityView(View):
         'psychologistsocialmedia': 'accounts.views.PsychologistSocialMediaView',
         # secretary
         'secretary':'accounts.views.SecretaryActionView',
+
     }
 
     def dispatch(self, request, subject, action, pk=None):
@@ -858,7 +859,26 @@ class DashboardAdminView(BaseDashboardView):
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="ri ri-admin-fill ml-1"></i>پنل ادمین</li>
                             </ol>
                         </div>
-                        <!-- محتوای داشبورد ادمین -->
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">مدل</h2>
+                                                <h5 class="fw-normal mb-0">ایجاد با json</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

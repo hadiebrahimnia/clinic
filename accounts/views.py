@@ -346,7 +346,7 @@ class PsychologistActionView(View):
             }
             queryset, query = apply_search(queryset, request, search_fields)
             queryset = apply_filters(queryset, request, filter_fields)
-            psychologists, current_page, total_pages, total = apply_pagination(queryset, request, per_page=15)
+            psychologists, current_page, total_pages, total, per_page = apply_pagination(queryset, request, per_page=15)
             # ==================== ساخت تمپلیت ====================
             template_string = """
                 <div class="main-content ">
@@ -1600,7 +1600,6 @@ class PsychologistDocumentView(BaseDashboardView,View):
                 'extra_js': [
                     '/static/plugins/switcher/js/switcher.js',
                     '/static/plugins/gallery/js/picture.js',
-
                 ],
             }
             

@@ -11,7 +11,9 @@ class Questionnaire(models.Model):
     cost = models.PositiveIntegerField(blank=True, null=True, verbose_name="هزینه",default=0)
     question = models.PositiveIntegerField(blank=True, null=True, verbose_name="تعداد سوالات",default=0)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
-    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
+    is_active = models.BooleanField(default=False, verbose_name="فعال/غیرفعال")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+
     
     def __str__(self):
         return self.title
@@ -21,7 +23,6 @@ class Questionnaire(models.Model):
 class Attribute(models.Model):
     title = models.CharField(max_length=200, verbose_name="ویژگی")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
-    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
 
     def __str__(self):
         return self.title
@@ -40,6 +41,10 @@ class Question(models.Model):
     question_type = models.CharField(max_length=2, choices=QUESTION_TYPES, verbose_name="نوع سؤال")
     order = models.PositiveIntegerField(default=1, verbose_name="ترتیب نمایش")
     required = models.BooleanField(default=True, verbose_name="اجباری")
+
+    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+
 
     class Meta:
         ordering = ['order']
@@ -99,7 +104,7 @@ class Result(models.Model):
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, verbose_name="آزمون")
     response = models.ForeignKey(
         Response,
-        on_delete=models.CASCADE,  # مهم: با حذف Response، تمام Resultهای مرتبط هم حذف شوند
+        on_delete=models.CASCADE,
         related_name='results',
         verbose_name="Response"
     )
@@ -110,6 +115,10 @@ class Result(models.Model):
     sum_rt = models.PositiveIntegerField(verbose_name="جمع RT", default=0)
     average_rt = models.FloatField(verbose_name="میانگین RT", default=0.0)
 
+    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+
+
     class Meta:
         unique_together = ('response', 'attribute')
         constraints = [
@@ -119,9 +128,6 @@ class Result(models.Model):
     def __str__(self):
         return f"نتیجه {self.attribute.title} برای {self.user.username} در {self.questionnaire.title}"
     
-
-
-
 
 
 class Test(models.Model):

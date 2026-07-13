@@ -8,6 +8,10 @@ class Room(models.Model):
     code = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True)
 
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+
+
     def __str__(self):
         return self.name
     

@@ -292,6 +292,10 @@ class PsychologistSpecialties(models.Model):
         related_name='specialties'
     )
     specialties = models.ManyToManyField(Specialty,verbose_name="زمینه کاری", related_name='psychologists', blank=True)
+    
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

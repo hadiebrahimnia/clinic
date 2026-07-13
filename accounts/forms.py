@@ -670,11 +670,11 @@ class SecretaryCreationUpdateForm(forms.ModelForm):
     ) 
 
     employee_code = forms.CharField(
-        label=_('کد عضویت'),
+        label=_('کد عضویت / پرسنلی'),
         required=False,
         widget=CustomTextWidget(attrs={
             'class': 'form-control',
-            'placeholder': 'کد عضویت',
+            'placeholder': 'کد عضویت / پرسنلی',
             'data-input-type': 'number',
             'required': False,
         }),

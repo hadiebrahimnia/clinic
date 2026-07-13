@@ -18,17 +18,17 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('form/', FormView.as_view(), name='form'),
-
+    # Accounts
     path('accounts/<str:action>/', AccountView.as_view(), name='accounts'),
-
+    # Dashboard
     path('dashboard/<str:subject>/', DynamicDashboardView.as_view(), name='dashboard'),
-    
+    # Model
     path('<str:subject>/<str:action>/', DynamicEntityView.as_view(), name='entity-action'),
     path('<str:subject>/<str:action>/<int:pk>/', DynamicEntityView.as_view(), name='entity-action-detail'),
-
+    # Management
     path('management/<str:subject>/<str:action>/', ManagementView.as_view(), name='management-action'),
     path('management/<str:subject>/<str:action>/<int:pk>/', ManagementView.as_view(), name='management-action-detail'),
-
+    # Other
     path('boolean/<str:app_label>/<str:model_name>/<str:field>/<int:pk>/',DynamicBooleanView.as_view(),name='dynamic_boolean_toggle'),
 ]
 
