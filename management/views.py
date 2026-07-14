@@ -408,7 +408,6 @@ class SecretaryManagementView(BaseManagementView):
 
 
 
-
 class RoleManagementView(BaseManagementView):
     
     def get(self, request, subject=None, action=None, pk=None ,**kwargs):
