@@ -231,11 +231,11 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
     ) 
 
     hire_date = forms.DateField(
-        label=_('تاریخ استخدام'),
+        label=_('تاریخ استخدام/شروع فعالیت'),
         required=False,
         widget=PersianDateInput(attrs={
             'class': 'form-control text-center date',
-            'placeholder': 'تاریخ استخدام',
+            'placeholder': 'تاریخ استخدام/شروع فعالیت',
             'data-jdp-max-date': 'today',
             'required': False
         }),
@@ -681,11 +681,11 @@ class SecretaryCreationUpdateForm(forms.ModelForm):
     )
 
     hire_date = forms.DateField(
-        label=_('تاریخ استخدام'),
+        label=_('تاریخ استخدام/شروع فعالیت'),
         required=False,
         widget=PersianDateInput(attrs={
             'class': 'form-control text-center date',
-            'placeholder': 'تاریخ استخدام',
+            'placeholder': 'تاریخ استخدام/شروع فعالیت',
             'data-jdp-max-date': 'today',
             'required': False
         }),

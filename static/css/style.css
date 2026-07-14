@@ -1105,8 +1105,19 @@ pre {
 }
 
 .alert-default {
-  background-color: #f9f7f7;
+  color: #282f53;
+  background-color:#e9e9f1;
+  border-color: #e9e9f1;
 }
+
+.alert-default hr {
+  border-top-color: #05c3fb;
+}
+
+.alert-default .alert-link {
+  color: #05c3fb;
+}
+
 
 .alert-secondary {
   color: #05c3fb;
@@ -2144,6 +2155,29 @@ fieldset:disabled a.btn {
 }
 
 /*-- light-buttons--*/
+
+.btn-default-light {
+  color: #282f53 !important;
+  background: #e9e9f1 !important;
+  border-color: #e9e9f1;
+}
+
+.btn-default-light:hover {
+  color: #282f53 !important;
+  background-color: #e3e3ef  !important;
+  border-color: #e3e3ef ;
+  opacity: 0.7;
+}
+
+.btn-default-light:focus,
+.btn-default-light.focus {
+  box-shadow: 0 0 0 2px #282f53;
+  border: 1px solid #282f53;
+  opacity: 0.9;
+}
+
+
+
 .btn-secondary-light {
   color: #05c3fb !important;
   background: #ceefff !important;
@@ -73125,7 +73159,7 @@ button.bg-lime:focus {
 }
 
 .bg-default {
-  background: #e9e9f1;
+  background: #e3e3ef;
   color: #282f53;
 }
 

@@ -140,6 +140,7 @@ class DynamicDashboardView(View):
         'psychologist': 'core.views.DashboardPsychologistView',
         'secretary': 'core.views.DashboardSecretaryView',
         'admin': 'core.views.DashboardAdminView',
+        'colleague':'core.views.DashboardColleagueView',
     }
 
     def dispatch(self, request, subject):
@@ -336,10 +337,10 @@ class DashboardUserView(BaseDashboardView):
                                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
                                 <li class="breadcrumb-back">
-                                <a href="/" class="text-gray fs-6">بازگشت
-                                    <i class="mdi mdi-arrow-left-thick"></i>
-                                </a>
-                            </li>
+                                    <a href="/" class="text-gray fs-6">بازگشت
+                                        <i class="mdi mdi-arrow-left-thick"></i>
+                                    </a>
+                                </li>
                             </ol>
                         </div>
                         <!-- محتوای داشبورد کاربر -->
@@ -838,7 +839,7 @@ class DashboardSecretaryView(BaseDashboardView):
 
         context = {
             'content': mark_safe(content),
-            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/psychologist'),
+            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/secretary'),
             'extra_css': [],
             'extra_js': [],
         }
@@ -859,25 +860,609 @@ class DashboardAdminView(BaseDashboardView):
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="ri ri-admin-fill ml-1"></i>پنل ادمین</li>
                             </ol>
                         </div>
+
                         <div class="row">
+                            <div class="col-12 mb-5">
+                                <div class="alert alert-primary" role="alert">
+                                    اطلاعات کاربران  
+                                </div>
+                            </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-info-light col-12 p-0">
+                                <a href="/management/progile/list" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
                                                 <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
-                                                <i class="lnr lnr-user fs-30 text-white mt-4"></i>
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
                                             </div>
                                         </div>
                                         <div class="col-8">
                                             <div class="card-body">
-                                                <h2 class="mb-2 fw-normal mt-2">مدل</h2>
-                                                <h5 class="fw-normal mb-0">ایجاد با json</h5>
+                                                <h2 class="mb-2 fw-normal mt-2"> کاربران</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
                                         </div>
                                     </div>
                                 </a>
                             </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/psychologist/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2"> متخصصان</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">پذیرش مراجع</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">روزهای کاری متخصصین</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">مدارک متخصصین</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">زمینه کاری متخصصین</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">مدارک تحصیلی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">بیوگرافی متخصصین</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">شبکه‌های اجتماعی متخصصین</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">منشی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-5 mt-5">
+                                <div class="alert alert-success" role="alert">
+                                    اطلاعات کلینیک  
+                                </div>
+                             </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/progile/list" class="btn btn-success-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2"> اتاق‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/psychologist/list" class="btn btn-success-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2"> نوع جلسات</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-success-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">روزهای کاری</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-success-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">نوبت‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-5 mt-5">
+                                <div class="alert alert-warning" role="alert">
+                                    اطلاعات آزمون‌ها  
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/progile/list" class="btn btn-warning-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2"> آزمون‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/psychologist/list" class="btn btn-warning-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">ویژگی‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/secretary/list" class="btn btn-warning-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">نتایج</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                         <div class="row">
+                            <div class="col-12 mb-5 mt-5">
+                                <div class="alert alert-danger" role="alert">
+                                    تاریخچه  
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/progile/list" class="btn btn-danger-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-danger text-center align-self-center box-primary-shadow bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30  text-white mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">تاریخچه تفییرات</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-5 mt-5">
+                                <div class="alert alert-default" role="alert">
+                                    اطلاعات عمومی
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">نقش‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">کشور</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">استان</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">شهر</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">تخصص‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">دانشگاه‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">رشته تحصیلی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">گرایش‌های تحصیلی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">نوع تخصص ‌ها</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">زمینه‌های کاری</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">بخش‌های بیوگرافی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">شبکه‌های اجتماعی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -891,3 +1476,118 @@ class DashboardAdminView(BaseDashboardView):
             'extra_js': [],
         }
         return render(request, 'index1.html', context)
+
+
+
+
+
+class DashboardColleagueView(BaseDashboardView):
+    def get(self, request, subject=None, **kwargs):
+        content = """
+
+
+            <div class="page" style="background-image: linear-gradient(90deg, #756fd2, #3ca9ce);">
+                <div class="page-content error-page error2 text-white">
+                    <div class="container text-center">
+                        <div class="error-template">
+                            
+                            <div class="row">
+
+                            <div class="col-md-6 col-xl-6">
+                                <a
+                                    href="/psychologist/register"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #03045e 0%,
+                                        #023e8a 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #ade8f4 0%,
+                                        #caf0f8 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="mdi mdi-stethoscope text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">ثبت‌نام مـــــتخصص</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text text-dark">
+                                        در صورتی که متخصص این کلینیک هستید از این قسمت وارد شوید
+                                        </p>
+                                    </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-md-6 col-xl-6">
+                                <a
+                                    href="/secretary/register"
+                                    class="card card-custom"
+                                    style="
+                                    --front-gradient: linear-gradient(
+                                        135deg,
+                                        #03045e 0%,
+                                        #023e8a 100%
+                                    );
+                                    --back-gradient: linear-gradient(
+                                        135deg,
+                                        #ade8f4 0%,
+                                        #caf0f8 100%
+                                    );
+                                    ">
+                                    <div class="card-front img-card">
+                                    <div class="floating-particles"></div>
+                                    <div class="card-body">
+                                        <div>
+                                        <i class="ti ti-microphone text-white fs-30"></i>
+                                        </div>
+                                        <div class="text-white">
+                                        <h2 style="margin: 0">ثبت‌نام مـــــــنشی</h2>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div class="card-back">
+                                    <div class="card-body">
+                                        <p class="back-text text-dark">
+                                        در صورتی که منشی این کلینیک هستید از این قسمت وارد شوید
+                                        </p>
+                                    </div>
+                                    </div>
+                                </a>
+                            </div>
+                           
+                        </div>
+
+                            <div class="text-center">
+                                <a class="btn btn-secondary mt-5 mb-5" href="/dashboard/user">
+                                    بازگشت به داشبورد  
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        """
+
+        context = {
+            'content': content,
+            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/admin'),
+            'extra_css': [],
+            'extra_js': [],
+        }
+        return render(request, 'index3.html', context)
