@@ -4,6 +4,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 from django.utils.text import slugify
 from ckeditor_uploader.fields import RichTextUploadingField
 
+
 class Role(models.Model):
     name = models.CharField(max_length=100)
     def __str__(self):
@@ -125,6 +126,20 @@ class Profile(AbstractUser):
         blank=True,
         help_text='Specific permissions for this user.',
         verbose_name='user permissions',
+    )
+
+    ACCESS_LEVELS = (
+        ('basic', 'پایه'),
+        ('readonly', 'فقط خواندنی'),
+        ('editor', 'ویرایشگر'),
+        ('advanced', 'پیشرفته'),
+    )
+
+    access_level = models.CharField(
+        max_length=20,
+        choices=ACCESS_LEVELS,
+        default='basic',
+        verbose_name="سطح دسترسی کلی"
     )
 
     def __str__(self):
