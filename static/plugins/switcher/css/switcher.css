@@ -84,3 +84,7 @@
 .toggle-lg.active .thumb{
     left: 47px;
 }
+
+.disabled {
+  pointer-events: none;
+}

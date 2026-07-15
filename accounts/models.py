@@ -300,7 +300,7 @@ class PsychologistDocument(models.Model):
         return f"{self.get_document_type_display()} - {self.psychologist}"
 
 
-class PsychologistSpecialties(models.Model):
+class PsychologistSpecialtie(models.Model):
     psychologist = models.ForeignKey(
         'Psychologist',
         on_delete=models.CASCADE,

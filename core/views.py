@@ -187,7 +187,7 @@ class DynamicEntityView(View):
     ROUTES = {
         # psychologist
         'psychologist': 'accounts.views.PsychologistActionView',
-        'psychologistspecialties': 'accounts.views.PsychologistSpecialtiesView',
+        'psychologistspecialtie': 'accounts.views.PsychologistSpecialtieView',
         'psychologistdocument': 'accounts.views.PsychologistDocumentView',
         'psychologistdegree': 'accounts.views.PsychologistDegreeView',
         'psychologistsection': 'accounts.views.PsychologistSectionView',
@@ -637,7 +637,7 @@ class DashboardPsychologistView(BaseDashboardView):
 
                             <!-- بقیه کارت‌ها (فعلاً لینک خالی) -->
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/psychologistspecialties/update/{{ psychologist.id }}" class="btn btn-success-light col-12 p-0">
+                                <a href="/psychologistspecialtie/update/{{ psychologist.id }}" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">

@@ -328,7 +328,7 @@ class PsychologistActionView(View):
 
         if action == 'list':
             psychologists=Psychologist.objects.all()
-            specialties=PsychologistSpecialties.objects.all()
+            specialties=PsychologistSpecialtie.objects.all()
             queryset = Psychologist.objects.all()
             search_fields = ['user__first_name', 'user__last_name', 'user__username', 'specialty']
             filter_fields = {
@@ -563,7 +563,7 @@ class PsychologistActionView(View):
                 is_accepting_new_patients = False
 
             try:
-                specialties = PsychologistSpecialties.objects.get(psychologist=psychologist)
+                specialties = PsychologistSpecialtie.objects.get(psychologist=psychologist)
             except Exception:
                 specialties = None
 
@@ -820,7 +820,7 @@ class PsychologistActionView(View):
                                                     <div class="card-header d-flex">
                                                         <div class="card-title">زمینه کاری</div>
                                                         {% if is_owner %}
-                                                            <a href="/psychologistspecialties/update/{{psychologist.id}}" class="btn btn-outline-info border-0 mr-auto">
+                                                            <a href="/psychologistspecialtie/update/{{psychologist.id}}" class="btn btn-outline-info border-0 mr-auto">
                                                                 <i class="fa fa-pencil-square-o"></i> ویرایش
                                                             </a>
                                                         {% endif %}
@@ -1180,20 +1180,20 @@ class PsychologistActionView(View):
 
 
 # ====================== Psychologist Specialties ======================
-class PsychologistSpecialtiesView(View):
+class PsychologistSpecialtieView(View):
     def get(self, request, subject, action, pk):
         psychologist = get_object_or_404(Psychologist, pk=pk)
         if psychologist.profile != request.user:
             raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
 
-        specialties_obj = PsychologistSpecialties.objects.filter(psychologist=psychologist).first()
+        specialties_obj = PsychologistSpecialtie.objects.filter(psychologist=psychologist).first()
         if not specialties_obj:
-            specialties_obj = PsychologistSpecialties(psychologist=psychologist)
+            specialties_obj = PsychologistSpecialtie(psychologist=psychologist)
 
         print(specialties_obj)
         print(list(specialties_obj.specialties.all()) if specialties_obj.pk else [])
 
-        form = PsychologistSpecialtiesForm(instance=specialties_obj)
+        form = PsychologistSpecialtieForm(instance=specialties_obj)
 
         base_context = {
             'col_class': 'col-md-5 col-12 m-auto',
@@ -1224,11 +1224,11 @@ class PsychologistSpecialtiesView(View):
         if psychologist.profile != request.user:
             raise PermissionDenied("شما اجازه ویرایش این پروفایل را ندارید.")
 
-        specialties_obj = PsychologistSpecialties.objects.filter(psychologist=psychologist).first()
+        specialties_obj = PsychologistSpecialtie.objects.filter(psychologist=psychologist).first()
         if not specialties_obj:
-            specialties_obj = PsychologistSpecialties(psychologist=psychologist)
+            specialties_obj = PsychologistSpecialtie(psychologist=psychologist)
 
-        form = PsychologistSpecialtiesForm(request.POST, instance=specialties_obj)
+        form = PsychologistSpecialtieForm(request.POST, instance=specialties_obj)
 
         if form.is_valid():
             form.save()

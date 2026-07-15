@@ -316,7 +316,7 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
 
         return psychologist
 
-class PsychologistSpecialtiesForm(forms.ModelForm):
+class PsychologistSpecialtieForm(forms.ModelForm):
     
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
@@ -328,7 +328,7 @@ class PsychologistSpecialtiesForm(forms.ModelForm):
     )  
 
     class Meta:
-        model = PsychologistSpecialties
+        model = PsychologistSpecialtie
         fields = ['specialties']
 
     def __init__(self, *args, **kwargs):

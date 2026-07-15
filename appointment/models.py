@@ -131,7 +131,7 @@ class WorkSchedule(models.Model):
     )
 
     is_active = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name="فعال"
     )
 

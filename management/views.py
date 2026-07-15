@@ -41,7 +41,7 @@ class ManagementView(View):
         'psychologisttype': 'management.views.PsychologistTypeManagementView',
         'psychologist': 'management.views.PsychologistManagementView',
         'psychologistdocument': 'management.views.PsychologistDocumentManagementView',
-        'psychologistspecialties': 'management.views.PsychologistSpecialtiesManagementView',
+        'psychologistspecialtie': 'management.views.PsychologistSpecialtieManagementView',
         'psychologistdegree': 'management.views.PsychologistDegreeManagementView',
         'sectiontype': 'management.views.SectionTypeManagementView',
         'psychologistsection': 'management.views.PsychologistSectionManagementView',
@@ -272,7 +272,12 @@ class PsychologistManagementView(BaseManagementView):
 
         elif action == 'detail':
             psychologist = get_object_or_404(Psychologist, pk=pk)
-
+            PsychologistSpecialties=PsychologistSpecialtie.objects.filter().exclude(is_deleted=True)
+            psychologistdocuments=PsychologistDocument.objects.filter().exclude(is_deleted=True)
+            psychologistdegrees=PsychologistDegree.objects.filter().exclude(is_deleted=True)
+            psychologistsections=PsychologistSection.objects.filter().exclude(is_deleted=True)
+            psychologistsocialmedias=PsychologistSocialMedia.objects.filter().exclude(is_deleted=True)
+            
             template_string = """
             {% load jdate %}
             <div class="main-content with-sidebar">
@@ -291,18 +296,782 @@ class PsychologistManagementView(BaseManagementView):
                             </ol>
                         </div>
 
-                        
+
+                        <div class="row">
+                            {% if PsychologistSpecialties %}
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">زمینه کاری</h3>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <div class="accordion" id="PsychologistSpecialties">
+
+                                                {% for PsychologistSpecialtie in  PsychologistSpecialties %}
+                                                    <div class="accordion-item">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-2 px-0 py-3">
+                                                                <div class="toggle_div" style="justify-content: left;">
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="toggle toggle-sm status-switch {% if psychologistdocument.is_active %}active{% endif %}" 
+                                                                        data-app="accounts" 
+                                                                        data-model="PsychologistDocument" 
+                                                                        data-id="{{psychologistspecialtie.id}}" 
+                                                                        data-field="is_active" 
+                                                                        data-title="" 
+                                                                        data-confirm="فعالسازی"
+                                                                        >
+                                                                        <span class="thumb"></span>
+                                                                    </button>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col-md-11 col-10">
+
+                                                                <h2 class="accordion-header" id="headingOne">
+                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_PsychologistSpecialtie_{{PsychologistSpecialtie.id}}" aria-expanded="false" aria-controls="collapse_psychologistspecialtie_{{psychologistspecialtie.id}}">
+                                                                        {{psychologistdocument.get_document_type_display}}
+                                                                    </button>
+                                                                </h2>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        
+
+                                                        <div id="collapse_psychologistdocument_{{psychologistdocument.id}}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                                                            <div class="accordion-body">
+                                                                <div class="card-body">
+                                                            <div class="visitor-list">
+                                                                
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-tag rotate-90"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.title %}
+                                                                            <h5 class="mb-1">{{ psychologistdocument.title }}</h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">عنوان</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.title %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="title"
+                                                                                data-title="نمایش عنوان "
+                                                                                data-confirm="عنوان">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="mdi mdi-numeric"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.code %}
+                                                                            <h5 class="mb-1">{{ psychologistdocument.code }}</h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">کد</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.code %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="code"
+                                                                                data-title="نمایش کد "
+                                                                                data-confirm="کد">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-3 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-image"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.document_image %}
+                                                                            <a href="javascript:void(0)" 
+                                                                                onclick="showImageModal('/media/{{ psychologistdocument.document_image }}', '{{ psychologistdocument.title }}')">
+                                                                                <img 
+                                                                                    class="img-responsive br-5 img-zoom p-0 col-md-1 col-4"
+                                                                                    src="/media/{{ psychologistdocument.document_image}}"
+                                                                                    alt="{{ psychologistdocument.document_image}}"
+                                                                                    style="cursor: pointer">
+                                                                            </a>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.document_image %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="document_image"
+                                                                                data-title="نمایش تصویر "
+                                                                                data-confirm="تصویر">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-align-right"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.description %}
+                                                                            <div class="card card-collapsed mb-0 col-md-8 shadow-0 p-0 ">
+                                                                                <a href="javascript:void(0)" class="card-options-collapse" data-bs-toggle="card-collapse">
+                                                                                    <div class="card-header pr-0 py-0">
+                                                                                        <h3 class="card-title text-dark">مشاهده</h3>
+                                                                                        <div class="card-options">
+                                                                                            <a href="javascript:void(0)" class="card-options-collapse" data-bs-toggle="card-collapse"><i class="fe fe-chevron-up"></i></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </a>
+                                                                                <div class="card-body">
+                                                                                    {{ psychologistdocument.description|safe }}
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <h5 class="mb-1"></h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">توضیحات</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.description %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="description"
+                                                                                data-title="نمایش توضیحات "
+                                                                                data-confirm="توضیحات">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+                                                            </div>
+                                                        </div>
+
+
+                                                            
+                                                            
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if psychologistdocuments %}
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">مدارک</h3>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <div class="accordion" id="psychologistdocuments">
+
+                                                {% for psychologistdocument in  psychologistdocuments %}
+                                                    <div class="accordion-item">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-2 px-0 py-3">
+                                                                <div class="toggle_div" style="justify-content: left;">
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="toggle toggle-sm status-switch {% if psychologistdocument.is_active %}active{% endif %}" 
+                                                                        data-app="accounts" 
+                                                                        data-model="PsychologistDocument" 
+                                                                        data-id="{{psychologistdocument.id}}" 
+                                                                        data-field="is_active" 
+                                                                        data-title="" 
+                                                                        data-confirm="فعالسازی"
+                                                                        >
+                                                                        <span class="thumb"></span>
+                                                                    </button>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col-md-11 col-10">
+
+                                                                <h2 class="accordion-header" id="headingOne">
+                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_psychologistdocument_{{psychologistdocument.id}}" aria-expanded="false" aria-controls="collapse_psychologistdocument_{{psychologistdocument.id}}">
+                                                                        {{psychologistdocument.get_document_type_display}}
+                                                                    </button>
+                                                                </h2>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        
+
+                                                        <div id="collapse_psychologistdocument_{{psychologistdocument.id}}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                                                            <div class="accordion-body">
+                                                                <div class="card-body">
+                                                            <div class="visitor-list">
+                                                                
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-tag rotate-90"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.title %}
+                                                                            <h5 class="mb-1">{{ psychologistdocument.title }}</h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">عنوان</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.title %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="title"
+                                                                                data-title="نمایش عنوان "
+                                                                                data-confirm="عنوان">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="mdi mdi-numeric"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.code %}
+                                                                            <h5 class="mb-1">{{ psychologistdocument.code }}</h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">کد</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.code %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="code"
+                                                                                data-title="نمایش کد "
+                                                                                data-confirm="کد">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-3 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-image"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.document_image %}
+                                                                            <a href="javascript:void(0)" 
+                                                                                onclick="showImageModal('/media/{{ psychologistdocument.document_image }}', '{{ psychologistdocument.title }}')">
+                                                                                <img 
+                                                                                    class="img-responsive br-5 img-zoom p-0 col-md-1 col-4"
+                                                                                    src="/media/{{ psychologistdocument.document_image}}"
+                                                                                    alt="{{ psychologistdocument.document_image}}"
+                                                                                    style="cursor: pointer">
+                                                                            </a>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.document_image %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="document_image"
+                                                                                data-title="نمایش تصویر "
+                                                                                data-confirm="تصویر">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+
+                                                                <div class="row my-5 align-items-center">
+                                                                    <div class="col-md-1 col-2 text-center">
+                                                                        <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                            <i class="fa fa-align-right"></i>
+                                                                        </span>                                                        
+                                                                    </div>
+                                                                    <div class="col-md-8 col-5 px-0">
+                                                                        {% if psychologistdocument.description %}
+                                                                            <div class="card card-collapsed mb-0 col-md-8 shadow-0 p-0 ">
+                                                                                <a href="javascript:void(0)" class="card-options-collapse" data-bs-toggle="card-collapse">
+                                                                                    <div class="card-header pr-0 py-0">
+                                                                                        <h3 class="card-title text-dark">مشاهده</h3>
+                                                                                        <div class="card-options">
+                                                                                            <a href="javascript:void(0)" class="card-options-collapse" data-bs-toggle="card-collapse"><i class="fe fe-chevron-up"></i></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </a>
+                                                                                <div class="card-body">
+                                                                                    {{ psychologistdocument.description|safe }}
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <h5 class="mb-1"></h5>
+                                                                        {% else %}
+                                                                            <cite class="text-muted">ثبت نشده</cite> 
+                                                                        {% endif %}
+                                                                        <p class="text-muted mb-0">توضیحات</p>
+                                                                    </div>
+                                                                    <div class="col-md-3 col-5 px-0">
+                                                                        <div class="toggle_div">
+                                                                            <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="toggle toggle-sm status-switch disabled
+                                                                                {% if psychologistdocument.display_config.description %}active{% endif %}"
+                                                                                data-app="accounts" 
+                                                                                data-model="PsychologistDocument"
+                                                                                data-id="{{ psychologistdocument.id }}"
+                                                                                data-field="description"
+                                                                                data-title="نمایش توضیحات "
+                                                                                data-confirm="توضیحات">
+                                                                                <span class="thumb"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr class="hr">
+                                                            </div>
+                                                        </div>
+
+
+                                                            
+                                                            
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if psychologistdegrees %}
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">مدارک تحصیلی</h3>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <div class="accordion" id="psychologistdegrees">
+
+                                                {% for psychologistdegree in  psychologistdegrees %}
+                                                    <div class="accordion-item">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-2 px-0 py-3">
+                                                                <div class="toggle_div" style="justify-content: left;">
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="toggle toggle-sm status-switch {% if psychologistdegree.is_active %}active{% endif %}" 
+                                                                        data-app="accounts" 
+                                                                        data-model="PsychologistDegree" 
+                                                                        data-id="{{psychologistdegree.id}}" 
+                                                                        data-field="is_active" 
+                                                                        data-title="مدرک" 
+                                                                        data-confirm="فعالسازی"
+                                                                        >
+                                                                        <span class="thumb"></span>
+                                                                    </button>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col-md-11 col-10">
+
+                                                                <h2 class="accordion-header" id="headingOne">
+                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_psychologistdegree_{{psychologistdegree.id}}" aria-expanded="false" aria-controls="collapse_psychologistdegree_{{psychologistdegree.id}}">
+                                                                        {{psychologistdegree.get_level_display}}
+                                                                    </button>
+                                                                </h2>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        
+
+                                                        <div id="collapse_psychologistdegree_{{psychologistdegree.id}}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                                                            <div class="accordion-body">                                                                
+                                                                
+                                                                <div class="card-body">
+                                                                    <div class="visitor-list">
+                                                                        
+                                                                        <!-- رشته تحصیلی -->
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-book"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                <h5 class="mb-1">{{ psychologistdegree.specialization }}</h5>
+                                                                                <p class="text-muted mb-0">رشته تحصیلی</p>
+                                                                            </div>
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.specialization %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="specialization"
+                                                                                        data-title="نمایش رشته تحصیلی"
+                                                                                        data-confirm="رشته تحصیلی">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <hr class="hr">
+
+                                                                        <!-- دانشگاه -->
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                {% if psychologistdegree.university.icon %}
+                                                                                    <img class="avatar brround avatar-md grayscale" src="/media/{{ psychologistdegree.university.icon }}" alt="" style="filter: grayscale(1);">
+                                                                                {% else %}
+                                                                                    <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                        <i class="fa fa-university"></i>
+                                                                                    </span>
+                                                                                {% endif %}
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                <h5 class="mb-1">{{ psychologistdegree.university }}</h5>
+                                                                                <p class="text-muted mb-0">دانشگاه محل تحصیل</p>
+                                                                            </div>
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.university %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="university"
+                                                                                        data-title="نمایش  دانشگاه"
+                                                                                        data-confirm="دانشگاه">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <hr class="hr">
+
+                                                                        <!-- معدل -->
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-graduation-cap"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                {% if psychologistdegree.gpa %}
+                                                                                    <h5 class="mb-1">{{ psychologistdegree.gpa }}</h5>
+                                                                                {% else %}
+                                                                                    <cite class="text-muted">ثبت نشده</cite> 
+                                                                                {% endif %}
+                                                                                <p class="text-muted mb-0">معدل</p>
+                                                                            </div>
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.gpa %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="gpa"
+                                                                                        data-title="نمایش معدل "
+                                                                                        data-confirm="معدل">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <hr class="hr">
+
+                                                                        <!-- عنوان پایان‌نامه -->
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-file-text-o"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                {% if psychologistdegree.thesis_title %}
+                                                                                    <h5 class="mb-1">{{ psychologistdegree.thesis_title }}</h5>
+                                                                                {% else %}
+                                                                                    <cite class="text-muted">ثبت نشده</cite> 
+                                                                                {% endif %}
+                                                                                <p class="text-muted mb-0">عنوان پایان‌نامه</p>
+                                                                            </div>
+
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.thesis_title %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="thesis_title"
+                                                                                        data-title="نمایش  پایان نامه "
+                                                                                        data-confirm="پایان نامه ">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <hr class="hr">
+                                                                        
+                                                                        
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-calendar"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                
+                                                                                <h5 class="mb-1">{{ psychologistdegree.start_year|to_jalali_date }}</h5>
+                                                                                <p class="text-muted mb-0">تاریخ شروع تحصیل</p>
+                                                                            </div>
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.start_year %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="start_year"
+                                                                                        data-title="نمایش سال شروع "
+                                                                                        data-confirm="سال شروع">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                            
+                                                                        </div>
+                                                                        <hr class="hr">
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-calendar"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                <h5 class="mb-1">{{ psychologistdegree.graduation_year|to_jalali_date }}</h5>
+                                                                                <p class="text-muted mb-0">تاریخ پایان تحصیل</p>
+                                                                            </div>
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.graduation_year %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="graduation_year"
+                                                                                        data-title="نمایش سال پایان "
+                                                                                        data-confirm="سال پایان">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <hr class="hr">
+                                                                        <div class="row my-5 align-items-center">
+                                                                            <div class="col-md-1 col-2 text-center">
+                                                                                <span class="m-auto email-icon text-dark bg-dark-transparent">
+                                                                                    <i class="fa fa-image"></i>
+                                                                                </span>                                                        
+                                                                            </div>
+                                                                            <div class="col-md-8 col-5 px-0">
+                                                                                {% if psychologistdegree.degree_file %}
+                                                                                    <a href="javascript:void(0)" 
+                                                                                        onclick="showImageModal('/media/{{ psychologistdegree.degree_file }}', '{{ psychologistdegree.get_level_display }}')">
+                                                                                        <img 
+                                                                                            class="img-responsive br-5 img-zoom p-0 col-md-1 col-4"
+                                                                                            src="/media/{{ psychologistdegree.degree_file}}"
+                                                                                            alt="{{ psychologistdegree.degree_file}}"
+                                                                                            style="cursor: pointer">
+                                                                                    </a>
+                                                                                {% else %}
+                                                                                    <cite class="text-muted">ثبت نشده</cite> 
+                                                                                {% endif %}
+                                                                            </div>
+
+                                                                            <div class="col-md-3 col-5 px-0">
+                                                                                <div class="toggle_div">
+                                                                                    <span class="custom-switch-description">نمایش به کاربران</span>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        class="toggle toggle-sm status-switch disabled
+                                                                                        {% if psychologistdegree.display_config.degree_file %}active{% endif %}"
+                                                                                        data-app="accounts" 
+                                                                                        data-model="PsychologistDegree"
+                                                                                        data-id="{{ psychologistdegree.id }}"
+                                                                                        data-field="degree_file"
+                                                                                        data-title="نمایش مدرک تحصیلی "
+                                                                                        data-confirm="مدرک تحصیلی">
+                                                                                        <span class="thumb"></span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                            
+                                                            
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                {% endfor %}
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+
+
+
+                        </div>
                     </div>
                 </div>
             </div>
                 
             """
-
-
-
             t = Template(template_string)
             content = t.render(Context({
                 'psychologist':psychologist,
+                'psychologistdocuments':psychologistdocuments,
+                'psychologistdegrees':psychologistdegrees,
+                'PsychologistSpecialties':PsychologistSpecialties,
+                'psychologistsections':psychologistsections,
+                'psychologistsocialmedias':psychologistsocialmedias,
             }))
 
 
