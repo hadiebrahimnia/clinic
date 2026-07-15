@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404 ,redirect
 from django.views import View
 from django.contrib import messages
 from core.errors import _error_response 
@@ -270,79 +270,44 @@ class PsychologistManagementView(BaseManagementView):
             
             return render(request, 'index1.html', context)
 
-        if action == 'detail':
-            queryset = Psychologist.objects.all().exclude(is_deleted=True).select_related('profile')
-            search_fields = []
-            filter_fields = {}
-            queryset, query = apply_search(queryset, request, search_fields)
-            queryset = apply_filters(queryset, request, filter_fields)
+        elif action == 'detail':
+            psychologist = get_object_or_404(Psychologist, pk=pk)
 
-            breadcrumb = """
-                <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل مدیریت</a></li>
-                <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست متخصصان</li>
-                <li class="breadcrumb-back">
-                    <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
-                </li>
+            template_string = """
+            {% load jdate %}
+            <div class="main-content with-sidebar">
+                <div class="side-app">
+                    <div class="main-container container-fluid">
+                        <div class="page-header">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
+                                <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
+                                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل مدیریت</a></li>
+                                <li class="breadcrumb-item"><a href="/management/psychologist/list/"><i class="fa fa-list ml-1"></i>لیست متخصصان</a></li>
+                                <li class="breadcrumb-item text-dark"><i class="fa fa-user ml-1"></i>{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</li>
+                                <li class="breadcrumb-back">
+                                    <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                </li>
+                            </ol>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+                
             """
-            
-            items, current_page, total_pages, total, per_page = apply_pagination(queryset, request, per_page=15)
-            columns = [
-                {
-                    'field': 'profile__first_name',
-                    'title': 'نام و نام خانوادگی',
-                    'display': lambda obj: '''
-                        <a href="/management/psychologist/detail/{pk}/" 
-                        class="btn btn-info btn-pill"
-                        target="_blanck"
-                        >
-                            {full_name}
-                        </a>
-                    '''.format(
-                        pk=getattr(obj, 'pk', getattr(obj, 'id', '')),
-                        full_name=f"{getattr(obj.profile, 'first_name', '')} {getattr(obj.profile, 'last_name', '')}".strip() or '—'
-                    )
-                },
-                {'field': 'PsychologistType', 'title': 'عنوان'},
-                {
-                    'field': 'is_active',
-                    'title': 'وضعیت',
-                    'display': {
-                        'type': 'toggle',
-                        'app': 'accounts',
-                        'model': 'Psychologist',
-                        'title': 'وضعیت',
-                        'confirm': 'تغییر وضعیت',
-                        'extra_class': ''
-                    }
-                },
-            ]
-            actions = [
-                {
-                    'type': 'edit',
-                    'url': '/management/psychologist/edit/{pk}/'
-                },
-                {
-                    'type': 'delete',
-                    'app': 'accounts',
-                    'model': 'Psychologist',
-                    'field': 'is_deleted'
-                },
-            ]
-            table_html = render_generic_table(
-                items,
-                columns,
-                title="لیست متخصصان",
-                actions=actions,
-                model_name="psychologist",
-                extra_context={'per_page': per_page},
-                pagination=render_pagination(current_page, total_pages, f"&q={query}" if query else ""),
-                breadcrumb=breadcrumb
-            )
+
+
+
+            t = Template(template_string)
+            content = t.render(Context({
+                'psychologist':psychologist,
+            }))
+
 
             context = {
-                'content': mark_safe(table_html),
+                'content': mark_safe(content),
                 'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/manager'),
                 'extra_css': [
                     '/static/js/table-data.js',
@@ -355,6 +320,7 @@ class PsychologistManagementView(BaseManagementView):
                 ],
                 
             }
+            
             
             return render(request, 'index1.html', context)
 
