@@ -1,24 +1,28 @@
 # core/views.py
 from django.apps import apps
 from django.views.generic import TemplateView
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.contrib import messages
 from django.http import Http404, HttpResponseNotAllowed
 from django.core.exceptions import PermissionDenied
-from .errors import _error_response  # درست ایمپورت شد
-from django.shortcuts import render, get_object_or_404
+
 import json
 import importlib
 from django.http import JsonResponse
 from accounts.models import *
 from appointment.models import *
-from core.utils import *
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.template import Template, Context
 import logging
 logger = logging.getLogger(__name__)
+
+from core.errors import _error_response 
+from core.utils import *
+from core.forms import JsonImportForm
+from core.services.json_importer import JsonImporter
 
 
 class DynamicBooleanView(PermissionRequiredMixin, View):
@@ -868,7 +872,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/progile/list" class="btn btn-info-light col-12 p-0">
+                                <a href="/management/profile/list" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -923,7 +927,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </a>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -942,7 +946,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -961,7 +965,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -981,7 +985,7 @@ class DashboardAdminView(BaseDashboardView):
 
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -1000,7 +1004,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -1019,7 +1023,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -1038,7 +1042,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-info-light col-12 p-0">
+                                <a href="#" class="btn btn-info-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-primary text-center align-self-center box-primary-shadow bradius">
@@ -1064,7 +1068,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </div>
                              </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/progile/list" class="btn btn-success-light col-12 p-0">
+                                <a href="#" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
@@ -1083,7 +1087,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/psychologist/list" class="btn btn-success-light col-12 p-0">
+                                <a href="#" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
@@ -1101,7 +1105,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </a>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-success-light col-12 p-0">
+                                <a href="#" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
@@ -1119,7 +1123,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </a>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-success-light col-12 p-0">
+                                <a href="#" class="btn btn-success-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-success text-center align-self-center box-primary-shadow bradius">
@@ -1145,7 +1149,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/progile/list" class="btn btn-warning-light col-12 p-0">
+                                <a href="#" class="btn btn-warning-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
@@ -1164,7 +1168,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/psychologist/list" class="btn btn-warning-light col-12 p-0">
+                                <a href="#" class="btn btn-warning-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
@@ -1182,7 +1186,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </a>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/secretary/list" class="btn btn-warning-light col-12 p-0">
+                                <a href="#" class="btn btn-warning-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-warning text-center align-self-center box-primary-shadow bradius">
@@ -1208,7 +1212,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/progile/list" class="btn btn-danger-light col-12 p-0">
+                                <a href="#" class="btn btn-danger-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-danger text-center align-self-center box-primary-shadow bradius">
@@ -1234,7 +1238,7 @@ class DashboardAdminView(BaseDashboardView):
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/role/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1253,7 +1257,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
                             
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/country/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1272,7 +1276,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/province/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1291,7 +1295,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/city/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1310,7 +1314,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/specialty/list/" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1329,7 +1333,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/university/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1348,7 +1352,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/fieldofstudy/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1366,9 +1370,28 @@ class DashboardAdminView(BaseDashboardView):
                                 </a>
                             </div>
 
+                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
+                                <a href="/management/fieldofstudy/list" class="btn btn-default-light col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
+                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
+                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h2 class="mb-2 fw-normal mt-2">رشته‌های تحصیلی</h2>
+                                                <h5 class="fw-normal mb-0">لیست</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/specialization/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1387,7 +1410,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/psychologisttype/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1404,28 +1427,10 @@ class DashboardAdminView(BaseDashboardView):
                                     </div>
                                 </a>
                             </div>
+                            
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
-                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
-                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="card-body">
-                                                <h2 class="mb-2 fw-normal mt-2">زمینه‌های کاری</h2>
-                                                <h5 class="fw-normal mb-0">لیست</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/sectiontype/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1444,7 +1449,7 @@ class DashboardAdminView(BaseDashboardView):
                             </div>
 
                             <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/" class="btn btn-default-light col-12 p-0">
+                                <a href="/management/platform/list" class="btn btn-default-light col-12 p-0">
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
@@ -1591,3 +1596,64 @@ class DashboardColleagueView(BaseDashboardView):
             'extra_js': [],
         }
         return render(request, 'index3.html', context)
+
+
+class JsonActionView(View):
+    
+    def get(self, request, app, model):
+        # app و model از URL می‌آید
+        model_path = f"{app}.{model}"
+        
+        form = JsonImportForm(allowed_model=model_path)
+        
+        base_context = {
+            'col_class': 'col-md-5 col-12 m-auto',
+            'card_class': 'card shadow-lg',
+            'card_header_class': 'card-header',
+            'card_body_class': 'card-body p-5',
+            'title': 'بارگذاری اطلاعات',
+            'back_url': '/dashboard/user',
+            'back_text': 'بازگشت ',
+            'back_class': 'btn btn-default-light',
+            'back_icon': 'fa fa-arrow-left',
+            'form': form,
+            "form_action": reverse("json-import", kwargs={"app": app, "model": model}),
+            'submit_text': 'بارگذاری',
+            'submit_class': 'btn btn-success btn-lg btn-block',
+            'card_header_style': 'background-color: #c2eafc;color: #fff;',
+        }
+        return render(request, "form.html", base_context)
+
+    def post(self, request, app, model):
+        model_path = f"{app}.{model}"
+        form = JsonImportForm(request.POST, request.FILES, allowed_model=model_path)
+        
+        base_context = {
+            'col_class': 'col-md-5 col-12 m-auto',
+            'card_class': 'card shadow-lg',
+            'card_header_class': 'card-header',
+            'card_body_class': 'card-body p-5',
+            'title': 'بارگذاری اطلاعات',
+            'back_url': '/dashboard/user',
+            'back_text': 'بازگشت ',
+            'back_class': 'btn btn-default-light',
+            'back_icon': 'fa fa-arrow-left',
+            'form': form,
+            "form_action": reverse("json-import", kwargs={"app": app, "model": model}),
+            'submit_text': 'بارگذاری',
+            'submit_class': 'btn btn-success btn-lg btn-block',
+            'card_header_style': 'background-color: #c2eafc;color: #fff;',
+        }
+
+        if form.is_valid():
+            try:
+                JsonImporter().run(
+                    model_path=form.cleaned_data["model"],
+                    json_file=form.cleaned_data["json_file"]
+                )
+                messages.success(request, "اطلاعات با موفقیت وارد شدند.")
+                return redirect("/dashboard/admin/")
+            except Exception as e:
+                messages.error(request, f"خطا در بارگذاری اطلاعات: {str(e)}")
+
+        return render(request, "form.html", base_context)

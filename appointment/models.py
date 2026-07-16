@@ -10,15 +10,30 @@ class Room(models.Model):
 
     is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 
     def __str__(self):
         return self.name
     
-class SessionType(models.TextChoices):
-    IN_PERSON = "IN_PERSON", "حضوری"
-    ONLINE = "ONLINE", "آنلاین"
-    PHONE = "PHONE", "تلفنی"
+class SessionType(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    icon = models.ImageField(
+        upload_to='SessionType/icons/',
+        blank=True,
+        null=True,
+        verbose_name="آیکون",
+        help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
+    )
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "SessionType"
+        verbose_name_plural = "SessionType"
 
 
 class WeekDay(models.IntegerChoices):
@@ -62,10 +77,10 @@ class WorkSchedule(models.Model):
         verbose_name="ساعت پایان"
     )
 
-    session_type = models.CharField(
-        max_length=20,
-        choices=SessionType.choices,
-        verbose_name="نوع جلسه"
+    session_type = models.ForeignKey(
+        'SessionType',
+        on_delete=models.CASCADE,
+        related_name='work_schedules'
     )
 
     room = models.ForeignKey(
@@ -174,9 +189,10 @@ class Appointment(models.Model):
     session_duration = models.PositiveIntegerField()
     end_time = models.TimeField()
 
-    session_type = models.CharField(
-        max_length=20,
-        choices=SessionType.choices
+    session_type = models.ForeignKey(
+        'SessionType',
+        on_delete=models.CASCADE,
+        related_name='appointments'
     )
 
     room = models.ForeignKey(
@@ -199,3 +215,5 @@ class Appointment(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+

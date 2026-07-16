@@ -22,7 +22,7 @@ class Province(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='provinces')
 
     class Meta:
-        unique_together = ['name', 'country']  # جلوگیری از تکرار نام استان در یک کشور
+        unique_together = ['name', 'country'] 
 
     def __str__(self):
         return f"{self.name}, {self.country}"
@@ -39,7 +39,8 @@ class City(models.Model):
     
 class Specialty(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    description = RichTextUploadingField(blank=True ,null=True,)
+    background_color = models.CharField(max_length=7, default="#ffffff", verbose_name="رنگ زمینه")
+    color = models.CharField(max_length=7, default="#000000", verbose_name="رنگ متن")
     icon = models.ImageField(
         upload_to='Specialty/icons/',
         blank=True,
@@ -47,7 +48,7 @@ class Specialty(models.Model):
         verbose_name="آیکون",
         help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
     )
-
+    description = RichTextUploadingField(blank=True ,null=True,)
     def __str__(self):
         return self.name
 
@@ -669,3 +670,7 @@ class PsychologistSocialMedia(models.Model):
     class Meta:
         verbose_name = "Social Media"
         verbose_name_plural = "Social Media"
+
+
+
+

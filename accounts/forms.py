@@ -567,7 +567,6 @@ class PsychologistSectionForm(forms.ModelForm):
         fields = [
             "section_type",
             "description",
-            "description",
             "order",
             "background_color",
             "color",

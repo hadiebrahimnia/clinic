@@ -73158,9 +73158,14 @@ button.bg-lime:focus {
   background: linear-gradient(to right bottom, #bd081c 0%, #eb4553 100%);
 }
 
+
 .bg-default {
   background: #e3e3ef;
   color: #282f53;
+}
+
+.bg-aliceblue {
+  background: aliceblue;
 }
 
 /*--Box-shadow--*/

@@ -11,8 +11,10 @@ class Questionnaire(models.Model):
     cost = models.PositiveIntegerField(blank=True, null=True, verbose_name="هزینه",default=0)
     question = models.PositiveIntegerField(blank=True, null=True, verbose_name="تعداد سوالات",default=0)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
-    is_active = models.BooleanField(default=False, verbose_name="فعال/غیرفعال")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     
     def __str__(self):
@@ -22,7 +24,11 @@ class Questionnaire(models.Model):
 # ویژگی
 class Attribute(models.Model):
     title = models.CharField(max_length=200, verbose_name="ویژگی")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.title
@@ -42,8 +48,10 @@ class Question(models.Model):
     order = models.PositiveIntegerField(default=1, verbose_name="ترتیب نمایش")
     required = models.BooleanField(default=True, verbose_name="اجباری")
 
-    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
@@ -58,6 +66,11 @@ class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
     text = models.CharField(max_length=200, verbose_name="متن گزینه")
     value = models.IntegerField(default=0, verbose_name="ارزش عددی (برای امتیازدهی)")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.text
@@ -76,6 +89,10 @@ class Response(models.Model):
     started_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان شروع")
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name="زمان تکمیل")
     is_completed = models.BooleanField(default=False, verbose_name="تکمیل شده")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return f"پاسخ به {self.questionnaire.title} توسط {self.respondent or 'ناشناس'}"
@@ -93,6 +110,11 @@ class Answer(models.Model):
     text_answer = models.TextField(blank=True, verbose_name="پاسخ متنی")
     scale_value = models.IntegerField(null=True, blank=True, verbose_name="ارزش مقیاس")
     RT = models.PositiveIntegerField(null=True, blank=True, verbose_name="زمان پاسخ‌دهی (ثانیه)")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return f"جواب به {self.question.text[:20]}..."
@@ -115,8 +137,10 @@ class Result(models.Model):
     sum_rt = models.PositiveIntegerField(verbose_name="جمع RT", default=0)
     average_rt = models.FloatField(verbose_name="میانگین RT", default=0.0)
 
-    is_active = models.BooleanField(default=True, verbose_name="فعال/غیرفعال")
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
@@ -128,10 +152,13 @@ class Result(models.Model):
     def __str__(self):
         return f"نتیجه {self.attribute.title} برای {self.user.username} در {self.questionnaire.title}"
     
-
-
 class Test(models.Model):
     title = models.CharField(max_length=255)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
+
+    is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
+    is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

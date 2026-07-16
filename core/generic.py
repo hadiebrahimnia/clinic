@@ -152,16 +152,40 @@ def render_pagination(current_page, total_pages, extra_params=""):
 
 
 
+
+
 # ====================== جدول عمومی (همان قبلی) ======================
-def render_generic_table(queryset, columns, title="لیست", actions=None,
-                        model_name="", extra_context=None,
-                        search_form="", filter_form="", pagination="",
-                        breadcrumb=None):
+def render_generic_table(
+        queryset, 
+        columns, 
+        table_title="لیست", 
+        actions=None,
+        header_actions=None,
+        model_name="", 
+        extra_context=None,
+        search_form="", 
+        filter_form="", 
+        pagination="",
+        breadcrumb=None):
     
     if extra_context is None:
         extra_context = {}
 
+    if header_actions is None:
+        header_actions = []
+
     has_sidebar = bool(search_form.strip() or filter_form.strip())
+
+    header_actions_html = ""
+    for action in header_actions:
+        if action["type"] == "create":
+            header_actions_html += f"""
+                <a href="{action['url']}"
+                class="{action.get('class', 'btn btn-primary')} mr-2 py-0">
+                    <i class="{action.get('icon', 'fe fe-plus')}"></i>
+                    {action.get('title', 'افزودن')}
+                </a>
+            """
 
     # thead
     thead_parts = [f'<th style="width: {col.get("width", "auto")}">{col["title"]}</th>' for col in columns]
@@ -184,6 +208,14 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
             if isinstance(display_config, dict) and display_config.get('type') == 'toggle':
                 field_name = col['field']
                 is_active = bool(value)
+                title = display_config.get('title', 'تغییر وضعیت')
+                if callable(title):
+                    title = title(obj)
+
+                confirm = display_config.get('confirm', 'تغییر وضعیت')
+                if callable(confirm):
+                    confirm = confirm(obj)
+
                 html = f'''
                     <button type="button" 
                             class="toggle toggle-sm status-switch mt-2 {'active' if is_active else ''}"
@@ -191,8 +223,8 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
                             data-model="{display_config.get('model', model_name)}"
                             data-id="{getattr(obj, 'pk', getattr(obj, 'id', ''))}"
                             data-field="{field_name}"
-                            data-title="{display_config.get('title', 'تغییر وضعیت')}"
-                            data-confirm="{display_config.get('confirm', 'تغییر وضعیت')}">
+                            data-title="{title}"
+                            data-confirm="{confirm}">
                         <span class="thumb"></span>
                     </button>
                 '''
@@ -226,14 +258,22 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
                     '''
 
                 elif act.get('type') == 'delete':
+                    title = act.get('title', 'حذف')
+                    if callable(title):
+                        title = title(obj)
+
+                    confirm = act.get('confirm', 'حذف این مورد')
+                    if callable(confirm):
+                        confirm = confirm(obj)
+                    
                     action_html += f'''
                         <button class="mx-3 email-icon text-danger bg-danger-transparent delete reload-on-success"
                                 data-app="{act.get('app', 'accounts')}"
                                 data-model="{act.get('model', model_name)}"
                                 data-id="{pk}"
                                 data-field="{act.get('field', 'is_deleted')}"
-                                data-title="{act.get('title', 'حذف')}"
-                                data-confirm="{act.get('confirm', f'حذف این مورد')}">
+                                data-title="{title}"
+                                data-confirm="{confirm}">
                             <i class="fe fe-trash-2"></i>
                         </button>
                     '''
@@ -254,8 +294,10 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
         breadcrumb = f"""
             <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
             <li class="breadcrumb-item"><a href="/dashboard/manager">داشبورد مدیریت</a></li>
-            <li class="breadcrumb-item text-dark">{title}</li>
+            <li class="breadcrumb-item text-dark">{table_title}</li>
         """
+
+
 
     table_template = """{% load jdate %}
         <div class="main-content with-sidebar">
@@ -276,7 +318,8 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
     table_template += """
                             <div class="card">
                                 <div class="card-header d-flex">
-                                    <div class="card-title">{{ title }}</div>
+                                    <div class="card-title">{{ table_title }}</div>
+                                    {{ header_actions|safe }}
                                     <div class="ms-auto">
                                         <label>نمایش
                                             <select name="per_page" class="form-select form-select fs-14 d-inline w-auto" onchange="this.form.submit()">
@@ -311,7 +354,8 @@ def render_generic_table(queryset, columns, title="لیست", actions=None,
 
     t = Template(table_template)
     ctx = Context({
-        'title': title,
+        "header_actions": mark_safe(header_actions_html),
+        'table_title': table_title,
         'thead': mark_safe(thead),
         'tbody': mark_safe(tbody),
         'per_page': extra_context.get('per_page', 15),

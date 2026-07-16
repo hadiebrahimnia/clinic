@@ -417,9 +417,13 @@ class PsychologistActionView(View):
                                                             <p class="back-text">
                                                                 {% for ps in psychologist.specialties.all %}
                                                                     {% for specialty in ps.specialties.all %}
-                                                                        <span class="badge rounded-pill bg-white text-dark me-1 mb-1 mt-1">
+                                                                        <span class="tag tag-rounded" style="background:{{ specialty.background_color }};color:{{ specialty.color }};border: 2px solid {{ specialty.color }};">
+                                                                            {% if specialty.icon%}
+                                                                                <span>
+                                                                                    <img class="avatar brround avatar-md me-2 my-1" alt="avatra-img" src="/media/{{specialty.icon}}" style=" height: 17px; width: 17px">
+                                                                                </span>
+                                                                            {% endif %}
                                                                             {{ specialty.name }}
-                                                                        </span>
                                                                     {% endfor %}
                                                                 {% endfor %}        
                                                             </p>

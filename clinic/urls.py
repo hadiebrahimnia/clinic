@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('form/', FormView.as_view(), name='form'),
+    path('json/<str:app>/<str:model>/', JsonActionView.as_view(), name='json-import'),
     # Accounts
     path('accounts/<str:action>/', AccountView.as_view(), name='accounts'),
     # Dashboard

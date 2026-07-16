@@ -1,0 +1,28 @@
+.file-upload {
+    cursor: pointer;
+    border: 2px dashed #dcdcdc;
+    border-radius: 8px;
+    padding: 30px;
+    transition: .3s;
+}
+
+.file-upload:hover {
+    background: #f8f9fa;
+    border-color: #0d6efd;
+}
+
+.file-upload i {
+    display: block;
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.file-preview {
+    text-align: center;
+}
+
+.file-preview .filename {
+    margin-top: 10px;
+    font-weight: 600;
+    word-break: break-all;
+}

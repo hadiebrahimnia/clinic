@@ -894,3 +894,103 @@ class ColorWidget(forms.Widget):
             </span>
         </div>
         """)
+    
+
+class FileInput(forms.ClearableFileInput):
+
+    def __init__(
+        self,
+        attrs=None,
+        allowed_extensions=None,
+        max_size_mb=10,
+        button_text="انتخاب فایل",
+    ):
+
+        self.allowed_extensions = allowed_extensions or []
+        self.max_size_mb = max_size_mb
+        self.button_text = button_text
+
+        accept = ",".join(
+            f".{ext.lstrip('.')}"
+            for ext in self.allowed_extensions
+        )
+
+        default_attrs = {
+            "class": "form-control-file d-none",
+            "accept": accept,
+            "data-max-size": str(max_size_mb),
+            "data-allowed-extensions": ",".join(self.allowed_extensions),
+        }
+
+        if attrs:
+            default_attrs.update(attrs)
+
+        super().__init__(attrs=default_attrs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+
+        attrs = attrs or {}
+
+        input_id = attrs.get("id", f"id_{name}")
+
+        input_html = super().render(
+            name,
+            value,
+            attrs,
+            renderer,
+        )
+
+        filename = ""
+
+        has_file = bool(value)
+
+        if has_file:
+            try:
+                filename = value.name.split("/")[-1]
+            except Exception:
+                filename = str(value)
+
+        html = f"""
+            <div class="form-control text-center">
+                <div
+                    class="file-upload {'d-none' if has_file else ''}"
+                    id="select-btn-{input_id}"
+                    onclick="document.getElementById('{input_id}').click()">
+                    <span>{self.button_text}</span>
+                    <i class="fa fa-upload"></i>
+                </div>
+                <div
+                    id="file-preview-{input_id}"
+                    class="mt-3 {' ' if has_file else 'd-none'}">
+                    <div>
+                        <i class="fa fa-file fa-2x text-primary"></i>
+                        <div
+                            id="filename-{input_id}"
+                            class="mt-2">
+                            {filename}
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger btn-sm mt-2"
+                        onclick="clearFileSelection('{input_id}')">
+                        <i class="fa fa-trash"></i>
+                        حذف
+                    </button>
+                </div>
+                {input_html}
+            </div>
+        """ 
+
+        return mark_safe(html)
+
+    class Media:
+        css = {
+            "all": (
+                static("css/fileinput.css"),
+            )
+        }
+
+        js = (
+            static("js/fileinput.js"),
+        )
