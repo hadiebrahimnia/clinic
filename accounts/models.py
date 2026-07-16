@@ -6,39 +6,44 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     def __str__(self):
-        return self.name
+        return self.name_en
 
 class Country(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name_en = models.CharField(max_length=100,blank=True,null=True,)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     icon = models.CharField(max_length=2, blank=True,null=True,)
 
     def __str__(self):
-        return self.name
+        return self.name_fa
 
 class Province(models.Model):
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='provinces')
 
     class Meta:
-        unique_together = ['name', 'country'] 
+        unique_together = ['name_fa', 'country'] 
 
     def __str__(self):
-        return f"{self.name}, {self.country}"
+        return f"{self.name_fa}"
 
 class City(models.Model):
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name='cities')
 
     class Meta:
-        unique_together = ['name', 'province']  # جلوگیری از تکرار نام شهر در یک استان
+        unique_together = ['name_fa', 'province']  # جلوگیری از تکرار نام شهر در یک استان
 
     def __str__(self):
-        return f"{self.name}, {self.province}"
+        return f"{self.name_fa}, {self.province}"
     
 class Specialty(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     background_color = models.CharField(max_length=7, default="#ffffff", verbose_name="رنگ زمینه")
     color = models.CharField(max_length=7, default="#000000", verbose_name="رنگ متن")
     icon = models.ImageField(
@@ -50,14 +55,33 @@ class Specialty(models.Model):
     )
     description = RichTextUploadingField(blank=True ,null=True,)
     def __str__(self):
-        return self.name
+        return self.name_fa
 
     class Meta:
         verbose_name = "تخصص ها"
         verbose_name_plural = "Specialties"
 
+
+TYPE_UNIVERSITY = (
+    ('governmental_day', 'دولتی'),
+    ('self_governing_campus', 'پردیس‌های خودگردان'),
+    ('payame_noor', 'پیام‌نور'),
+    ('scientific_applied', 'علمی-کاربردی'),
+    ('technical_professional', 'فنی و حرفه‌ای'),
+    ('islamic_azad', 'آزاد'),
+    ('non_profit', 'غیرانتفاعی'),
+    ('higher_education_complex', 'آموزش عالی'),
+    ('medical_sciences', 'علوم پزشکی'),
+)
+    
 class University(models.Model):
-    name = models.CharField(max_length=200, unique=True)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
+    type = models.CharField(max_length=50, choices=TYPE_UNIVERSITY, blank=True, null=True)
+    link = models.CharField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=200, blank=True, null=True)
+    email = models.CharField(max_length=100, blank=True, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='universities')
     icon = models.ImageField(
         upload_to='University/icons/',
@@ -66,36 +90,38 @@ class University(models.Model):
         verbose_name="آیکون",
         help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
     )
-
+    description = RichTextUploadingField(blank=True,null=True,)
     def __str__(self):
-        return self.name
+        return self.name_fa
 
     class Meta:
         verbose_name = "University"
         verbose_name_plural = "Universities"
 
 class FieldOfStudy(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     description = RichTextUploadingField(blank=True,null=True,)
 
     def __str__(self):
-        return self.name
+        return self.name_fa
 
     class Meta:
         verbose_name = "رشته تحصیلی"
         verbose_name_plural = "Fields of Study"
 
 class Specialization(models.Model):
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     field = models.ForeignKey(FieldOfStudy, on_delete=models.CASCADE, related_name='specializations')
-
+    description = RichTextUploadingField(blank=True,null=True,)
     class Meta:
-        unique_together = ['name', 'field']
+        unique_together = ['name_fa', 'field']
         verbose_name = "گرایش تحصیلی"
         verbose_name_plural = "Specializations"
 
     def __str__(self):
-        return f"{self.name} ({self.field})"
+        return f"{self.name_fa} ({self.field})"
 
 class Profile(AbstractUser):
     phone_number = models.CharField(max_length=11, blank=True, null=True)
@@ -189,12 +215,14 @@ class Secretary(models.Model):
         return self.profile.get_full_name() or self.profile.username
 
 class PsychologistType(models.Model):
-    name = models.CharField(
+    name_fa = models.CharField(
         max_length=100,
-        unique=True,
         verbose_name="نام نوع متخصص"
     )
-    description = RichTextUploadingField(blank=True,null=True,)
+    name_en = models.CharField(
+        max_length=100,
+        verbose_name="نام نوع متخصص"
+    )
     icon = models.ImageField(
         upload_to='psychologist_types/icons/',
         blank=True,
@@ -202,9 +230,9 @@ class PsychologistType(models.Model):
         verbose_name="آیکون",
         help_text="آیکون کوچک برای نمایش در فیلترها (مثلاً 64x64)"
     )
-
+    description = RichTextUploadingField(blank=True,null=True,)
     def __str__(self):
-        return self.name
+        return self.name_fa
 
 class Psychologist(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='psychologist')
@@ -450,43 +478,10 @@ class PsychologistDegree(models.Model):
             f"({self.specialization or 'N/A'})"
         )
 
-# SECTION_TYPES = [
-#         ('Biography', 'بیوگرافی'),
-#         ('Books', 'کتاب‌ها'),
-#         ('Publications', 'مقالات'),
-#         ('Awards & Honors', 'جوایز و افتخارات'),
-#         ('Associations & Memberships', 'انجمن ها و عضویت ها'),
-#         ('Work Experience', 'تجربیات کاری'),
-#         ('Therapeutic Approaches', 'رویکردهای درمانی'),
-#         ('Disorders Treated', 'اختلا'),
-#         ('Certifications', 'دوره ها  و گواهینامه '),
-#         ('Educational Activities', 'فعالیت‌های آموزشی و تدریس'),
-#         ('Research Activities', 'زفعالیت‌های پژوهشی'),
-#          ('Supervision', 'سوپرویژن و نظارت بالینی'),
-    # معرفی
-    # تحصیلات
-    # سوابق شغلی
-    # حوزه‌های تخصص
-    # خدمات
-    # رویکردهای درمانی
-    # مقالات و پژوهش‌ها
-    # کتاب‌ها
-    # دوره‌های آموزشی
-    # کارگاه‌ها
-    # افتخارات
-    # گواهینامه‌ها
-    # عضویت‌های حرفه‌ای
-    # سوپرویژن و نظارت بالینی
-    # پرسش‌های متداول
-    # راه‌های ارتباطی
-        
-#     ]
 
 class SectionType(models.Model):
-    title = models.CharField(
-        max_length=255,
-        blank=True
-    )
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     icon = models.ImageField(
         upload_to='psychologist_types/icons/',
         blank=True,
@@ -500,7 +495,7 @@ class SectionType(models.Model):
         verbose_name_plural = "Section Type Accounts"
 
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.name_fa}"
 
 
 class PsychologistSection(models.Model):
@@ -580,10 +575,10 @@ class PsychologistSection(models.Model):
 #     )
 
 class Platform(models.Model):
-    title = models.CharField(
-        max_length=255,
-        blank=True
-    )
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='platforms',blank=True,null=True,)
+
     url = models.CharField(
         max_length=100,
         verbose_name="پیشوند آدرس",
@@ -603,7 +598,7 @@ class Platform(models.Model):
         verbose_name_plural = "Platform"
 
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.name_fa}"
 
 class PsychologistSocialMedia(models.Model):
     psychologist = models.ForeignKey(

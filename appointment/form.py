@@ -56,8 +56,8 @@ class SessionTypeForm(forms.ModelForm):
     ) 
     class Meta:
         model = SessionType
-        fields = ['name', 'icon']
+        fields = ['name_fa', 'icon']
         widgets = {
-            'name': forms.TextInput(attrs={ 'class': 'form-control text-center', 'required': True }), 
+            'name_fa': forms.TextInput(attrs={ 'class': 'form-control text-center', 'required': True }), 
 
         }

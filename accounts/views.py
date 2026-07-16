@@ -37,7 +37,7 @@ def get_provinces(request):
     
     provinces = Province.objects.filter(
         country_id=country_id
-    ).values('id', 'name')
+    ).values('id', 'name_fa')
     
     return JsonResponse(list(provinces), safe=False)
 
@@ -47,7 +47,7 @@ def get_cities(request):
 
     cities = City.objects.filter(
         province_id=province_id
-    ).values('id', 'name')
+    ).values('id', 'name_fa')
 
     return JsonResponse(list(cities), safe=False)
 
@@ -56,7 +56,7 @@ def get_specializations(request):
 
     specializations = Specialization.objects.filter(
         field_id=field_id
-    ).values('id', 'name')
+    ).values('id', 'name_fa')
 
     return JsonResponse(list(specializations), safe=False)
 
@@ -183,7 +183,7 @@ class AccountView(View):
 
                 user = form.save(commit=False) 
                 user.save()
-                default_role, _ = Role.objects.get_or_create(name="user")
+                default_role, _ = Role.objects.get_or_create(name_en="user")
                 user.roles.add(default_role)
 
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد! به پروفایل خود خوش آمدید.')
@@ -423,7 +423,7 @@ class PsychologistActionView(View):
                                                                                     <img class="avatar brround avatar-md me-2 my-1" alt="avatra-img" src="/media/{{specialty.icon}}" style=" height: 17px; width: 17px">
                                                                                 </span>
                                                                             {% endif %}
-                                                                            {{ specialty.name }}
+                                                                            {{ specialty.name_fa }}
                                                                     {% endfor %}
                                                                 {% endfor %}        
                                                             </p>
@@ -877,8 +877,8 @@ class PsychologistActionView(View):
                                                                                 {% if degree.display_config.specialization %}
                                                                                     <span>
                                                                                         {{ degree.get_level_display }}
-                                                                                        {{ degree.specialization.field.name|default:"—" }}
-                                                                                        {{ degree.specialization.name|default:"—" }} 
+                                                                                        {{ degree.specialization.field.name_fa|default:"—" }}
+                                                                                        {{ degree.specialization.name_fa|default:"—" }} 
                                                                                         {% if degree.display_config.university %}
                                                                                             از دانشگاه
                                                                                             {{ degree.university|default:"—" }}
@@ -1107,7 +1107,7 @@ class PsychologistActionView(View):
                 psychologist.profile = request.user
                 psychologist.save()
                 form.save_m2m()
-                default_role, _ = Role.objects.get_or_create(name="psychologist")
+                default_role, _ = Role.objects.get_or_create(name_en="psychologist")
                 request.user.roles.add(default_role)
                 PsychologistNewPatients.objects.get_or_create(
                     psychologist=psychologist,
@@ -1194,9 +1194,6 @@ class PsychologistSpecialtieView(View):
         if not specialties_obj:
             specialties_obj = PsychologistSpecialtie(psychologist=psychologist)
 
-        print(specialties_obj)
-        print(list(specialties_obj.specialties.all()) if specialties_obj.pk else [])
-
         form = PsychologistSpecialtieForm(instance=specialties_obj)
 
         base_context = {
@@ -1237,7 +1234,7 @@ class PsychologistSpecialtieView(View):
         if form.is_valid():
             form.save()
             messages.success(request, "زمینه‌های کاری ثبت شد.")
-            return redirect('dashboard', subject='user')
+            return redirect('dashboard', subject='psychologist')
         else:
             base_context = {
                 'col_class': 'col-md-5 col-12 m-auto',
@@ -2810,7 +2807,7 @@ class PsychologistSocialMediaView(BaseDashboardView,View):
                                                                 data-id="{{ psychologistsocialmedia.id }}" 
                                                                 data-field="is_deleted"
                                                                 data-title="socialmedia"
-                                                                data-confirm="حذف {{ psychologistsocialmedia.platform.name|default:'این شبکه اجتماعی' }}"
+                                                                data-confirm="حذف {{ psychologistsocialmedia.platform.name_fa|default:'این شبکه اجتماعی' }}"
                                                                 data-bs-toggle="tooltip" 
                                                                 title="حذف"
                                                             >
@@ -3121,7 +3118,7 @@ class SecretaryActionView(View):
                 request.user.save()
                 secretary.profile = request.user
                 secretary.save()
-                default_role, _ = Role.objects.get_or_create(name="secretary")
+                default_role, _ = Role.objects.get_or_create(name_en="secretary")
                 request.user.roles.add(default_role)
                 messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
                 return redirect('dashboard', subject='secretary')

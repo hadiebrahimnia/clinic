@@ -334,7 +334,7 @@ class PsychologistSpecialtieForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # اختیاری: مرتب‌سازی یا فیلتر queryset
-        self.fields['specialties'].queryset = Specialty.objects.all().order_by('name')
+        self.fields['specialties'].queryset = Specialty.objects.all().order_by('name_fa')
         
 
 class PsychologistDegreeForm(forms.ModelForm):

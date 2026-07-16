@@ -45,13 +45,10 @@ def get_current_user():
     return getattr(_thread_locals, 'user', None)
 
 def get_current_profile():
-    user = get_current_user()
+    """همیشه پروفایل فعلی (که خودش User است) را برگرداند"""
+    user = getattr(_thread_locals, 'user', None)
     if user and user.is_authenticated:
-        from accounts.models import mdl_Profile
-        try:
-            return mdl_Profile.objects.get(user=user)
-        except mdl_Profile.DoesNotExist:
-            return None
+        return user  # ← دیگر نیازی به get نیست
     return None
 
 

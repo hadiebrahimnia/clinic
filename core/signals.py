@@ -15,19 +15,41 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.db import models
 from core.models import *
-# from appreserve.models import Turn, Plan, Relative
-from core.middleware import get_current_profile
+from accounts.models import *
+from appointment.models import *
 
+from core.middleware import get_current_profile
 
 # =====================================================
 # تنظیمات
 # =====================================================
 
 LOGGED_MODELS = [
-    "Profile"
-    "Psychologist"
-    "Turn",
-    "Plan",
+    # Accounts
+    "Profile",
+    "Secretary",
+    "Psychologist",
+    "PsychologistDocument",
+    "PsychologistSpecialtie",
+    "PsychologistDegree",
+    "PsychologistSection",
+    "PsychologistSocialMedia",
+    # Appointment
+    "Room",
+    "SessionType",
+    "PsychologistNewPatients",
+    "WorkSchedule",
+    "Appointment",
+    # assessments
+    "Questionnaire",
+    "Attribute",
+    "Question",
+    "Choice",
+    "Response",
+    "Answer",
+    "Result",
+    "Test",
+
 ]
 
 EXCLUDED_FIELDS = {"id"}
@@ -48,6 +70,10 @@ def normalize_empty(value):
     return value
 
 def make_json_serializable(value):
+    # فایل‌های Django مثل degree_file
+    if hasattr(value, 'name') and hasattr(value, 'url'):
+        return value.name if value.name else None
+
     if isinstance(value, (datetime.date, datetime.datetime, datetime.time)):
         return value.isoformat()
 

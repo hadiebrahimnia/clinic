@@ -30,6 +30,28 @@ from core.generic import (
 
 class ManagementView(View):
     ROUTES = {
+    # اطلاعات کاربران
+        # 'profile': 'management.views.ProfileManagementView',
+        'psychologist': 'management.views.PsychologistManagementView',
+        'psychologistdocument': 'management.views.PsychologistDocumentManagementView',
+        'psychologistspecialtie': 'management.views.PsychologistSpecialtieManagementView',
+        'psychologistdegree': 'management.views.PsychologistDegreeManagementView',
+        'psychologistsection': 'management.views.PsychologistSectionManagementView',
+        'psychologistsocialmedia': 'management.views.PsychologistSocialMediaManagementView',
+
+        # 'psychologistnewpatients': 'management.views.PsychologistNewPatientsManagementView',
+        # 'workschedule': 'management.views.WorkScheduleManagementView',
+
+        'secretary': 'management.views.SecretaryManagementView',
+
+
+    # اطلاعات کلینیک
+
+    # اطلاعات آزمون
+
+    # تاریخچه
+
+    # اطلاعات عمومی
         'role':'management.views.RoleManagementView',
         'country':'management.views.CountryManagementView',
         'province':'management.views.ProvinceManagementView',
@@ -38,17 +60,13 @@ class ManagementView(View):
         'university':'management.views.UniversityManagementView',
         'fieldofstudy':'management.views.FieldOfStudyManagementView',
         'specialization':'management.views.SpecializationManagementView',
-        'profile':'management.views.ProfileManagementView',
-        'secretary': 'management.views.SecretaryManagementView',
         'psychologisttype': 'management.views.PsychologistTypeManagementView',
-        'psychologist': 'management.views.PsychologistManagementView',
-        'psychologistdocument': 'management.views.PsychologistDocumentManagementView',
-        'psychologistspecialtie': 'management.views.PsychologistSpecialtieManagementView',
-        'psychologistdegree': 'management.views.PsychologistDegreeManagementView',
         'sectiontype': 'management.views.SectionTypeManagementView',
-        'psychologistsection': 'management.views.PsychologistSectionManagementView',
         'platform': 'management.views.PlatformManagementView',
-        'psychologistsocialmedia': 'management.views.PsychologistSocialMediaManagementView',
+
+
+
+
     }
 
     def dispatch(self, request, subject, action, pk=None):
@@ -101,7 +119,7 @@ class BaseManagementView(LoginRequiredMixin, View):
     def get_sidebar_menu(self, request, active_section=None):
         """ساخت سایدبار به صورت متمرکز و قابل گسترش"""
         profile = request.user
-        roles = list(profile.roles.values_list('name', flat=True))
+        roles = list(profile.roles.values_list('name_en', flat=True))
         
         sidebar_menu = [
             {
@@ -381,7 +399,7 @@ class PsychologistManagementView(BaseManagementView):
                                                                                                 <img class="avatar brround avatar-md me-2 my-1" alt="avatra-img" src="/media/{{specialty.icon}}" style=" height: 17px; width: 17px">
                                                                                             </span>
                                                                                         {% endif %}
-                                                                                        {{ specialty.name }}
+                                                                                        {{ specialty.name_fa }}
                                                                                     </span>
                                                                                 {% endfor %}
                                                                             {% endif %}
@@ -1353,14 +1371,14 @@ class RoleManagementView(BaseManagementView):
         if action == 'list':
             queryset = Role.objects.all()
             search_fields = [
-                'name',
+                'name_fa',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست نقش‌ها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -1370,19 +1388,30 @@ class RoleManagementView(BaseManagementView):
             items, current_page, total_pages, total, per_page = apply_pagination(queryset, request, per_page=15)
             columns = [
                 {
-                    'field': 'name',
+                    'field': 'name_fa',
                     'title': 'نام',
                     'display': lambda obj: '''
-                        <a 
-                            class="btn btn-info btn-pill disabled col-4"
-                        >
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
                         pk=getattr(obj, 'pk', getattr(obj, 'id', '')),
-                        name=f"{getattr(obj, 'name', '')}".strip() or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
+                {
+                    'field': 'name_en',
+                    'title': 'نام انگلیسی',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
+                        </span>
+                    '''.format(
+                        pk=getattr(obj, 'pk', getattr(obj, 'id', '')),
+                        name=(getattr(obj, 'name_en', None) or '').strip() or ''
+                    )
+                },
+            
                 
             ]
             actions = [
@@ -1572,14 +1601,14 @@ class CountryManagementView(BaseManagementView):
         if action == 'list':
             queryset = Country.objects.all()
             search_fields = [
-                'name',
+                'name_fa',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست کشورها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -1590,16 +1619,17 @@ class CountryManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
+                    'field': 'name_fa',
                     'title': 'نام',
                     'display': lambda obj: '''
-                        <a class="btn btn-info btn-pill disabled col-4">
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
-                        name=f"{getattr(obj, 'name', '')}".strip() or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
+                
                 {
                     'field': 'icon',
                     'title': 'آیکون',
@@ -1820,15 +1850,15 @@ class ProvinceManagementView(BaseManagementView):
         if action == 'list':
             queryset = Province.objects.select_related('country').all()
             search_fields = [
-                'name',
-                'country__name',
+                'name_fa',
+                'country__name_fa',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست استان‌ها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -1839,20 +1869,21 @@ class ProvinceManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
+                    'field': 'name_fa',
                     'title': 'نام استان',
                     'display': lambda obj: '''
-                        <a class="btn btn-info btn-pill disabled col-4">
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
-                        name=f"{getattr(obj, 'name', '')}".strip() or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
+                
                 {
                     'field': 'country',
                     'title': 'کشور',
-                    'display': lambda obj: getattr(obj.country, 'name', '—')
+                    'display': lambda obj: getattr(obj.country, 'name_fa', '—')
                 },
             ]
 
@@ -1880,7 +1911,7 @@ class ProvinceManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/province/",
+                    "url": "/json/accounts/province/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -2048,16 +2079,16 @@ class CityManagementView(BaseManagementView):
         if action == 'list':
             queryset = City.objects.select_related('province', 'province__country').all()
             search_fields = [
-                'name',
-                'province__name',
-                'province__country__name',
+                'name_fa',
+                'province__name_fa',
+                'province__country__name_fa',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست شهرها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -2068,25 +2099,25 @@ class CityManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
+                    'field': 'name_fa',
                     'title': 'نام شهر',
                     'display': lambda obj: '''
-                        <a class="btn btn-info btn-pill disabled col-4">
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
-                        name=f"{getattr(obj, 'name', '')}".strip() or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
                 {
                     'field': 'province',
                     'title': 'استان',
-                    'display': lambda obj: getattr(obj.province, 'name', '—')
+                    'display': lambda obj: getattr(obj.province, 'name_fa', '—')
                 },
                 {
                     'field': 'country',
                     'title': 'کشور',
-                    'display': lambda obj: getattr(obj.province.country, 'name', '—')
+                    'display': lambda obj: getattr(obj.province.country, 'name_fa', '—')
                 },
             ]
 
@@ -2114,7 +2145,7 @@ class CityManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/city/",
+                    "url": "/json/accounts/city/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -2281,7 +2312,7 @@ class SpecialtyManagementView(BaseManagementView):
         if action == 'list':
             queryset = Specialty.objects.all()
             search_fields = [
-                'name',
+                'name_fa',
                 'description',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
@@ -2289,7 +2320,7 @@ class SpecialtyManagementView(BaseManagementView):
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست تخصص‌ها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -2300,13 +2331,15 @@ class SpecialtyManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
-                    'title': 'نام تخصص',
-                    'display': lambda obj: f'''
-                        <a class="btn btn-info btn-pill disabled">
-                            {getattr(obj, 'name', '') or '—'}
-                        </a>
-                    '''
+                    'field': 'name_fa',
+                    'title': 'نام',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
+                        </span>
+                    '''.format(
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
+                    )
                 },
                 {
                     'field': 'icon',
@@ -2368,7 +2401,7 @@ class SpecialtyManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/specialty/",
+                    "url": "/json/accounts/specialty/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -2533,17 +2566,17 @@ class UniversityManagementView(BaseManagementView):
         if action == 'list':
             queryset = University.objects.select_related('city', 'city__province', 'city__province__country').all()
             search_fields = [
-                'name',
-                'city__name',
-                'city__province__name',
-                'city__province__country__name',
+                'name_fa',
+                'city__name_fa',
+                'city__province__name_fa',
+                'city__province__country__name_fa',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست دانشگاه‌ها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -2554,14 +2587,14 @@ class UniversityManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
-                    'title': 'نام دانشگاه',
+                    'field': 'name_fa',
+                    'title': 'نام',
                     'display': lambda obj: '''
-                        <a class="btn btn-info btn-pill disabled">
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
-                        name=getattr(obj, 'name', '') or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
                 {
@@ -2576,12 +2609,12 @@ class UniversityManagementView(BaseManagementView):
                 {
                     'field': 'city',
                     'title': 'شهر',
-                    'display': lambda obj: getattr(obj.city, 'name', '—')
+                    'display': lambda obj: getattr(obj.city, 'name_fa', '—')
                 },
                 {
                     'field': 'province',
                     'title': 'استان',
-                    'display': lambda obj: getattr(obj.city.province, 'name', '—') if obj.city and hasattr(obj.city, 'province') else '—'
+                    'display': lambda obj: getattr(obj.city.province, 'name_fa', '—') if obj.city and hasattr(obj.city, 'province') else '—'
                 },
             ]
 
@@ -2609,7 +2642,7 @@ class UniversityManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/university/",
+                    "url": "/json/accounts/university/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -2776,7 +2809,7 @@ class FieldOfStudyManagementView(BaseManagementView):
             queryset = FieldOfStudy.objects.all()
 
             search_fields = [
-                'name',
+                'name_fa',
                 'description',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
@@ -2784,7 +2817,7 @@ class FieldOfStudyManagementView(BaseManagementView):
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست رشته‌های تحصیلی</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -2799,10 +2832,17 @@ class FieldOfStudyManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
-                    'title': 'نام رشته',
-                    'display': lambda obj: f"{obj.name}"
+                    'field': 'name_fa',
+                    'title': 'نام',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
+                        </span>
+                    '''.format(
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
+                    )
                 },
+
                 # {
                 #     'field': 'description',
                 #     'title': 'توضیحات',
@@ -2825,7 +2865,14 @@ class FieldOfStudyManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن رشته تحصیلی",
-                    "url": "/management/field-of-study/create/",
+                    "url": "/management/fieldofstudy/create/",
+                    "icon": "fe fe-plus",
+                    "class": "btn btn-success"
+                },
+                {
+                    "type": "create",
+                    "title": "افزودن با فایل",
+                    "url": "/json/accounts/fieldofstudy/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -2880,14 +2927,14 @@ class FieldOfStudyManagementView(BaseManagementView):
 
             base_context.update({
                 'title': 'ثبت رشته تحصیلی',
-                'back_url': '/management/field-of-study/list',
+                'back_url': '/management/fieldofstudy/list',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
                 'form': form,
                 'form_action': reverse(
                     'management-action',
-                    kwargs={'subject': 'field-of-study', 'action': 'create'}
+                    kwargs={'subject': 'fieldofstudy', 'action': 'create'}
                 ),
                 'submit_text': 'ذخیره',
                 'submit_class': 'btn btn-success btn-lg btn-block',
@@ -2912,7 +2959,7 @@ class FieldOfStudyManagementView(BaseManagementView):
 
             base_context.update({
                 'title': 'ویرایش رشته تحصیلی',
-                'back_url': '/management/field-of-study/list',
+                'back_url': '/management/fieldofstudy/list',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -2920,7 +2967,7 @@ class FieldOfStudyManagementView(BaseManagementView):
                 'form_action': reverse(
                     'management-action-detail',
                     kwargs={
-                        'subject': 'field-of-study',
+                        'subject': 'fieldofstudy',
                         'action': 'update',
                         'pk': field_of_study.pk
                     }
@@ -2945,7 +2992,7 @@ class FieldOfStudyManagementView(BaseManagementView):
                 messages.success(request, "رشته تحصیلی با موفقیت ثبت شد.")
                 return redirect(
                     'management-action',
-                    subject='field-of-study',
+                    subject='fieldofstudy',
                     action='list'
                 )
 
@@ -2958,14 +3005,14 @@ class FieldOfStudyManagementView(BaseManagementView):
 
             base_context.update({
                 'title': 'ثبت رشته تحصیلی',
-                'back_url': '/management/field-of-study/list',
+                'back_url': '/management/fieldofstudy/list',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
                 'form': form,
                 'form_action': reverse(
                     'management-action',
-                    kwargs={'subject': 'field-of-study', 'action': 'create'}
+                    kwargs={'subject': 'fieldofstudy', 'action': 'create'}
                 ),
                 'submit_text': 'ذخیره',
                 'submit_class': 'btn btn-success btn-lg btn-block',
@@ -2988,7 +3035,7 @@ class FieldOfStudyManagementView(BaseManagementView):
                 messages.success(request, "رشته تحصیلی با موفقیت ویرایش شد.")
                 return redirect(
                     'management-action',
-                    subject='field-of-study',
+                    subject='fieldofstudy',
                     action='list'
                 )
 
@@ -3001,7 +3048,7 @@ class FieldOfStudyManagementView(BaseManagementView):
 
             base_context.update({
                 'title': 'ویرایش رشته تحصیلی',
-                'back_url': '/management/field-of-study/list',
+                'back_url': '/management/fieldofstudy/list',
                 'back_text': 'بازگشت',
                 'back_class': 'btn btn-default-light',
                 'back_icon': 'fa fa-arrow-left',
@@ -3009,7 +3056,7 @@ class FieldOfStudyManagementView(BaseManagementView):
                 'form_action': reverse(
                     'management-action-detail',
                     kwargs={
-                        'subject': 'field-of-study',
+                        'subject': 'fieldofstudy',
                         'action': 'update',
                         'pk': field_of_study.pk
                     }
@@ -3033,15 +3080,15 @@ class SpecializationManagementView(BaseManagementView):
         if action == 'list':
             queryset = Specialization.objects.select_related('field').all()
             search_fields = [
-                'name',
-                'field__name',           # فرض بر این است که FieldOfStudy فیلد name دارد
+                'name_fa',
+                'field__name_fa',           # فرض بر این است که FieldOfStudy فیلد name دارد
             ]
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست گرایش‌های تحصیلی</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -3052,18 +3099,20 @@ class SpecializationManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
-                    'title': 'نام گرایش',
-                    'display': lambda obj: f'''
-                        <span class="badge bg-info fs-6">
-                            {getattr(obj, 'name', '') or '—'}
+                    'field': 'name_fa',
+                    'title': 'نام',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
                         </span>
-                    '''
+                    '''.format(
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
+                    )
                 },
                 {
                     'field': 'field',
                     'title': 'رشته تحصیلی',
-                    'display': lambda obj: getattr(obj.field, 'name', '—')
+                    'display': lambda obj: getattr(obj.field, 'name_fa', '—')
                 },
             ]
 
@@ -3091,7 +3140,7 @@ class SpecializationManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/specialization/",
+                    "url": "/json/accounts/specialization/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -3258,7 +3307,7 @@ class PsychologistTypeManagementView(BaseManagementView):
         if action == 'list':
             queryset = PsychologistType.objects.all()
             search_fields = [
-                'name',
+                'name_fa',
                 'description',
             ]
             queryset, query = apply_search(queryset, request, search_fields)
@@ -3266,7 +3315,7 @@ class PsychologistTypeManagementView(BaseManagementView):
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست انواع متخصص</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -3277,14 +3326,14 @@ class PsychologistTypeManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'name',
-                    'title': 'نام نوع متخصص',
+                    'field': 'name_fa',
+                    'title': 'نام',
                     'display': lambda obj: '''
-                        <a class="btn btn-info btn-pill disabled">
+                        <span class="">
                             {name}
-                        </a>
+                        </span>
                     '''.format(
-                        name=getattr(obj, 'name', '') or '—'
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
                     )
                 },
                 {
@@ -3327,7 +3376,7 @@ class PsychologistTypeManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/psychologisttype/",
+                    "url": "/json/accounts/psychologisttype/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -3492,13 +3541,13 @@ class SectionTypeManagementView(BaseManagementView):
 
         if action == 'list':
             queryset = SectionType.objects.all()
-            search_fields = ['title']
+            search_fields = ['name_fa']
             queryset, query = apply_search(queryset, request, search_fields)
 
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست انواع بخش</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -3509,13 +3558,15 @@ class SectionTypeManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'title',
-                    'title': 'عنوان بخش',
-                    'display': lambda obj: f'''
-                        <span class="badge bg-primary fs-6">
-                            {getattr(obj, 'title', '') or '—'}
+                    'field': 'name_fa',
+                    'title': 'نام',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
                         </span>
-                    '''
+                    '''.format(
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
+                    )
                 },
                 {
                     'field': 'icon',
@@ -3552,7 +3603,7 @@ class SectionTypeManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/sectiontype/",
+                    "url": "/json/accounts/sectiontype/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }
@@ -3727,7 +3778,7 @@ class PlatformManagementView(BaseManagementView):
             breadcrumb = """
                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد </a></li>
-                <li class="breadcrumb-item"><a href="/dashboard/manager"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/admin"><i class="ri ri-user-settings-fill ml-1"></i>پنل ادمین</a></li>
                 <li class="breadcrumb-item text-dark"><i class="fa fa-list ml-1 rotate-180"></i>لیست پلتفرم‌ها</li>
                 <li class="breadcrumb-back">
                     <a href="/dashboard/user/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
@@ -3738,13 +3789,15 @@ class PlatformManagementView(BaseManagementView):
 
             columns = [
                 {
-                    'field': 'title',
-                    'title': 'عنوان پلتفرم',
-                    'display': lambda obj: f'''
-                        <span class="badge bg-primary fs-6">
-                            {getattr(obj, 'title', '') or '—'}
+                    'field': 'name_fa',
+                    'title': 'نام',
+                    'display': lambda obj: '''
+                        <span class="">
+                            {name}
                         </span>
-                    '''
+                    '''.format(
+                        name=(getattr(obj, 'name_fa', None) or '').strip() or ''
+                    )
                 },
                 {
                     'field': 'url',
@@ -3788,7 +3841,7 @@ class PlatformManagementView(BaseManagementView):
                 {
                     "type": "create",
                     "title": "افزودن فایل",
-                    "url": "/json/platform/",
+                    "url": "/json/accounts/platform/",
                     "icon": "fe fe-plus",
                     "class": "btn btn-success"
                 }

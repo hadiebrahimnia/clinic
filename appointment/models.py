@@ -7,19 +7,17 @@ class Room(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True)
-
     is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
-
     def __str__(self):
         return self.name
     
 class SessionType(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     icon = models.ImageField(
         upload_to='SessionType/icons/',
         blank=True,

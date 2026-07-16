@@ -23,7 +23,8 @@ class Questionnaire(models.Model):
 
 # ویژگی
 class Attribute(models.Model):
-    title = models.CharField(max_length=200, verbose_name="ویژگی")
+    name_en = models.CharField(max_length=100)
+    name_fa = models.CharField(max_length=100,blank=True,null=True,)
     is_active = models.BooleanField(default=False,verbose_name="وضعیت فعالیت")
     is_deleted = models.BooleanField(default=False,verbose_name="حذف شده")
     created_at = models.DateTimeField(auto_now_add=True)

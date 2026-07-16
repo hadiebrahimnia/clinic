@@ -116,9 +116,9 @@ class HomeView(TemplateView):
                 'username': psych.profile.username,
                 'profile_picture': psych.profile_picture.url if psych.profile_picture else None,
                 'location': {
-                    'city': psych.profile.city.name if psych.profile.city else None,
-                    'province': psych.profile.city.province.name if psych.profile.city and psych.profile.city.province else None,
-                    'country': psych.profile.city.province.country.name if psych.profile.city and psych.profile.city.province and psych.profile.city.province.country else None,
+                    'city': psych.profile.city.name_fa if psych.profile.city else None,
+                    'province': psych.profile.city.province.name_fa if psych.profile.city and psych.profile.city.province else None,
+                    'country': psych.profile.city.province.country.name_fa if psych.profile.city and psych.profile.city.province and psych.profile.city.province.country else None,
                 } if psych.profile.city else None,
                 'contact': {
                     'phone': psych.profile.phone_number,
@@ -253,7 +253,7 @@ class BaseDashboardView(LoginRequiredMixin, View):
     def get_sidebar_menu(self, request, active_section=None):
         """ساخت سایدبار به صورت متمرکز و قابل گسترش"""
         profile = request.user
-        roles = list(profile.roles.values_list('name', flat=True))
+        roles = list(profile.roles.values_list('name_en', flat=True))
         
         sidebar_menu = [
             {
@@ -551,7 +551,7 @@ class DashboardManagerView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> متخصصان</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -569,7 +569,7 @@ class DashboardManagerView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">منشی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -630,7 +630,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">پروفایل</h2>
                                                 <h5 class="fw-normal mb-0">ویرایش</h5>
                                             </div>
@@ -650,7 +650,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">زمینه کاری</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -669,7 +669,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">مدارک</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -688,7 +688,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">مدارک تحصیلی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -707,7 +707,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">بیوگرافی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -726,7 +726,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">شبکه اجتماعی</h2>
                                                 <h5 class="fw-normal mb-0">ثبت و ویرایش</h5>
                                             </div>
@@ -747,7 +747,7 @@ class DashboardPsychologistView(BaseDashboardView):
                                     <div class="card-alert alert alert-danger mb-0">
                                         روزهای کاری منحصرا توسط کلینیک ثبت می‌گردد
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body px-0 text-start">
                                         {% for schedule in workschedules %}
                                         <div class="clearfix row mb-4">
                                             <div class="col">
@@ -820,7 +820,7 @@ class DashboardSecretaryView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">پروفایل</h2>
                                                 <h5 class="fw-normal mb-0">ویرایش</h5>
                                             </div>
@@ -881,7 +881,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> کاربران</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -900,7 +900,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> متخصصان</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -918,7 +918,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">پذیرش مراجع</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -936,7 +936,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">روزهای کاری متخصصین</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -955,7 +955,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">مدارک متخصصین</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -974,7 +974,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">زمینه کاری متخصصین</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -994,7 +994,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">مدارک تحصیلی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1013,7 +1013,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">بیوگرافی متخصصین</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1032,7 +1032,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">شبکه‌های اجتماعی متخصصین</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1051,7 +1051,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">منشی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1077,7 +1077,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> اتاق‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1096,7 +1096,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> نوع جلسات</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1114,7 +1114,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">روزهای کاری</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1132,7 +1132,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">نوبت‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1158,7 +1158,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2"> آزمون‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1177,7 +1177,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">ویژگی‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1195,7 +1195,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">نتایج</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1221,7 +1221,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">تاریخچه تفییرات</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1247,7 +1247,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">نقش‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1266,7 +1266,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">کشور</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1285,7 +1285,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">استان</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1304,7 +1304,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">شهر</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1323,7 +1323,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">تخصص‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1342,7 +1342,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">دانشگاه‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1361,26 +1361,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
-                                                <h2 class="mb-2 fw-normal mt-2">رشته تحصیلی</h2>
-                                                <h5 class="fw-normal mb-0">لیست</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-sm-6 col-lg-6 col-md-12 col-xl-4 mb-5">
-                                <a href="/management/fieldofstudy/list" class="btn btn-default-light col-12 p-0">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <div class="card-img-absolute circle-icon bg-default text-center align-self-center bradius">
-                                                <img src="/static/images/svgs/circle.svg" alt="img" class="card-img-absolute">
-                                                <i class="lnr lnr-user fs-30 text-dark mt-4"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">رشته‌های تحصیلی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1400,7 +1381,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">گرایش‌های تحصیلی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1419,7 +1400,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">نوع تخصص ‌ها</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1439,7 +1420,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">بخش‌های بیوگرافی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
@@ -1458,7 +1439,7 @@ class DashboardAdminView(BaseDashboardView):
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="card-body">
+                                            <div class="card-body px-0 text-start">
                                                 <h2 class="mb-2 fw-normal mt-2">شبکه‌های اجتماعی</h2>
                                                 <h5 class="fw-normal mb-0">لیست</h5>
                                             </div>
