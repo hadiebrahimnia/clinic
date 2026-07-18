@@ -216,9 +216,13 @@ def render_generic_table(
                 if callable(confirm):
                     confirm = confirm(obj)
 
+                extra_class = display_config.get('extra_class', '')
+                if callable(extra_class):
+                    extra_class = extra_class(obj)
+
                 html = f'''
                     <button type="button" 
-                            class="toggle toggle-sm status-switch mt-2 {'active' if is_active else ''}"
+                            class="toggle toggle-sm status-switch mt-2 {'active' if is_active else ''} {extra_class}"
                             data-app="{display_config.get('app', 'accounts')}"
                             data-model="{display_config.get('model', model_name)}"
                             data-id="{getattr(obj, 'pk', getattr(obj, 'id', ''))}"

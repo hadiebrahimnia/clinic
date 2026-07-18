@@ -9,7 +9,7 @@ class Role(models.Model):
     name_en = models.CharField(max_length=100)
     name_fa = models.CharField(max_length=100,blank=True,null=True,)
     def __str__(self):
-        return self.name_en
+        return self.name_fa or self.name_en or str(self.pk)
 
 class Country(models.Model):
     name_en = models.CharField(max_length=100,blank=True,null=True,)
@@ -121,7 +121,8 @@ class Specialization(models.Model):
         verbose_name_plural = "Specializations"
 
     def __str__(self):
-        return f"{self.name_fa} ({self.field})"
+        field_name = self.field.name_fa if self.field else ""
+        return f"{self.name_fa} ({field_name})" if self.name_fa else str(self.pk)
 
 class Profile(AbstractUser):
     phone_number = models.CharField(max_length=11, blank=True, null=True)

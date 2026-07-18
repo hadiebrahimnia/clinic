@@ -27,7 +27,7 @@ class SessionType(models.Model):
     )
     
     def __str__(self):
-        return self.name
+        return self.name_fa
 
     class Meta:
         verbose_name = "SessionType"

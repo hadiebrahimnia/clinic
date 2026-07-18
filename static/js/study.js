@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.forEach(item => {
                     specialization.innerHTML += `
                         <option value="${item.id}">
-                            ${item.name}
+                            ${item.name_fa}
                         </option>
                     `;
                 });

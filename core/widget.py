@@ -604,7 +604,7 @@ class ChainedLocationWidget(forms.Widget):
             f'''
             <option value="{country.id}"
             {"selected" if context["selected_country"] and context["selected_country"].id == country.id else ""}>
-                {country.name}
+                {country.name_fa}
             </option>
             '''
             for country in context['countries']
@@ -614,7 +614,7 @@ class ChainedLocationWidget(forms.Widget):
             f'''
             <option value="{province.id}"
             {"selected" if context["selected_province"] and context["selected_province"].id == province.id else ""}>
-                {province.name}
+                {province.name_fa}
             </option>
             '''
             for province in context['provinces']
@@ -624,7 +624,7 @@ class ChainedLocationWidget(forms.Widget):
             f'''
             <option value="{city.id}"
             {"selected" if context["selected_city"] and context["selected_city"].id == city.id else ""}>
-                {city.name}
+                {city.name_fa}
             </option>
             '''
             for city in context['cities']
@@ -752,7 +752,7 @@ class ChainedStudyWidget(forms.Widget):
             f"""
             <option value="{field.id}"
             {"selected" if context["selected_field"] and context["selected_field"].id == field.id else ""}>
-                {field.name}
+                {field.name_fa}
             </option>
             """
             for field in context["fields"]
@@ -762,7 +762,7 @@ class ChainedStudyWidget(forms.Widget):
             f"""
             <option value="{specialization.id}"
             {"selected" if context["selected_specialization"] and context["selected_specialization"].id == specialization.id else ""}>
-                {specialization.name}
+                {specialization.name_fa}
             </option>
             """
             for specialization in context["specializations"]

@@ -183,7 +183,7 @@ class AccountView(View):
 
                 user = form.save(commit=False) 
                 user.save()
-                default_role, _ = Role.objects.get_or_create(name_en="user")
+                default_role, _ = Role.objects.get_or_create(name_en="user",name_fa="کاربر")
                 user.roles.add(default_role)
 
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد! به پروفایل خود خوش آمدید.')
@@ -418,12 +418,15 @@ class PsychologistActionView(View):
                                                                 {% for ps in psychologist.specialties.all %}
                                                                     {% for specialty in ps.specialties.all %}
                                                                         <span class="tag tag-rounded" style="background:{{ specialty.background_color }};color:{{ specialty.color }};border: 2px solid {{ specialty.color }};">
+                                                                            
                                                                             {% if specialty.icon%}
                                                                                 <span>
                                                                                     <img class="avatar brround avatar-md me-2 my-1" alt="avatra-img" src="/media/{{specialty.icon}}" style=" height: 17px; width: 17px">
                                                                                 </span>
                                                                             {% endif %}
+
                                                                             {{ specialty.name_fa }}
+                                                                        </span>
                                                                     {% endfor %}
                                                                 {% endfor %}        
                                                             </p>
@@ -627,8 +630,6 @@ class PsychologistActionView(View):
             except Exception:
                 sections = None
             
-            print(sections)
-
             # ==================== تمپلیت بهینه‌شده ====================
             template_string = """
                 {% load jdate %}
@@ -880,7 +881,7 @@ class PsychologistActionView(View):
                                                                                         {{ degree.specialization.field.name_fa|default:"—" }}
                                                                                         {{ degree.specialization.name_fa|default:"—" }} 
                                                                                         {% if degree.display_config.university %}
-                                                                                            از دانشگاه
+                                                                                            از
                                                                                             {{ degree.university|default:"—" }}
                                                                                         {% endif %}
                                                                                         {% if degree.display_config.gpa and degree.gpa %}
@@ -942,7 +943,7 @@ class PsychologistActionView(View):
                                                     {% for document in documents %}
                                                     <div class="card">
                                                         <div class="card-header d-flex">
-                                                            <div class="card-title">{{ document.get_document_type_display}} - {{ document.title}}</div>
+                                                            <div class="card-title">{{ document.get_document_type_display}} - {{ document.name_fa}}</div>
                                                             {% if is_owner %}
                                                                 <a href="/psychologistdocument/update/{{document.id}}/" class="btn btn-outline-info border-0 mr-auto">
                                                                     <i class="fa fa-pencil-square-o"></i> ویرایش
@@ -1107,7 +1108,7 @@ class PsychologistActionView(View):
                 psychologist.profile = request.user
                 psychologist.save()
                 form.save_m2m()
-                default_role, _ = Role.objects.get_or_create(name_en="psychologist")
+                default_role, _ = Role.objects.get_or_create(name_en="psychologist",name_fa="متخصص")
                 request.user.roles.add(default_role)
                 PsychologistNewPatients.objects.get_or_create(
                     psychologist=psychologist,
@@ -1326,7 +1327,7 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                     {% elif psychologistdocument.document_type == "license_card" %}
                                                         {{ psychologistdocument.get_document_type_display }}
                                                     {% else %}
-                                                        {{ psychologistdocument.get_document_type_display }} - {{ psychologistdocument.title }} 
+                                                        {{ psychologistdocument.get_document_type_display }} - {{ psychologistdocument.name_fa }} 
                                                     {% endif %}
                                                     </span>
                                                 </a>
@@ -1380,7 +1381,7 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                             {% elif psychologistdocument.document_type == "license_card" %}
                                                                 {{ psychologistdocument.get_document_type_display }}
                                                             {% else %}
-                                                                {{ psychologistdocument.get_document_type_display }} - {{ psychologistdocument.title }} 
+                                                                {{ psychologistdocument.get_document_type_display }} - {{ psychologistdocument.name_fa }} 
                                                             {% endif %}
                                                             </span>
                                                             </h3>
@@ -1397,7 +1398,7 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                                     data-id="{{ psychologistdocument.id }}" 
                                                                     data-field="is_deleted"
                                                                     data-title="psychologistdocument"
-                                                                    data-confirm="حذف کامل {{psychologistdocument.title}}"
+                                                                    data-confirm="حذف کامل {{psychologistdocument.name_fa}}"
                                                                     data-bs-toggle="tooltip" 
                                                                     title="حذف"
                                                                 >
@@ -1416,8 +1417,8 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                                         </span>                                                        
                                                                     </div>
                                                                     <div class="col-md-8 col-5 px-0">
-                                                                        {% if psychologistdocument.title %}
-                                                                            <h5 class="mb-1">{{ psychologistdocument.title }}</h5>
+                                                                        {% if psychologistdocument.name_fa %}
+                                                                            <h5 class="mb-1">{{ psychologistdocument.name_fa }}</h5>
                                                                         {% else %}
                                                                             <cite class="text-muted">ثبت نشده</cite> 
                                                                         {% endif %}
@@ -1429,7 +1430,7 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                                             <button
                                                                                 type="button"
                                                                                 class="toggle toggle-sm status-switch 
-                                                                                {% if psychologistdocument.display_config.title %}active{% endif %}"
+                                                                                {% if psychologistdocument.display_config.name_fa %}active{% endif %}"
                                                                                 data-app="accounts" 
                                                                                 data-model="PsychologistDocument"
                                                                                 data-id="{{ psychologistdocument.id }}"
@@ -1486,7 +1487,7 @@ class PsychologistDocumentView(BaseDashboardView,View):
                                                                     <div class="col-md-8 col-5 px-0">
                                                                         {% if psychologistdocument.document_image %}
                                                                             <a href="javascript:void(0)" 
-                                                                                onclick="showImageModal('/media/{{ psychologistdocument.document_image }}', '{{ psychologistdocument.title }}')">
+                                                                                onclick="showImageModal('/media/{{ psychologistdocument.document_image }}', '{{ psychologistdocument.name_fa }}')">
                                                                                 <img 
                                                                                     class="img-responsive br-5 img-zoom p-0 col-md-1 col-4"
                                                                                     src="/media/{{ psychologistdocument.document_image}}"
@@ -2336,7 +2337,7 @@ class PsychologistSectionView(BaseDashboardView,View):
                                                     <i class="side-menu__icon fa fa-layer-group"></i>
                                                 </span>
                                                 <span class="side-menu__label mr-2">
-                                                    {{ section.section_type.title|default:"بخش بدون عنوان" }}
+                                                    {{ section.section_type.name_fa|default:"بخش بدون عنوان" }}
                                                     {% if section.order %} (ترتیب: {{ section.order }}) {% endif %}
                                                 </span>
                                             </a>
@@ -2379,7 +2380,7 @@ class PsychologistSectionView(BaseDashboardView,View):
                                                         </div>
 
                                                         <h3 class="card-title">
-                                                            {{ section.section_type.title|default:"بخش بدون عنوان" }}
+                                                            {{ section.section_type.name_fa|default:"بخش بدون عنوان" }}
                                                         </h3>
                                                         
                                                         <div class="card-options">
@@ -2394,7 +2395,7 @@ class PsychologistSectionView(BaseDashboardView,View):
                                                                 data-id="{{ section.id }}" 
                                                                 data-field="is_deleted"
                                                                 data-title="section"
-                                                                data-confirm="حذف کامل {{ section.section_type.title|default:'این بخش' }}"
+                                                                data-confirm="حذف کامل {{ section.section_type.name_fa|default:'این بخش' }}"
                                                                 data-bs-toggle="tooltip" 
                                                                 title="حذف"
                                                             >
@@ -2415,7 +2416,7 @@ class PsychologistSectionView(BaseDashboardView,View):
                                                                 </div>
                                                                 <div class="col-md-8 col-5 px-0">
                                                                     {% if section.section_type %}
-                                                                        <h5 class="mb-1">{{ section.section_type.title }}</h5>
+                                                                        <h5 class="mb-1">{{ section.section_type.name_fa }}</h5>
                                                                     {% else %}
                                                                         <cite class="text-muted">ثبت نشده</cite> 
                                                                     {% endif %}
@@ -2750,7 +2751,7 @@ class PsychologistSocialMediaView(BaseDashboardView,View):
                                                     <img class="avatar brround avatar-md grayscale" src="/media/{{psychologistsocialmedia.platform.icon}}" alt="">
                                                 </span>
                                                 <span class="side-menu__label mr-2">
-                                                    {{ psychologistsocialmedia.platform.title|default:"شبکه اجتماعی" }}
+                                                    {{ psychologistsocialmedia.platform.name_fa|default:"شبکه اجتماعی" }}
                                                 </span>
                                             </a>
                                             {% endif %}
@@ -2792,7 +2793,7 @@ class PsychologistSocialMediaView(BaseDashboardView,View):
                                                         </div>
 
                                                         <h3 class="card-title">
-                                                            {{ psychologistsocialmedia.platform.title|default:"شبکه اجتماعی" }}
+                                                            {{ psychologistsocialmedia.platform.name_fa|default:"شبکه اجتماعی" }}
                                                         </h3>
                                                         
                                                         <div class="card-options">
@@ -3118,7 +3119,7 @@ class SecretaryActionView(View):
                 request.user.save()
                 secretary.profile = request.user
                 secretary.save()
-                default_role, _ = Role.objects.get_or_create(name_en="secretary")
+                default_role, _ = Role.objects.get_or_create(name_en="secretary",name_fa="منشی")
                 request.user.roles.add(default_role)
                 messages.success(request, "اطلاعات متخصص با موفقیت ثبت شد.")
                 return redirect('dashboard', subject='secretary')

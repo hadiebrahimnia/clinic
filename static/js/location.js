@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.forEach(item => {
                     province.innerHTML += `
                         <option value="${item.id}">
-                            ${item.name}
+                            ${item.name_fa}
                         </option>
                     `;
                 });
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.forEach(item => {
                     city.innerHTML += `
                         <option value="${item.id}">
-                            ${item.name}
+                            ${item.name_fa}
                         </option>
                     `;
                 });
