@@ -1569,7 +1569,7 @@ class JsonActionView(View):
                     json_file=form.cleaned_data["json_file"]
                 )
                 messages.success(request, "اطلاعات با موفقیت وارد شدند.")
-                return redirect("/dashboard/admin/")
+                return redirect("/dashboard/manager/")
             except Exception as e:
                 messages.error(request, f"خطا در بارگذاری اطلاعات: {str(e)}")
 
