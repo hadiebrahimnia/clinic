@@ -225,8 +225,8 @@ class PsychologistCreationUpdateForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=1800,
-            max_height=1800,
+            max_width=2800,
+            max_height=2800,
         )
     ) 
 
@@ -407,8 +407,8 @@ class PsychologistDegreeForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=1800,
-            max_height=1800,
+            max_width=2800,
+            max_height=2800,
         )
     )
 
@@ -479,8 +479,8 @@ class PsychologistDocumentForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=1800,
-            max_height=1800,
+            max_width=2800,
+            max_height=2800,
         )
     )
 
@@ -663,8 +663,8 @@ class SecretaryCreationUpdateForm(forms.ModelForm):
             max_size_mb=1,
             min_width=200,
             min_height=200,
-            max_width=1800,
-            max_height=1800,
+            max_width=2800,
+            max_height=2800,
         )
     ) 
 

@@ -629,6 +629,15 @@ class PsychologistActionView(View):
                 )
             except Exception:
                 sections = None
+
+            try:
+                workschedules=WorkSchedule.objects.filter(
+                    psychologist=psychologist,
+                    is_active=True,
+                    is_deleted=False
+                )
+            except Exception:
+                workschedules = None
             
             # ==================== تمپلیت بهینه‌شده ====================
             template_string = """
@@ -806,38 +815,42 @@ class PsychologistActionView(View):
                                             <!-- ستون چپ -->
                                             <div class="col-xl-3">
                                                 <!-- روزهای کاری -->
-                                                <div class="card">
-                                                    <div class="card-header d-flex">
-                                                        <div class="card-title">روزهای کاری</div>
-                                                    </div>
-                                                    {% if not is_accepting_new_patients %}
-                                                        <div class="card-alert alert alert-danger mb-0">
-                                                            <i class="fe fe-alert-triangle fs-5"></i>
-                                                            <span> متخصص مراجع جدید نمی‌پذیرد</span>
+                                                {% if workschedule %}
+                                                    <div class="card">
+                                                        <div class="card-header d-flex">
+                                                            <div class="card-title">روزهای کاری</div>
                                                         </div>
-                                                    {% endif %}
-                                                    <div class="card-body"></div>
-                                                </div>
+                                                        {% if not is_accepting_new_patients %}
+                                                            <div class="card-alert alert alert-danger mb-0">
+                                                                <i class="fe fe-alert-triangle fs-5"></i>
+                                                                <span> متخصص مراجع جدید نمی‌پذیرد</span>
+                                                            </div>
+                                                        {% endif %}
+                                                        <div class="card-body"></div>
+                                                    </div>
+                                                {% endif %}
 
                                                 <!-- زمینه کاری -->
                                                 {% if specialties and specialties.specialties.exists %}
-                                                <div class="card">
-                                                    <div class="card-header d-flex">
-                                                        <div class="card-title">زمینه کاری</div>
-                                                        {% if is_owner %}
-                                                            <a href="/psychologistspecialtie/update/{{psychologist.id}}" class="btn btn-outline-info border-0 mr-auto">
-                                                                <i class="fa fa-pencil-square-o"></i> ویرایش
-                                                            </a>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="tags">
-                                                            {% for specialtie in specialties.specialties.all %}
-                                                                <a href="javascript:void(0)" class="btn btn-default-light me-2 mb-2">{{specialtie}}</a>
-                                                            {% endfor %}
+                                                    {% if specialties.is_active %}
+                                                        <div class="card">
+                                                            <div class="card-header d-flex">
+                                                                <div class="card-title">زمینه کاری</div>
+                                                                {% if is_owner %}
+                                                                    <a href="/psychologistspecialtie/update/{{psychologist.id}}" class="btn btn-outline-info border-0 mr-auto">
+                                                                        <i class="fa fa-pencil-square-o"></i> ویرایش
+                                                                    </a>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="tags">
+                                                                    {% for specialtie in specialties.specialties.all %}
+                                                                        <a href="javascript:void(0)" class="btn btn-default-light me-2 mb-2">{{specialtie}}</a>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
+                                                    {% endif %}
                                                 {% endif %}
 
                                                 <!-- تحصیلات -->
@@ -1073,6 +1086,7 @@ class PsychologistActionView(View):
                 'license_card':license_card,
                 'socialmedias':socialmedias,
                 'documents':documents,
+                'workschedules':workschedules,
             }))
 
             context = {

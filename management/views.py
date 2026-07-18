@@ -538,11 +538,12 @@ class PsychologistManagementView(BaseManagementView):
 
         elif action == 'detail':    
             psychologist = get_object_or_404(Psychologist, pk=pk)
-            psychologistspecialties=PsychologistSpecialtie.objects.filter().exclude(is_deleted=True)
-            psychologistdocuments=PsychologistDocument.objects.filter().exclude(is_deleted=True)
-            psychologistdegrees=PsychologistDegree.objects.filter().exclude(is_deleted=True)
-            psychologistsections=PsychologistSection.objects.filter().exclude(is_deleted=True)
-            psychologistsocialmedias=PsychologistSocialMedia.objects.filter().exclude(is_deleted=True)
+            psychologistnewpatients=PsychologistNewPatients.objects.get(psychologist=psychologist)
+            psychologistspecialties=PsychologistSpecialtie.objects.filter(psychologist=psychologist).exclude(is_deleted=True)
+            psychologistdocuments=PsychologistDocument.objects.filter(psychologist=psychologist).exclude(is_deleted=True)
+            psychologistdegrees=PsychologistDegree.objects.filter(psychologist=psychologist).exclude(is_deleted=True)
+            psychologistsections=PsychologistSection.objects.filter(psychologist=psychologist).exclude(is_deleted=True)
+            psychologistsocialmedias=PsychologistSocialMedia.objects.filter(psychologist=psychologist).exclude(is_deleted=True)
             
             template_string = """
             {% load jdate %}
@@ -558,7 +559,7 @@ class PsychologistManagementView(BaseManagementView):
                                 <li class="breadcrumb-item"><a href="/management/psychologist/list/"><i class="fa fa-list ml-1"></i>لیست متخصصان</a></li>
                                 <li class="breadcrumb-item text-dark"><i class="fa fa-user ml-1"></i>{{psychologist.profile.first_name}} {{psychologist.profile.last_name}}</li>
                                 <li class="breadcrumb-back">
-                                    <a href="/dashboard/manager/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                    <a href="/management/psychologist/list/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
                                 </li>
                             </ol>
                         </div>
@@ -588,6 +589,49 @@ class PsychologistManagementView(BaseManagementView):
                             </div>
                         {% else %}
                             <div class="row">
+                                {% if psychologistnewpatients %}
+                                    <div class="col-12">
+                                        <div class="card">
+
+                                            <div class="card-header">
+                                                <h3 class="card-title">مراجع جدید</h3>
+                                            </div>
+                                            <div class="card-body ">
+                                                <div class="accordion" id="psychologistnewpatients">
+                                                    <div class="accordion-item">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-2 px-0 py-3">
+                                                                <div class="toggle_div" style="justify-content: left;">
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="toggle toggle-sm status-switch {% if psychologistnewpatients.is_accepting_new_patients %}active{% endif %} {% if cur_profile.access_level == "basic" or cur_profile.access_level == "readonly" %} disabled {% endif %}" 
+                                                                        data-app="appointment" 
+                                                                        data-model="PsychologistNewPatients" 
+                                                                        data-id="{{psychologistnewpatients.id}}" 
+                                                                        data-field="is_accepting_new_patients" 
+                                                                        data-title="" 
+                                                                        data-confirm="فعالسازی"
+                                                                        >
+                                                                        <span class="thumb"></span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-11 col-10">
+                                                                <h2 class="accordion-header" id="headingOne">
+                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_psychologistspecialtie_{{psychologistspecialtie.id}}" aria-expanded="false" aria-controls="collapse_psychologistspecialtie_{{psychologistspecialtie.id}}">
+                                                                        مراجع جدید
+                                                                    </button>
+                                                                </h2>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+
                                 {% if psychologistspecialties %}
                                     <div class="col-12">
                                         <div class="card">
@@ -1430,6 +1474,7 @@ class PsychologistManagementView(BaseManagementView):
             content = t.render(Context({
                 'cur_profile':cur_profile,
                 'psychologist':psychologist,
+                'psychologistnewpatients':psychologistnewpatients,
                 'psychologistdocuments':psychologistdocuments,
                 'psychologistdegrees':psychologistdegrees,
                 'psychologistspecialties':psychologistspecialties,
