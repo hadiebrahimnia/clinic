@@ -522,9 +522,7 @@ class DashboardUserView(BaseDashboardView):
 class DashboardManagerView(BaseDashboardView):
 
     def get(self, request, **kwargs):
-        psychologist = Psychologist.objects.get(profile=request.user)
-        workschedules = WorkSchedule.objects.filter(psychologist=psychologist)
-        cur_profile=get_profile_status(request)
+        cur_profile=get_profile_status(request)        
         template_string = """
             <div class="main-content with-sidebar">
                 <div class="side-app">
@@ -1196,8 +1194,6 @@ class DashboardManagerView(BaseDashboardView):
         t = Template(template_string)
         content = t.render(Context({
             'cur_profile':cur_profile,
-            'psychologist': psychologist,
-            'workschedules': workschedules,
         }))
 
         context = {
