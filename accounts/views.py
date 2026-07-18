@@ -354,8 +354,10 @@ class PsychologistActionView(View):
                         <div class="main-container container-fluid">
                             <div class="page-header">
                                 <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
-                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
+                                    <li class="breadcrumb-item">
+                                        <a href="/"><i class="icon icon-home ml-2"></i>خانه</a>
+                                    </li>
+                                    <li class="breadcrumb-item text-dark" aria-current="page"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</li>
                                     <li class="breadcrumb-back">
                                         <a href="/" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
                                     </li>
@@ -719,6 +721,9 @@ class PsychologistActionView(View):
 
                                 <div class="page-header">
                                     <ol class="breadcrumb">
+                                        <li class="breadcrumb-item">
+                                            <a href="/"><i class="icon icon-home ml-2"></i>خانه</a>
+                                        </li>
                                         <li class="breadcrumb-item">
                                             <a href="/psychologist/list"><i class="icon icon-list ml-2"></i>لیست متخصصان کلینیک</a>
                                         </li>

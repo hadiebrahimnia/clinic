@@ -296,15 +296,6 @@ class BaseDashboardView(LoginRequiredMixin, View):
         #         ]
         #     })
 
-        # if "admin" in roles:
-        #     sidebar_menu.append({
-        #         'title': 'ادمین',
-        #         'items': [
-        #             {'label': 'پنل ادمین', 'url': '/dashboard/admin', 
-        #              'icon': 'ri ri-admin-line', 'is_active': False},
-        #         ]
-        #     })
-
         # فعال کردن آیتم فعلی
         if active_section:
             for section in sidebar_menu:
@@ -532,6 +523,9 @@ class DashboardManagerView(BaseDashboardView):
                                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                                 <li class="breadcrumb-item"><a href="/dashboard/user"><i class="mdi mdi-home ml-1"></i>داشبورد</a></li>
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="ri ri-user-settings-line ml-1"></i>پنل مدیریت</li>
+                                <li class="breadcrumb-back">
+                                    <a href="/dashboard/user" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                </li>
                             </ol>
                         </div>
                         {% if cur_profile.access_level != "basic"%}
@@ -1221,6 +1215,9 @@ class DashboardPsychologistView(BaseDashboardView):
                                 <li class="breadcrumb-item"><a href="/"><i class="mdi mdi-home ml-1"></i>خانه</a></li>
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-view-dashboard ml-1"></i>داشبورد</li>
                                 <li class="breadcrumb-item text-dark" aria-current="page"><i class="mdi mdi-stethoscope ml-1"></i>پنل متخصص</li>
+                                <li class="breadcrumb-back">
+                                    <a href="/dashboard/user" class="text-gray fs-6">بازگشت <i class="mdi mdi-arrow-left-thick"></i></a>
+                                </li>
                             </ol>
                         </div>
                         
@@ -1508,7 +1505,7 @@ class DashboardColleagueView(BaseDashboardView):
 
         context = {
             'content': content,
-            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/admin'),
+            'sidebar_menu': self.get_sidebar_menu(request, active_section='/dashboard/user'),
             'extra_css': [],
             'extra_js': [],
         }
